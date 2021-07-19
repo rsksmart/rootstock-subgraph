@@ -64,3 +64,4 @@ generated/
 .vscode/
 build/
 data/
+bin/
