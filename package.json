@@ -11,11 +11,14 @@
     "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "dev": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
+    "lint": "./node_modules/prettier/bin-prettier.js src/",
+    "lint:fix": "./node_modules/prettier/bin-prettier.js -w src/"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.20.1",
     "@graphprotocol/graph-ts": "^0.20.0",
     "nodemon": "^2.0.12",
+    "prettier": "^2.3.2"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",

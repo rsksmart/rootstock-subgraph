@@ -1,0 +1,6 @@
+generated/
+.vscode/
+build/
+data/
+*.yaml
+*.yml
