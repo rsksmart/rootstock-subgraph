@@ -18,12 +18,16 @@
     "@graphprotocol/graph-cli": "^0.20.1",
     "@graphprotocol/graph-ts": "^0.20.0",
     "nodemon": "^2.0.12",
-    "prettier": "^2.3.2"
+    "prettier": "^2.4.0"
   },
   "dependencies": {
+    "@amxx/graphprotocol-utils": "^1.0.0-alpha.12",
+    "@openzeppelin/contracts": "^4.3.1",
+    "@openzeppelin/subgraphs": "^0.1.2",
+    "@protofire/subgraph-toolkit": "^0.1.2",
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
-    "truffle": "^5.0.4",
+    "truffle": "^5.4.10",
     "truffle-contract": "^4.0.5",
     "truffle-hdwallet-provider": "^1.0.4"
   }

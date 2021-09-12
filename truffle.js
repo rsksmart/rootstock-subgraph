@@ -1,5 +1,8 @@
 require('babel-register')
 require('babel-polyfill')
+
+require('dotenv').config()
+
 const HDWalletProvider = require('truffle-hdwallet-provider')
 
 module.exports = {
@@ -10,13 +13,31 @@ module.exports = {
       network_id: '*',
     },
     ropsten: {
-      provider: function() {
+      provider: function () {
         return new HDWalletProvider(
           process.env.MNEMONIC,
           `https://ropsten.infura.io/v3/${process.env.ROPSTEN_INFURA_API_KEY}`
         )
       },
       network_id: '3',
+    },
+    rsk_testnet: {
+      provider: function () {
+        return new HDWalletProvider(
+          process.env.PKEY,
+          'https://testnet2.sovryn.app/rpc'
+        )
+      },
+      network_id: '31',
+    },
+    rsk_mainnet: {
+      provider: function () {
+        return new HDWalletProvider(
+          process.env.PKEY,
+          'http://3.12.64.85:4444/'
+        )
+      },
+      network_id: '31',
     },
   },
   compilers: {
