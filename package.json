@@ -12,11 +12,12 @@
     "dev": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
     "lint": "./node_modules/prettier/bin-prettier.js src/",
-    "lint:fix": "./node_modules/prettier/bin-prettier.js -w src/"
+    "lint:fix": "./node_modules/prettier/bin-prettier.js -w src/",
+    "scaffold": "node utils/scaffoldFromAbi.js"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.20.1",
-    "@graphprotocol/graph-ts": "^0.20.0",
+    "@graphprotocol/graph-cli": "^0.22.2",
+    "@graphprotocol/graph-ts": "^0.22.1",
     "nodemon": "^2.0.12",
     "prettier": "^2.4.0"
   },
