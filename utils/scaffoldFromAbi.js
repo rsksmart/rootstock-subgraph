@@ -32,6 +32,7 @@ const generateDataSource = ({ abi, address, network, contractName, relativePath 
     source:
       address: '${address}'
       abi: ${contractName}
+      startBlock: <enter start block here or comment out>
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -94,6 +95,9 @@ const loadAbiFromFile = async filename => {
   }
 }
 
+// TODO: get contract addresses from specified json file
+// TODO: get contract start block with web3/etherscan or other
+// TODO: indexEvents param should be configurable
 const run = async () => {
   const network = process.env.network || 'mainnet'
   // TODO: move path to env var or config or input args
@@ -108,8 +112,8 @@ const run = async () => {
       const abi = await loadAbiFromFile(filePath)
       const dataSource = generateDataSource({ abi, address: null, network, contractName, relativePath })
 
-      // const tsCode = generateMapping({ abi, indexEvents: true, contractName })
-      // await fs.writeFile(`./src/${contractName}.ts`, tsCode)
+      const tsCode = generateMapping({ abi, indexEvents: true, contractName })
+      await fs.writeFile(`./src/${contractName}.ts`, tsCode)
       const schema = generateSchema({ abi, indexEvents: true })
       await fs.appendFile('schema.graphql', schema);
       console.log('🚀 ~ file: scaffoldFromAbi.js ~ line 113 ~ promises ~ schema', schema)
@@ -120,7 +124,7 @@ const run = async () => {
   })
   const dataSources = await Promise.all(promises)
   const manifest = generateManifest({ dataSources })
-  fs.writeFileSync(path.join(__dirname, 'test2.yml'), manifest)
+  fs.writeFileSync(path.join(__dirname, '../subgraph.yaml'), manifest)
 }
 
 run()
