@@ -68,18 +68,13 @@ const getFilePaths = (src) => {
   directories.forEach((path) => {
     const stat = fs.lstatSync(path)
     if (stat.isFile(path)) {
-      paths.push(path)
+      if (!path.toLowerCase().includes('test') && !path.toLowerCase().includes('mock') && !path.toLowerCase().includes('dummy')) {
+        paths.push(path)
+      }
     }
   })
   return paths
 }
-// getDirectories('test', function (err, res) {
-//   if (err) {
-//     console.log('Error', err);
-//   } else {
-//     console.log(res);
-//   }
-// });
 
 const loadAbiFromFile = async filename => {
   let exists = await toolbox.filesystem.exists(filename)
@@ -99,32 +94,41 @@ const loadAbiFromFile = async filename => {
 // TODO: get contract start block with web3/etherscan or other
 // TODO: indexEvents param should be configurable
 const run = async () => {
+  console.log('starting scaffolding process')
   const network = process.env.network || 'mainnet'
   // TODO: move path to env var or config or input args
   const paths = getFilePaths(path.join(__dirname, '../abis'))
+  console.log('emptying schema.graphql file content')
   fs.truncateSync('schema.graphql', 0)
   const promises = paths.map(async (filePath) => {
     try {
       const relativePath = path.relative(__dirname + '/../', filePath)
-      // console.log('🚀 ~ file: scaffoldFromAbi.js ~ line 105 ~ promises ~ relativePath', relativePath)
       const pathArr = filePath.split('/')
       const contractName = pathArr[pathArr.length - 1].split('.json')[0]
+      console.log(`loading ${contractName} ABI from ${relativePath}`)
       const abi = await loadAbiFromFile(filePath)
+      console.log(`generating data source for ${contractName}`)
       const dataSource = generateDataSource({ abi, address: null, network, contractName, relativePath })
-
+      console.log(`generating ts file mapping for ${contractName}`)
       const tsCode = generateMapping({ abi, indexEvents: true, contractName })
+      console.log(`writing ts file mapping for ${contractName}`)
       await fs.writeFile(`./src/${contractName}.ts`, tsCode)
+      console.log(`adding ${contractName} entities to schema.graphsql`)
       const schema = generateSchema({ abi, indexEvents: true })
       await fs.appendFile('schema.graphql', schema);
-      console.log('🚀 ~ file: scaffoldFromAbi.js ~ line 113 ~ promises ~ schema', schema)
       return dataSource
     } catch (error) {
       console.log('error', error)
     }
   })
   const dataSources = await Promise.all(promises)
+  console.log(`generating complete manifest for subgraph`)
   const manifest = generateManifest({ dataSources })
   fs.writeFileSync(path.join(__dirname, '../subgraph.yaml'), manifest)
+  console.log('done')
 }
 
-run()
+run().catch(error => {
+  console.log('error', error)
+  process.exit(1)
+})
