@@ -5,7 +5,10 @@ const glob = require("glob");
 const util = require('../node_modules/@graphprotocol/graph-cli/src/codegen/util')
 const ABI = require('../node_modules/@graphprotocol/graph-cli/src/abi')
 const scaffold = require('../node_modules/@graphprotocol/graph-cli/src/scaffold')
-const toolbox = require('gluegun/toolbox')
+const toolbox = require('gluegun/toolbox');
+const { Command } = require('commander');
+const program = new Command();
+program.version('0.0.1');
 
 const { abiEvents, generateMapping, generateSchema } = scaffold
 
@@ -24,15 +27,16 @@ dataSources:
     { parser: 'yaml' })
 }
 
-const generateDataSource = ({ abi, address, network, contractName, relativePath }) => {
+const generateDataSource = ({ abi, address, network, blockNumber, contractName, relativePath, scaffoldAll = false }) => {
   // return prettier.format(
-  return `kind: ethereum/contract
+  const space = scaffoldAll ? '' : '  - '
+  return `${space}kind: ethereum/contract
     name: ${contractName}
     network: ${network}
     source:
       address: '${address}'
       abi: ${contractName}
-      startBlock: <enter start block here or comment out>
+      startBlock: ${blockNumber}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -93,7 +97,7 @@ const loadAbiFromFile = async filename => {
 // TODO: get contract addresses from specified json file
 // TODO: get contract start block with web3/etherscan or other
 // TODO: indexEvents param should be configurable
-const run = async () => {
+const startScaffoldAll = async () => {
   console.log('starting scaffolding process')
   const network = process.env.network || 'mainnet'
   // TODO: move path to env var or config or input args
@@ -108,14 +112,14 @@ const run = async () => {
       console.log(`loading ${contractName} ABI from ${relativePath}`)
       const abi = await loadAbiFromFile(filePath)
       console.log(`generating data source for ${contractName}`)
-      const dataSource = generateDataSource({ abi, address: null, network, contractName, relativePath })
+      const dataSource = generateDataSource({ abi, address: null, network, contractName, relativePath, scaffoldAll: true })
       console.log(`generating ts file mapping for ${contractName}`)
       const tsCode = generateMapping({ abi, indexEvents: true, contractName })
       console.log(`writing ts file mapping for ${contractName}`)
-      await fs.writeFile(`./src/${contractName}.ts`, tsCode)
+      fs.writeFile(`./src/${contractName}.ts`, tsCode)
       console.log(`adding ${contractName} entities to schema.graphsql`)
       const schema = generateSchema({ abi, indexEvents: true })
-      await fs.appendFile('schema.graphql', schema);
+      fs.appendFile('schema.graphql', schema);
       return dataSource
     } catch (error) {
       console.log('error', error)
@@ -126,6 +130,48 @@ const run = async () => {
   const manifest = generateManifest({ dataSources })
   fs.writeFileSync(path.join(__dirname, '../subgraph.yaml'), manifest)
   console.log('done')
+}
+
+const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMapping, isGenerateSchema) => {
+  console.log('starting scaffolding process')
+  const network = process.env.network || 'mainnet'
+  const relativePath = path.relative(__dirname + '/../', filepath)
+  const pathArr = relativePath.split('/')
+  const contractName = pathArr[pathArr.length - 1].split('.json')[0]
+  console.log(`loading ${contractName} ABI from ${relativePath}`)
+  const abi = await loadAbiFromFile(relativePath)
+  console.log(`generating data source for ${contractName}`)
+  const dataSource = generateDataSource({ abi, address, network, blockNumber, contractName, relativePath })
+  console.log(`generating ts file mapping for ${contractName}`)
+  const tsCode = generateMapping({ abi, indexEvents: isGenerateMapping, contractName })
+  console.log(`writing ts file mapping for ${contractName}`)
+  fs.writeFile(`./src/${contractName}.ts`, tsCode)
+  console.log(`adding ${contractName} entities to schema.graphsql`)
+  const schema = generateSchema({ abi, indexEvents: isGenerateSchema })
+  fs.appendFile('schema.graphql', schema);
+  console.log(`adding datasource to manifest for subgraph`)
+  fs.appendFile(path.join(__dirname, '../subgraph.yaml'), dataSource);
+}
+
+const run = async () => {
+  program
+    .requiredOption('-all, --scaffoldAll', 'scaffold all abis in the given directory instead of one specific', false)
+    .requiredOption('-fp, --filepath <filepath>', 'if scaffoldAll path to contract abi directory, if not path to contract abi file')
+    .option('-a, --address <address>', 'contract address')
+    .option('-b, --blockNumber <blockNumber>', 'contract deployment block number', 0)
+    .option('-gm, --generate-mapping', 'generate contract mapping file', false)
+    .option('-gs, --generate-schema', 'generate graphql schema', false)
+
+  program.parse()
+  const options = program.opts()
+  const { filepath, address, blockNumber, scaffoldAll } = options
+  const isGenerateMapping = options.generateMapping
+  const isGenerateSchema = options.generateSchema
+  if (scaffoldAll) {
+    await startScaffoldAll()
+  } else {
+    await startScaffoldAbi(filepath, address, blockNumber, isGenerateMapping, isGenerateSchema)
+  }
 }
 
 run().catch(error => {
