@@ -22,7 +22,7 @@ services:
       ipfs: 'ipfs:5001'
       # Change next line if you want to connect to a different JSON-RPC endpoint
       # ethereum: 'mainnet:https://testnet2.sovryn.app/rpc'
-      ethereum: 'mainnet:http://3.139.194.230:4444/'
+      ethereum: 'mainnet:http://3.12.64.85:4444/'
       GRAPH_LOG: info
   ipfs:
     image: ipfs/go-ipfs:v0.4.23
