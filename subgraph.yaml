@@ -5,24 +5,29 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Gravity
+    name: SOV
     network: mainnet
     source:
-      address: '0x2E645469f354BB4F5c8a05B3b30A929361cf77eC'
-      abi: Gravity
-      startBlock: 2018415
+      address: '0xEfC78FC7D48B64958315949279bA181C2114abbD'
+      abi: SOV
+      startBlock: 3100260
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Gravatar
+        - Approval
+        - OwnershipTransferred
+        - Transfer
       abis:
-        - name: Gravity
-          file: ./abis/Gravity.json
+        - name: SOV
+          file: ./abis/token/SOV.sol/SOV.json
       eventHandlers:
-        - event: NewGravatar(uint256,address,string,string)
-          handler: handleNewGravatar
-        - event: UpdatedGravatar(uint256,address,string,string)
-          handler: handleUpdatedGravatar
-      file: ./src/mapping.ts
+        
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/SOV.ts
