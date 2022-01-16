@@ -12,16 +12,19 @@
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
     "lint": "./node_modules/prettier/bin-prettier.js src/",
     "lint:fix": "./node_modules/prettier/bin-prettier.js -w src/",
-    "scaffold": "node utils/scaffoldFromAbi.js"
+    "scaffold": "node utils/scaffoldFromAbi.js",
+    "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml",
+    "prepare:RSK:mainnet": "npx mustache config/RSK.mainnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.mainnet.json docker-compose.template.yml > docker-compose.yml"
   },
   "devDependencies": {
+    "@amxx/graphprotocol-utils": "^1.1.0-alpha.2",
     "@graphprotocol/graph-cli": "^0.25.3",
     "@graphprotocol/graph-ts": "^0.24.1",
-    "@amxx/graphprotocol-utils": "^1.1.0-alpha.2",
     "@openzeppelin/contracts": "^4.4.2",
     "@openzeppelin/subgraphs": "^0.1.6",
     "@protofire/subgraph-toolkit": "^0.1.2",
     "commander": "^8.3.0",
+    "mustache": "^4.2.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
   }

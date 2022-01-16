@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: SOV
-    network: mainnet
+    network: {{network}}
     source:
-      address: '0xEfC78FC7D48B64958315949279bA181C2114abbD'
+      address: '{{SOV.address}}'
       abi: SOV
-      startBlock: 3100260
+      startBlock: {{SOV.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
