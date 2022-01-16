@@ -1,11 +1,6 @@
-import { BigInt } from "@graphprotocol/graph-ts"
-import {
-  SOV,
-  Approval,
-  OwnershipTransferred,
-  Transfer
-} from "../generated/SOV/SOV"
-import { ExampleEntity } from "../generated/schema"
+import { BigInt } from '@graphprotocol/graph-ts'
+import { SOV, Approval, OwnershipTransferred, Transfer } from '../generated/SOV/SOV'
+import { ExampleEntity } from '../generated/schema'
 
 export function handleApproval(event: Approval): void {
   // Entities can be loaded from the store using a string ID; this ID

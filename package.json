@@ -10,8 +10,8 @@
     "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "dev": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
-    "lint": "./node_modules/prettier/bin-prettier.js src/",
-    "lint:fix": "./node_modules/prettier/bin-prettier.js -w src/",
+    "lint": "npx prettier src/",
+    "lint:fix": "npx prettier -w src/",
     "scaffold": "node utils/scaffoldFromAbi.js",
     "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml",
     "prepare:RSK:mainnet": "npx mustache config/RSK.mainnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.mainnet.json docker-compose.template.yml > docker-compose.yml"
