@@ -66,3 +66,7 @@ build/
 data/
 bin/
 abis/
+subgraph.yaml
+subgraph.yml
+docker-compose.yml
+docker-compose.yaml
