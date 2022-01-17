@@ -1,8 +1,9 @@
 {
     "network": "mainnet",
     "SOV": {
-        "address": "0xEfC78FC7D48B64958315949279bA181C2114abbD",
-        "startBlock": 3100260
+        "network": "mainnet",
+        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
+        "startBlock": 1606431
     },
     "node": {
         "network": "mainnet",
