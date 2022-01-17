@@ -21,7 +21,7 @@ dataSources:
         - Transfer
       abis:
         - name: SOV
-          file: ./abis/token/SOV.sol/SOV.json
+          file: ./abis/SOV.json
       eventHandlers:
         
         - event: Approval(indexed address,indexed address,uint256)
