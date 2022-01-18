@@ -4,3 +4,50 @@ type ExampleEntity @entity {
   owner: Bytes! # address
   spender: Bytes! # address
 }
+type ConverterAnchorAdded @entity {
+  id: ID!
+  _anchor: Bytes! # address
+}
+
+type ConverterAnchorRemoved @entity {
+  id: ID!
+  _anchor: Bytes! # address
+}
+
+type LiquidityPoolAdded @entity {
+  id: ID!
+  _liquidityPool: Bytes! # address
+}
+
+type LiquidityPoolRemoved @entity {
+  id: ID!
+  _liquidityPool: Bytes! # address
+}
+
+type ConvertibleTokenAdded @entity {
+  id: ID!
+  _convertibleToken: Bytes! # address
+  _smartToken: Bytes! # address
+}
+
+type ConvertibleTokenRemoved @entity {
+  id: ID!
+  _convertibleToken: Bytes! # address
+  _smartToken: Bytes! # address
+}
+
+type SmartTokenAdded @entity {
+  id: ID!
+  _smartToken: Bytes! # address
+}
+
+type SmartTokenRemoved @entity {
+  id: ID!
+  _smartToken: Bytes! # address
+}
+
+type OwnerUpdate @entity {
+  id: ID!
+  _prevOwner: Bytes! # address
+  _newOwner: Bytes! # address
+}

@@ -32,3 +32,15 @@
 
 
 An example to help you get started with The Graph. For more information see the docs on https://thegraph.com/docs/.
+
+## Unit Testing
+
+* Build a matchstick docker image following these instructions: https://github.com/LimeChain/matchstick/blob/main/README.md
+
+* To build the tests run: ``sudo docker build -t matchstick .``
+
+* To run the tests run: ``docker run --rm matchstick``
+
+## Useful info
+
+* If you are having issues with postgres when building matchstick, delete the data/ directory from the subgraph root

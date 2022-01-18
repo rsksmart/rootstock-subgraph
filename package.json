@@ -27,5 +27,8 @@
     "mustache": "^4.2.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1"
+  },
+  "dependencies": {
+    "matchstick-as": "^0.2.3"
   }
 }
