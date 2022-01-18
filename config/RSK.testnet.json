@@ -1,13 +1,13 @@
 {
     "network": "mainnet",
-    "SOV": {
-        "network": "mainnet",
-        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
-        "startBlock": 1606431
-    },
     "node": {
         "network": "mainnet",
         "address": "https://testnet2.sovryn.app/rpc",
         "log_level": "debug"
+    },
+    "SOV": {
+        "network": "mainnet",
+        "address": "0xEFc78fc7d48b64958315949279Ba181c2114ABBd",
+        "startBlock": 1606431
     }
 }
