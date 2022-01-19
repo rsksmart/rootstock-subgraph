@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@amxx/graphprotocol-utils": "^1.1.0-alpha.2",
-    "@graphprotocol/graph-cli": "^0.25.3",
+    "@graphprotocol/graph-cli": "^0.22.4",
     "@graphprotocol/graph-ts": "^0.24.1",
     "@openzeppelin/contracts": "^4.4.2",
     "@openzeppelin/subgraphs": "^0.1.6",

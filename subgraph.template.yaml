@@ -1,33 +1,100 @@
 specVersion: 0.0.2
-description: Gravatar for Ethereum
+description: Sovryn RSK Subgraph
 repository: https://github.com/graphprotocol/example-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
+{{> ConverterRegistry.yaml}}
+templates:
   - kind: ethereum/contract
-    name: SOV
+    name: LiquidityPoolV2Converter
     network: {{network}}
     source:
-      address: '{{SOV.address}}'
-      abi: SOV
-      startBlock: {{SOV.startBlock}}
+      abi: LiquidityPoolV2Converter
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - OwnershipTransferred
-        - Transfer
+        - LiquidityPool
+        # - ConverterBalance
+        # - LiquidityProviderBalance
+        # - PoolToken
+        # - ReserveToken
+        # - Swap
+        # - Token
+        # - User
+        # - VolumeStat
       abis:
-        - name: SOV
-          file: ./abis/token/SOV.sol/SOV.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        # - name: ERC20Token
+        #   file: ./abis/ERC20Token.json
+        # - name: SmartToken
+        #   file: ./abis/SmartToken.json
+        # - name: PriceOracle
+        #   file: ./abis/PriceOracle.json
+        # - name: EACAggregatorProxy
+        #   file: ./abis/Chainlink/EACAggregatorProxy.json
       eventHandlers:
-        
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ./src/SOV.ts
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
+          handler: handleConversion
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+      file: ./src/mappings/LiquidityPoolV2Converter.ts
+  - kind: ethereum/contract
+    name: LiquidityPoolV1Converter
+    network: {{network}}
+    source:
+      abi: LiquidityPoolV1Converter
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - LiquidityPool
+        # - ConverterBalance
+        # - LiquidityProviderBalance
+        # - PoolToken
+        # - ReserveToken
+        # - Swap
+        # - Token
+        # - User
+        # - VolumeStat
+      abis:
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        # - name: ERC20Token
+        #   file: ./abis/ERC20Token.json
+        # - name: SmartToken
+        #   file: ./abis/SmartToken.json
+        # - name: PriceOracle
+        #   file: ./abis/PriceOracle.json
+        # - name: EACAggregatorProxy
+        #   file: ./abis/Chainlink/EACAggregatorProxy.json
+      eventHandlers:
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
+          handler: handleConversion
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+      file: ./src/mappings/LiquidityPoolV1Converter.ts

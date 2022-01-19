@@ -1,6 +1,8 @@
 import { clearStore, test, assert } from 'matchstick-as/assembly/index'
-import { LiquidityPoolAdded as LiquidityPoolAddedSchema } from '../generated/schema'
+import { LiquidityPoolAdded as LiquidityPoolAddedSchema, LiquidityPool } from '../generated/schema'
+import { LiquidityPoolV1Converter } from '../generated/templates'
 import { Address, Bytes, ethereum, log } from '@graphprotocol/graph-ts'
+import { addLiquidityPool } from '../src/utils/addLiquidityPool'
 // import { LiquidityPoolAdded } from '../../generated/ConverterRegistry/ConverterRegistry'
 // import { handleLiquidityPoolAdded } from '../ConverterRegistry'
 
@@ -16,5 +18,12 @@ test('Saving a new liquidity pool', () => {
   liquidityPool.save()
   assert.fieldEquals('LiquidityPoolAdded', txHash + logIndex.toString(), '_liquidityPool', addressString)
 
+  clearStore()
+})
+
+test('addLiquidityPool', () => {
+  const addressString = '0x70d228bc14fa78304ca05db387dfd7f50a90cbe2'
+  addLiquidityPool(Address.fromString(addressString))
+  assert.fieldEquals('LiquidityPool', addressString, '_id', addressString)
   clearStore()
 })

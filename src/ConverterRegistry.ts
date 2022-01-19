@@ -19,6 +19,7 @@ import {
   SmartTokenAdded,
   SmartTokenRemoved,
   OwnerUpdate,
+  LiquidityPool,
 } from '../generated/schema'
 
 export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
@@ -37,6 +38,13 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   let entity = new LiquidityPoolAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._liquidityPool = event.params._liquidityPool
   entity.save()
+
+  /**
+   * Add a new LiquiditiyPool Entity
+   */
+
+  let liquidityPool = new LiquidityPool(entity._liquidityPool.toString())
+  liquidityPool.save()
 }
 
 export function handleLiquidityPoolRemoved(event: LiquidityPoolRemovedEvent): void {
