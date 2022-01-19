@@ -10,6 +10,8 @@
 * clone repo
   
 * npm install
+
+* npm run prepare:RSK:testnet (this will create the docker compose file and the subgraph.yaml from the template files)
   
 * docker-compose up -d
   
@@ -26,7 +28,7 @@
 
 ## Scaffolding:
 
-* npm run scaffold -- -fp <abi file path> -gm -gs
+* npm run scaffold -- -fp <abi file path> -gm -gs -a <contract address>
 
 * npm run scaffold -- --help for more options
 
