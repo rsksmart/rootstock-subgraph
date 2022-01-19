@@ -8,9 +8,9 @@ dataSources:
     name: ConverterRegistry
     network: mainnet
     source:
-      address: '0x7816c4E1b61eE09c25974325cc20B056963423b1'
+      address: '0x31A0F8400c75d52FdB413372233F28E3bdFB1c06'
       abi: ConverterRegistry
-      startBlock: 1218799
+      startBlock: 2742580
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -28,6 +28,8 @@ dataSources:
       abis:
         - name: ConverterRegistry
           file: ./abis/ConverterRegistry.json
+        - name: SmartTokenContract
+          file: ./abis/SmartToken.json
       eventHandlers:
         
         - event: ConverterAnchorAdded(indexed address)
@@ -51,85 +53,32 @@ dataSources:
       file: ./src/ConverterRegistry.ts
 templates:
   - kind: ethereum/contract
-    name: LiquidityPoolV1Converter
+    name: SmartToken
     network: mainnet
     source:
-      abi: LiquidityPoolV1Converter
+      abi: SmartToken
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - PriceDataUpdate
-        - LiquidityAdded
-        - LiquidityRemoved
-        - Activation
-        - Conversion
-        - TokenRateUpdate
-        - ConversionFeeUpdate
-        - WithdrawFees
+        - Issuance
+        - Destruction
+        - Transfer
+        - Approval
         - OwnerUpdate
       abis:
-        - name: LiquidityPoolV1Converter
-          file: ./abis/LiquidityPoolV1Converter.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
       eventHandlers:
-        
-        - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
-          handler: handlePriceDataUpdate
-        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleLiquidityAdded
-        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleLiquidityRemoved
-        - event: Activation(indexed uint16,indexed address,indexed bool)
-          handler: handleActivation
-        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
-          handler: handleConversion
-        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
-          handler: handleTokenRateUpdate
-        - event: ConversionFeeUpdate(uint32,uint32)
-          handler: handleConversionFeeUpdate
-        - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
-          handler: handleWithdrawFees
+        # - event: Issuance(uint256)
+        #   handler: handleIssuance
+        # - event: Destruction(uint256)
+        #   handler: handleDestruction
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/LiquidityPoolV1Converter.ts
-  - kind: ethereum/contract
-    name: LiquidityPoolV2Converter
-    network: mainnet
-    source:
-      abi: LiquidityPoolV2Converter
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - DynamicFeeFactorUpdate
-        - LiquidityAdded
-        - LiquidityRemoved
-        - Activation
-        - Conversion
-        - TokenRateUpdate
-        - ConversionFeeUpdate
-        - OwnerUpdate
-      abis:
-        - name: LiquidityPoolV2Converter
-          file: ./abis/LiquidityPoolV2Converter.json
-      eventHandlers:
-        
-        - event: DynamicFeeFactorUpdate(uint256,uint256)
-          handler: handleDynamicFeeFactorUpdate
-        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleLiquidityAdded
-        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
-          handler: handleLiquidityRemoved
-        - event: Activation(indexed uint16,indexed address,indexed bool)
-          handler: handleActivation
-        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
-          handler: handleConversion
-        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
-          handler: handleTokenRateUpdate
-        - event: ConversionFeeUpdate(uint32,uint32)
-          handler: handleConversionFeeUpdate
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/LiquidityPoolV2Converter.ts
+      file: ./src/SmartToken.ts

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { log } from '@graphprotocol/graph-ts'
+>>>>>>> 0880c704c306365f2bdc27cbda20697ff76b22d0
 import {
   ConverterAnchorAdded as ConverterAnchorAddedEvent,
   ConverterAnchorRemoved as ConverterAnchorRemovedEvent,
@@ -9,6 +13,11 @@ import {
   SmartTokenRemoved as SmartTokenRemovedEvent,
   OwnerUpdate as OwnerUpdateEvent,
 } from '../generated/ConverterRegistry/ConverterRegistry'
+<<<<<<< HEAD
+=======
+
+import { SmartTokenContract } from '../generated/ConverterRegistry/SmartTokenContract'
+>>>>>>> 0880c704c306365f2bdc27cbda20697ff76b22d0
 import {
   ConverterAnchorAdded,
   ConverterAnchorRemoved,
@@ -19,9 +28,17 @@ import {
   SmartTokenAdded,
   SmartTokenRemoved,
   OwnerUpdate,
+<<<<<<< HEAD
   LiquidityPool,
 } from '../generated/schema'
 
+=======
+  Token,
+} from '../generated/schema'
+
+import { SmartToken } from '../generated/templates'
+
+>>>>>>> 0880c704c306365f2bdc27cbda20697ff76b22d0
 export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
   let entity = new ConverterAnchorAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._anchor = event.params._anchor
@@ -38,6 +55,7 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   let entity = new LiquidityPoolAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._liquidityPool = event.params._liquidityPool
   entity.save()
+<<<<<<< HEAD
 
   /**
    * Add a new LiquiditiyPool Entity
@@ -45,6 +63,8 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
 
   let liquidityPool = new LiquidityPool(entity._liquidityPool.toString())
   liquidityPool.save()
+=======
+>>>>>>> 0880c704c306365f2bdc27cbda20697ff76b22d0
 }
 
 export function handleLiquidityPoolRemoved(event: LiquidityPoolRemovedEvent): void {
@@ -68,6 +88,33 @@ export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEven
 }
 
 export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
+<<<<<<< HEAD
+=======
+  let smartTokenAddress = event.params._smartToken
+  let smartTokenEntity = Token.load(smartTokenAddress.toHex())
+
+  if (smartTokenEntity == null) {
+    smartTokenEntity = new Token(smartTokenAddress.toHex())
+    SmartToken.create(smartTokenAddress)
+    log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
+  }
+
+  // let smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
+
+  if (smartTokenEntity.addedToRegistryBlockNumber === null) {
+    smartTokenEntity.addedToRegistryBlockNumber = event.block.number
+    smartTokenEntity.addedToRegistryTransactionHash = event.transaction.hash.toHex()
+  }
+
+  smartTokenEntity.isSmartToken = true
+  log.debug('Smart Token added to registry: {}', [smartTokenAddress.toHex()])
+  // smartTokenEntity.currentConverterRegistry = event.address.toHex();
+  smartTokenEntity.save()
+  // let converterAddress = smartTokenContract.owner()
+  // log.debug('Converter address: {}', [converterAddress.toHex()])
+  // let converterEntity = Converter.load(converterAddress.toHex());
+
+>>>>>>> 0880c704c306365f2bdc27cbda20697ff76b22d0
   let entity = new SmartTokenAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._smartToken = event.params._smartToken
   entity.save()
