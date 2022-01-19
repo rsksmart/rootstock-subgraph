@@ -1,6 +1,6 @@
 specVersion: 0.0.2
-description: Sovryn RSK Subgraph
-repository: https://github.com/graphprotocol/example-subgraph
+description: Sovryn official subgraph
+repository: https://github.com/DistributedCollective/Sovryn-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -26,16 +26,8 @@ templates:
         # - User
         # - VolumeStat
       abis:
-        - name: LiquidityPoolV2Converter
-          file: ./abis/LiquidityPoolV2Converter.json
-        # - name: ERC20Token
-        #   file: ./abis/ERC20Token.json
-        # - name: SmartToken
-        #   file: ./abis/SmartToken.json
-        # - name: PriceOracle
-        #   file: ./abis/PriceOracle.json
-        # - name: EACAggregatorProxy
-        #   file: ./abis/Chainlink/EACAggregatorProxy.json
+        - name: SOV
+          file: ./abis/SOV.json
       eventHandlers:
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
