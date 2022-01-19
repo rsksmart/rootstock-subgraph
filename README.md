@@ -28,7 +28,7 @@
 
 ## Scaffolding:
 
-* npm run scaffold -- -fp <abi file path> -gm -gs -a <address>
+* npm run scaffold -- -fp <abi file path> -gm -gs -a <contract address>
 
 * npm run scaffold -- --help for more options
 
