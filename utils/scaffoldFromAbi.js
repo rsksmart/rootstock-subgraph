@@ -175,11 +175,17 @@ const startScaffoldAll = async () => {
 }
 
 const getScaffoldInstance = (options) => {
+  // console.debug("Options", options)
+  console.debug("Options", {
+    ...options,
+    indexEvents: true
+  })
   const scaffold = new Scaffold(options)
   const scaffoldWithIndexEvents = new Scaffold({
     ...options,
-    abiEvents: true
+    indexEvents: true
   })
+  console.debug("Scaffold with index events", scaffoldWithIndexEvents)
 
   return {
     scaffold,
@@ -214,6 +220,7 @@ const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMappin
     network,
     contractName
   })
+  console.log("Get scaffold instance", scaffolds)
   const scaffold = scaffolds.scaffold
   const scaffoldWithIndexEvents = scaffolds.scaffoldWithIndexEvents
 
@@ -223,10 +230,12 @@ const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMappin
   updateMustacheConfigFile({ contractName, network, address, startBlock: blockNumber })
   console.log(`generating ts file mapping for ${contractName}`)
   const tsCode = isGenerateMapping ? scaffoldWithIndexEvents.generateMapping() : scaffold.generateMapping()
+  console.log("Is generate mapping", isGenerateMapping)
   console.log(`writing ts file mapping for ${contractName}`)
   fs.writeFile(`./src/${contractName}.ts`, tsCode)
   console.log(`adding ${contractName} entities to schema.graphsql`)
   const schema = isGenerateSchema ? scaffoldWithIndexEvents.generateSchema() : scaffold.generateSchema()
+  console.log("Is generate schema", isGenerateSchema)
   fs.appendFile('schema.graphql', schema);
   console.log(`adding datasource to manifest for subgraph`)
   fs.appendFile(path.join(__dirname, '../subgraph.template.yaml'), dataSource);

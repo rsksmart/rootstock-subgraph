@@ -1,13 +1,1 @@
-{
-    "network": "mainnet",
-    "node": {
-        "network": "mainnet",
-        "address": "https://testnet2.sovryn.app/rpc",
-        "log_level": "debug"
-    },
-    "SOV": {
-        "network": "mainnet",
-        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
-        "startBlock": 1606431
-    }
-}
+{"network":"mainnet","node":{"network":"mainnet","address":"https://testnet2.sovryn.app/rpc","log_level":"debug"},"SOV":{"network":"mainnet","address":"0x6a9A07972D07e58F0daf5122d11E069288A375fb","startBlock":1606431},"ConverterFactory":{"network":"mainnet","address":"0x74690fD0Ac8602e6AFB16BB4f0A634b1c9A67735","startBlock":0}}
