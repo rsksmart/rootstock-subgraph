@@ -31,6 +31,8 @@ export function handleDynamicFeeFactorUpdate(
   entity._newFactor = event.params._newFactor
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -45,6 +47,8 @@ export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
   entity._newSupply = event.params._newSupply
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -59,6 +63,8 @@ export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
   entity._newSupply = event.params._newSupply
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -71,6 +77,8 @@ export function handleActivation(event: ActivationEvent): void {
   entity._activated = event.params._activated
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -86,6 +94,8 @@ export function handleConversion(event: ConversionEvent): void {
   entity._conversionFee = event.params._conversionFee
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -99,6 +109,8 @@ export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {
   entity._rateD = event.params._rateD
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -112,6 +124,8 @@ export function handleConversionFeeUpdate(
   entity._newFee = event.params._newFee
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }
 
@@ -123,5 +137,7 @@ export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
   entity._newOwner = event.params._newOwner
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }

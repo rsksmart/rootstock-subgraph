@@ -22,75 +22,99 @@ type Transaction @entity {
   value: BigInt!
   gasLimit: BigInt!
 }
+
+type OwnerUpdate @entity {
+  id: ID!
+  _prevOwner: Bytes! # address
+  _newOwner: Bytes! # address
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+type NewConverter @entity {
+  id: ID!
+  _type: Int! # uint16
+  _converter: Bytes! # address
+  _owner: Bytes! # address
+  timestamp: BigInt!
+    transaction: Transaction!
+}
+
 type ConverterAnchorAdded @entity {
   id: ID!
   _anchor: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type ConverterAnchorRemoved @entity {
   id: ID!
   _anchor: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type LiquidityPoolAdded @entity {
   id: ID!
   _liquidityPool: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type LiquidityPoolRemoved @entity {
   id: ID!
   _liquidityPool: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type ConvertibleTokenAdded @entity {
   id: ID!
   _convertibleToken: Bytes! # address
   _smartToken: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type ConvertibleTokenRemoved @entity {
   id: ID!
   _convertibleToken: Bytes! # address
   _smartToken: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type SmartTokenAdded @entity {
   id: ID!
   _smartToken: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type SmartTokenRemoved @entity {
   id: ID!
   _smartToken: Bytes! # address
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
-type NewConverter @entity {
+type PriceDataUpdate @entity {
   id: ID!
-  _type: Int! # uint16
-  _converter: Bytes! # address
-  _owner: Bytes! # address
-  transaction: Transaction!
-}
-
-type OwnerUpdate @entity {
-  id: ID!
-  _prevOwner: Bytes! # address
-  _newOwner: Bytes! # address
-  transaction: Transaction!
-}
-type DynamicFeeFactorUpdate @entity {
-  id: ID!
-  _prevFactor: BigInt! # uint256
-  _newFactor: BigInt! # uint256
-  transaction: Transaction!
+  _connectorToken: Bytes! # address
+  _tokenSupply: BigInt! # uint256
+  _connectorBalance: BigInt! # uint256
+  _connectorWeight: BigInt! # uint32
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type LiquidityAdded @entity {
@@ -100,7 +124,9 @@ type LiquidityAdded @entity {
   _amount: BigInt! # uint256
   _newBalance: BigInt! # uint256
   _newSupply: BigInt! # uint256
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type LiquidityRemoved @entity {
@@ -110,16 +136,9 @@ type LiquidityRemoved @entity {
   _amount: BigInt! # uint256
   _newBalance: BigInt! # uint256
   _newSupply: BigInt! # uint256
-  transaction: Transaction!
-}
-
-type PriceDataUpdate @entity {
-  id: ID!
-  _connectorToken: Bytes! # address
-  _tokenSupply: BigInt! # uint256
-  _connectorBalance: BigInt! # uint256
-  _connectorWeight: BigInt! # uint32
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type Activation @entity {
@@ -127,7 +146,9 @@ type Activation @entity {
   _type: Int! # uint16
   _anchor: Bytes! # address
   _activated: Boolean! # bool
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type Conversion @entity {
@@ -139,7 +160,9 @@ type Conversion @entity {
   _return: BigInt! # uint256
   _conversionFee: BigInt! # int256
   _protocolFee: BigInt! # int256
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type TokenRateUpdate @entity {
@@ -148,14 +171,18 @@ type TokenRateUpdate @entity {
   _token2: Bytes! # address
   _rateN: BigInt! # uint256
   _rateD: BigInt! # uint256
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type ConversionFeeUpdate @entity {
   id: ID!
   _prevFee: BigInt! # uint32
   _newFee: BigInt! # uint32
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }
 
 type WithdrawFees @entity {
@@ -165,5 +192,16 @@ type WithdrawFees @entity {
   token: Bytes! # address
   protocolFeeAmount: BigInt! # uint256
   wRBTCConverted: BigInt! # uint256
-  transaction: Transaction!
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type DynamicFeeFactorUpdate @entity {
+  id: ID!
+  _prevFactor: BigInt! # uint256
+  _newFactor: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }

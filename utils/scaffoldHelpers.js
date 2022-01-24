@@ -9,13 +9,17 @@ const addImportTransactionString = (str) => {
 const addTransactionMappingString = (str) => {
     const transactionMappingString = `let transaction = loadTransaction(event)
   entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()`
 
     return str.replace(/entity.save\(\)/g, transactionMappingString)
 }
 
 const addTransactionToSchema = (str) => {
-    const transactionSchemaString = `  transaction: Transaction!
+    const transactionSchemaString = `  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
 }`
 
     return str.replace(/\}/g, transactionSchemaString)
