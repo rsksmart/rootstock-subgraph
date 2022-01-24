@@ -224,17 +224,23 @@ const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMappin
   const scaffold = scaffolds.scaffold
   const scaffoldWithIndexEvents = scaffolds.scaffoldWithIndexEvents
 
+  const addTransactionSchema = `transaction: Transaction!`
+  const addTransactionMapping = `let transaction = loadTransaction(event)
+  entity.transaction = transaction.id`
+
   console.log(`generating data source for ${contractName}`)
   const dataSource = generateDataSource({ abi, contractName, relativePath })
   console.log(`updateing mustache json file for ${contractName}`)
   updateMustacheConfigFile({ contractName, network, address, startBlock: blockNumber })
   console.log(`generating ts file mapping for ${contractName}`)
   const tsCode = isGenerateMapping ? scaffoldWithIndexEvents.generateMapping() : scaffold.generateMapping()
-  console.log("Is generate mapping", isGenerateMapping)
+  console.log("Mapping code", tsCode)
+  /** TODO: Add load transaction to mapping */
   console.log(`writing ts file mapping for ${contractName}`)
   fs.writeFile(`./src/${contractName}.ts`, tsCode)
   console.log(`adding ${contractName} entities to schema.graphsql`)
   const schema = isGenerateSchema ? scaffoldWithIndexEvents.generateSchema() : scaffold.generateSchema()
+  /** TODO: Add Transaction to schema */
   console.log("Is generate schema", isGenerateSchema)
   fs.appendFile('schema.graphql', schema);
   console.log(`adding datasource to manifest for subgraph`)

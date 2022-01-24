@@ -1,18 +1,1 @@
-{
-    "network": "mainnet",
-    "node": {
-        "network": "mainnet",
-        "address": "https://testnet2.sovryn.app/rpc",
-        "log_level": "debug"
-    },
-    "SOV": {
-        "network": "mainnet",
-        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
-        "startBlock": 1606431
-    },
-    "ConverterFactory": {
-        "network": "mainnet",
-        "address": "0x74690fD0Ac8602e6AFB16BB4f0A634b1c9A67735",
-        "startBlock": 1218791
-    }
-}
+{"network":"mainnet","node":{"network":"mainnet","address":"https://testnet2.sovryn.app/rpc","log_level":"debug"},"SOV":{"network":"mainnet","address":"0x6a9A07972D07e58F0daf5122d11E069288A375fb","startBlock":1606431},"ConverterFactory":{"network":"mainnet","address":"0x74690fD0Ac8602e6AFB16BB4f0A634b1c9A67735","startBlock":1218791},"LiquidityPoolV1Converter":{"network":"mainnet","address":"0xd795296c1d3622950bb8be26db5aacd0ef128f52","startBlock":1218791},"LiquidityPoolV2Converter":{"network":"mainnet","address":"0xd795296c1d3622950bb8be26db5aacd0ef128f52","startBlock":1218791},"ConverterRegistry":{"network":"mainnet","address":"0x7816c4E1b61eE09c25974325cc20B056963423b1","startBlock":0}}

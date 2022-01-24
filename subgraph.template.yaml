@@ -31,30 +31,6 @@ dataSources:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/SOV.ts
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
 
   - kind: ethereum/contract
     name: ConverterFactory
@@ -82,376 +58,183 @@ dataSources:
       file: ./src/ConverterFactory.ts
 
   - kind: ethereum/contract
-    name: ConverterFactory
+    name: ConverterRegistry
     network: {{network}}
     source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
+      address: '{{ConverterRegistry.address}}'
+      abi: ConverterRegistry
+      startBlock: {{ConverterRegistry.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - NewConverter
+        - ConverterAnchorAdded
+        - ConverterAnchorRemoved
+        - LiquidityPoolAdded
+        - LiquidityPoolRemoved
+        - ConvertibleTokenAdded
+        - ConvertibleTokenRemoved
+        - SmartTokenAdded
+        - SmartTokenRemoved
         - OwnerUpdate
       abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
+        - name: ConverterRegistry
+          file: ./abis/ConverterRegistry.json
       eventHandlers:
         
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
+        - event: ConverterAnchorAdded(indexed address)
+          handler: handleConverterAnchorAdded
+        - event: ConverterAnchorRemoved(indexed address)
+          handler: handleConverterAnchorRemoved
+        - event: LiquidityPoolAdded(indexed address)
+          handler: handleLiquidityPoolAdded
+        - event: LiquidityPoolRemoved(indexed address)
+          handler: handleLiquidityPoolRemoved
+        - event: ConvertibleTokenAdded(indexed address,indexed address)
+          handler: handleConvertibleTokenAdded
+        - event: ConvertibleTokenRemoved(indexed address,indexed address)
+          handler: handleConvertibleTokenRemoved
+        - event: SmartTokenAdded(indexed address)
+          handler: handleSmartTokenAdded
+        - event: SmartTokenRemoved(indexed address)
+          handler: handleSmartTokenRemoved
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
+      file: ./src/ConverterRegistry.ts
+
+templates:
+  - kind: ethereum/contract
+    name: LiquidityPoolV1Converter
+    network: {{network}}
+    source:
+      # address: '{{LiquidityPoolV1Converter.address}}'
+      abi: LiquidityPoolV1Converter
+      # startBlock: {{LiquidityPoolV1Converter.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PriceDataUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
+        - WithdrawFees
+        - OwnerUpdate
+      abis:
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+      eventHandlers:
+        
+        - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
+          handler: handlePriceDataUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+          handler: handleConversion
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+          handler: handleWithdrawFees
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/LiquidityPoolV1Converter.ts
 
   - kind: ethereum/contract
-    name: ConverterFactory
+    name: LiquidityPoolV2Converter
     network: {{network}}
     source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
+      # address: '{{LiquidityPoolV2Converter.address}}'
+      abi: LiquidityPoolV2Converter
+      # startBlock: {{LiquidityPoolV2Converter.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - NewConverter
+        - DynamicFeeFactorUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
         - OwnerUpdate
       abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
       eventHandlers:
         
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
+        - event: DynamicFeeFactorUpdate(uint256,uint256)
+          handler: handleDynamicFeeFactorUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
+          handler: handleConversion
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
+      file: ./src/LiquidityPoolV2Converter.ts
 
   - kind: ethereum/contract
-    name: ConverterFactory
+    name: ConverterRegistry
     network: {{network}}
     source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
+      address: '{{ConverterRegistry.address}}'
+      abi: ConverterRegistry
+      startBlock: {{ConverterRegistry.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - NewConverter
+        - ConverterAnchorAdded
+        - ConverterAnchorRemoved
+        - LiquidityPoolAdded
+        - LiquidityPoolRemoved
+        - ConvertibleTokenAdded
+        - ConvertibleTokenRemoved
+        - SmartTokenAdded
+        - SmartTokenRemoved
         - OwnerUpdate
       abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
+        - name: ConverterRegistry
+          file: ./abis/ConverterRegistry.json
       eventHandlers:
         
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
+        - event: ConverterAnchorAdded(indexed address)
+          handler: handleConverterAnchorAdded
+        - event: ConverterAnchorRemoved(indexed address)
+          handler: handleConverterAnchorRemoved
+        - event: LiquidityPoolAdded(indexed address)
+          handler: handleLiquidityPoolAdded
+        - event: LiquidityPoolRemoved(indexed address)
+          handler: handleLiquidityPoolRemoved
+        - event: ConvertibleTokenAdded(indexed address,indexed address)
+          handler: handleConvertibleTokenAdded
+        - event: ConvertibleTokenRemoved(indexed address,indexed address)
+          handler: handleConvertibleTokenRemoved
+        - event: SmartTokenAdded(indexed address)
+          handler: handleSmartTokenAdded
+        - event: SmartTokenRemoved(indexed address)
+          handler: handleSmartTokenRemoved
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
+      file: ./src/ConverterRegistry.ts
