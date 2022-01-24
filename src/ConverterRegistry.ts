@@ -21,6 +21,8 @@ import {
   OwnerUpdate
 } from "../generated/schema"
 
+import { loadTransaction } from './utils/Transaction'
+
 export function handleConverterAnchorAdded(
   event: ConverterAnchorAddedEvent
 ): void {
@@ -28,6 +30,8 @@ export function handleConverterAnchorAdded(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._anchor = event.params._anchor
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -38,6 +42,8 @@ export function handleConverterAnchorRemoved(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._anchor = event.params._anchor
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -46,6 +52,8 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._liquidityPool = event.params._liquidityPool
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -56,6 +64,8 @@ export function handleLiquidityPoolRemoved(
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._liquidityPool = event.params._liquidityPool
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -67,6 +77,8 @@ export function handleConvertibleTokenAdded(
   )
   entity._convertibleToken = event.params._convertibleToken
   entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -78,6 +90,8 @@ export function handleConvertibleTokenRemoved(
   )
   entity._convertibleToken = event.params._convertibleToken
   entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -86,6 +100,8 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -94,6 +110,8 @@ export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {
     event.transaction.hash.toHex() + "-" + event.logIndex.toString()
   )
   entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -103,5 +121,7 @@ export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
   )
   entity._prevOwner = event.params._prevOwner
   entity._newOwner = event.params._newOwner
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }

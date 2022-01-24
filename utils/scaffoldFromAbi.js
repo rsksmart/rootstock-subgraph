@@ -10,6 +10,7 @@ const toolbox = require('gluegun/toolbox');
 const { Command } = require('commander');
 const { readFileSync, writeFileSync } = require('fs');
 const program = new Command();
+const { addTransactionToMapping, addTransactionToSchema } = require('./scaffoldHelpers')
 program.version('0.0.1');
 
 const protocolInstance = new Protocol('ethereum')
@@ -224,25 +225,22 @@ const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMappin
   const scaffold = scaffolds.scaffold
   const scaffoldWithIndexEvents = scaffolds.scaffoldWithIndexEvents
 
-  const addTransactionSchema = `transaction: Transaction!`
-  const addTransactionMapping = `let transaction = loadTransaction(event)
-  entity.transaction = transaction.id`
-
   console.log(`generating data source for ${contractName}`)
   const dataSource = generateDataSource({ abi, contractName, relativePath })
   console.log(`updateing mustache json file for ${contractName}`)
   updateMustacheConfigFile({ contractName, network, address, startBlock: blockNumber })
   console.log(`generating ts file mapping for ${contractName}`)
   const tsCode = isGenerateMapping ? scaffoldWithIndexEvents.generateMapping() : scaffold.generateMapping()
-  console.log("Mapping code", tsCode)
-  /** TODO: Add load transaction to mapping */
+  const tsCodeWithTx = isGenerateMapping ? addTransactionToMapping(tsCode) : tsCode
+  // console.log("Mapping code", tsCodeWithTx)
   console.log(`writing ts file mapping for ${contractName}`)
-  fs.writeFile(`./src/${contractName}.ts`, tsCode)
+  fs.writeFile(`./src/${contractName}.ts`, tsCodeWithTx)
   console.log(`adding ${contractName} entities to schema.graphsql`)
   const schema = isGenerateSchema ? scaffoldWithIndexEvents.generateSchema() : scaffold.generateSchema()
+  const schemaWithTx = isGenerateSchema ? addTransactionToSchema(schema) : schema
   /** TODO: Add Transaction to schema */
-  console.log("Is generate schema", isGenerateSchema)
-  fs.appendFile('schema.graphql', schema);
+  console.log("Schema code", schemaWithTx)
+  fs.appendFile('schema.graphql', schemaWithTx);
   console.log(`adding datasource to manifest for subgraph`)
   fs.appendFile(path.join(__dirname, '../subgraph.template.yaml'), dataSource);
 }

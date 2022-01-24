@@ -19,6 +19,8 @@ import {
   OwnerUpdate
 } from "../generated/schema"
 
+import { loadTransaction } from './utils/Transaction'
+
 export function handleDynamicFeeFactorUpdate(
   event: DynamicFeeFactorUpdateEvent
 ): void {
@@ -27,6 +29,8 @@ export function handleDynamicFeeFactorUpdate(
   )
   entity._prevFactor = event.params._prevFactor
   entity._newFactor = event.params._newFactor
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -39,6 +43,8 @@ export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
   entity._amount = event.params._amount
   entity._newBalance = event.params._newBalance
   entity._newSupply = event.params._newSupply
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -51,6 +57,8 @@ export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
   entity._amount = event.params._amount
   entity._newBalance = event.params._newBalance
   entity._newSupply = event.params._newSupply
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -61,6 +69,8 @@ export function handleActivation(event: ActivationEvent): void {
   entity._type = event.params._type
   entity._anchor = event.params._anchor
   entity._activated = event.params._activated
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -74,6 +84,8 @@ export function handleConversion(event: ConversionEvent): void {
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -85,6 +97,8 @@ export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {
   entity._token2 = event.params._token2
   entity._rateN = event.params._rateN
   entity._rateD = event.params._rateD
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -96,6 +110,8 @@ export function handleConversionFeeUpdate(
   )
   entity._prevFee = event.params._prevFee
   entity._newFee = event.params._newFee
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
 
@@ -105,5 +121,7 @@ export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
   )
   entity._prevOwner = event.params._prevOwner
   entity._newOwner = event.params._newOwner
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
   entity.save()
 }
