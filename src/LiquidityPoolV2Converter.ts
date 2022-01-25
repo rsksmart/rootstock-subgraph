@@ -18,6 +18,7 @@ import {
   TokenRateUpdate,
   ConversionFeeUpdate,
   OwnerUpdate,
+  LiquidityPool,
 } from '../generated/schema'
 import { createAndReturnToken } from './utils/Token'
 import { createSwap } from './utils/Swap'
@@ -73,6 +74,14 @@ export function handleActivation(event: ActivationEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let liquidityPool = LiquidityPool.load(event.address.toHex())
+
+  if (liquidityPool != null) {
+    liquidityPool.activated = event.params._activated
+    liquidityPool.anchor = event.params._anchor
+    liquidityPool.save()
+  }
 }
 
 export function handleConversion(event: ConversionEvent): void {

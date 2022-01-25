@@ -19,7 +19,9 @@ import {
   SmartTokenAdded,
   SmartTokenRemoved,
   OwnerUpdate,
+  LiquidityPool,
 } from '../generated/schema'
+import { SmartToken as SmartTokenContract } from '../generated/ConverterRegistry/SmartToken'
 
 import { loadTransaction } from './utils/Transaction'
 
@@ -72,6 +74,40 @@ export function handleConvertibleTokenAdded(event: ConvertibleTokenAddedEvent): 
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  /**
+   * Get smart token owner
+   */
+
+  let smartTokenContract = SmartTokenContract.bind(event.params._smartToken)
+  let smartTokenOwnerResult = smartTokenContract.try_owner()
+
+  if (!smartTokenOwnerResult.reverted) {
+    let liquidityPool = LiquidityPool.load(smartTokenOwnerResult.value.toHex())
+    if (liquidityPool != null) {
+      const smartToken = event.params._smartToken
+      const convertibleToken = event.params._convertibleToken.toHex()
+      let existingSmartTokens = liquidityPool.smartToken ? liquidityPool.smartToken : [smartToken]
+      let existingUnderlyingAssets = liquidityPool.underlyingAssets ? liquidityPool.underlyingAssets : [convertibleToken]
+      /** Check whether to add smart tokens and underlying assets to liquidity pool */
+      const addSmartToken = existingSmartTokens != null && !existingSmartTokens.includes(smartToken)
+      const addUnderlyingAsset = existingUnderlyingAssets != null && !existingUnderlyingAssets.includes(convertibleToken)
+
+      if (addSmartToken && existingSmartTokens != null && existingSmartTokens != []) {
+        liquidityPool.smartToken = existingSmartTokens.concat([smartToken])
+      } else {
+        liquidityPool.smartToken = existingSmartTokens
+      }
+
+      if (addUnderlyingAsset && existingUnderlyingAssets != null && existingUnderlyingAssets != []) {
+        liquidityPool.underlyingAssets = existingUnderlyingAssets.concat([convertibleToken])
+      } else {
+        liquidityPool.underlyingAssets = existingUnderlyingAssets
+      }
+
+      liquidityPool.save()
+    }
+  }
 }
 
 export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEvent): void {
@@ -93,6 +129,12 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  /**
+   * 1. Create SmartToken contract
+   * 2. Add SmartToken to liquidity pool
+   * 3. Add UnderlyingToken to liquidity pool
+   */
 }
 
 export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {

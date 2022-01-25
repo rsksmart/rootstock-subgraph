@@ -67,6 +67,7 @@ type LiquidityPool @entity {
   underlyingAssets: [Token!]
   owner: Bytes!
   manager: Bytes!
+  anchor: Bytes!
   conversionFee: BigDecimal!
   hasRBTCReserve: Boolean!
   maxConversionFee: BigDecimal!
