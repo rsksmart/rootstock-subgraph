@@ -1,13 +1,14 @@
+import { BigInt } from '@graphprotocol/graph-ts'
 import {
   DynamicFeeFactorUpdate as DynamicFeeFactorUpdateEvent,
   LiquidityAdded as LiquidityAddedEvent,
   LiquidityRemoved as LiquidityRemovedEvent,
   Activation as ActivationEvent,
-  Conversion as ConversionEvent,
   TokenRateUpdate as TokenRateUpdateEvent,
   ConversionFeeUpdate as ConversionFeeUpdateEvent,
-  OwnerUpdate as OwnerUpdateEvent
-} from "../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter"
+  OwnerUpdate as OwnerUpdateEvent,
+} from '../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
+import { Conversion as ConversionEvent } from '../generated/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import {
   DynamicFeeFactorUpdate,
   LiquidityAdded,
@@ -16,17 +17,15 @@ import {
   Conversion,
   TokenRateUpdate,
   ConversionFeeUpdate,
-  OwnerUpdate
-} from "../generated/schema"
+  OwnerUpdate,
+} from '../generated/schema'
+import { createAndReturnToken } from './utils/Token'
+import { createSwap } from './utils/Swap'
 
 import { loadTransaction } from './utils/Transaction'
 
-export function handleDynamicFeeFactorUpdate(
-  event: DynamicFeeFactorUpdateEvent
-): void {
-  let entity = new DynamicFeeFactorUpdate(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+export function handleDynamicFeeFactorUpdate(event: DynamicFeeFactorUpdateEvent): void {
+  let entity = new DynamicFeeFactorUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._prevFactor = event.params._prevFactor
   entity._newFactor = event.params._newFactor
   let transaction = loadTransaction(event)
@@ -37,9 +36,7 @@ export function handleDynamicFeeFactorUpdate(
 }
 
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
-  let entity = new LiquidityAdded(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  let entity = new LiquidityAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._provider = event.params._provider
   entity._reserveToken = event.params._reserveToken
   entity._amount = event.params._amount
@@ -53,9 +50,7 @@ export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
-  let entity = new LiquidityRemoved(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  let entity = new LiquidityRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._provider = event.params._provider
   entity._reserveToken = event.params._reserveToken
   entity._amount = event.params._amount
@@ -69,9 +64,7 @@ export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
 }
 
 export function handleActivation(event: ActivationEvent): void {
-  let entity = new Activation(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  let entity = new Activation(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._type = event.params._type
   entity._anchor = event.params._anchor
   entity._activated = event.params._activated
@@ -83,26 +76,28 @@ export function handleActivation(event: ActivationEvent): void {
 }
 
 export function handleConversion(event: ConversionEvent): void {
-  let entity = new Conversion(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  createAndReturnToken(event.params._fromToken)
+  createAndReturnToken(event.params._toToken)
+
+  let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._fromToken = event.params._fromToken
   entity._toToken = event.params._toToken
   entity._trader = event.params._trader
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
+  entity._protocolFee = new BigInt(0)
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  createSwap(event)
 }
 
 export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {
-  let entity = new TokenRateUpdate(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  let entity = new TokenRateUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._token1 = event.params._token1
   entity._token2 = event.params._token2
   entity._rateN = event.params._rateN
@@ -114,12 +109,8 @@ export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {
   entity.save()
 }
 
-export function handleConversionFeeUpdate(
-  event: ConversionFeeUpdateEvent
-): void {
-  let entity = new ConversionFeeUpdate(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+export function handleConversionFeeUpdate(event: ConversionFeeUpdateEvent): void {
+  let entity = new ConversionFeeUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._prevFee = event.params._prevFee
   entity._newFee = event.params._newFee
   let transaction = loadTransaction(event)
@@ -130,9 +121,7 @@ export function handleConversionFeeUpdate(
 }
 
 export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
-  let entity = new OwnerUpdate(
-    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
-  )
+  let entity = new OwnerUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._prevOwner = event.params._prevOwner
   entity._newOwner = event.params._newOwner
   let transaction = loadTransaction(event)
