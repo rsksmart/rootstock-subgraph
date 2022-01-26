@@ -21,7 +21,7 @@ import {
   OwnerUpdate,
   LiquidityPool,
 } from '../generated/schema'
-import { createSwap } from './utils/Swap'
+import { createSwapV1 } from './utils/Swap'
 import { createAndReturnToken } from './utils/Token'
 
 import { loadTransaction } from './utils/Transaction'
@@ -88,8 +88,8 @@ export function handleActivation(event: ActivationEvent): void {
 }
 
 export function handleConversion(event: ConversionEvent): void {
-  createAndReturnToken(event.params._fromToken)
-  createAndReturnToken(event.params._toToken)
+  // createAndReturnToken(event.params._fromToken)
+  // createAndReturnToken(event.params._toToken)
 
   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._fromToken = event.params._fromToken
@@ -107,7 +107,7 @@ export function handleConversion(event: ConversionEvent): void {
   entity.save()
 
   /** create a Swap entity from this event */
-  createSwap(event)
+  createSwapV1(event)
 }
 
 export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {

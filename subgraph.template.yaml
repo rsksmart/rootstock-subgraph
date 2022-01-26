@@ -161,7 +161,7 @@ templates:
           handler: handleWithdrawFees
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/LiquidityPoolV1Converter.ts
+      file: ./src/LiquidityPoolConverter.ts
 
   - kind: ethereum/contract
     name: LiquidityPoolV2Converter
@@ -207,77 +207,4 @@ templates:
           handler: handleConversionFeeUpdate
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/LiquidityPoolV2Converter.ts
-
-  - kind: ethereum/contract
-    name: ConverterRegistry
-    network: {{network}}
-    source:
-      address: '{{ConverterRegistry.address}}'
-      abi: ConverterRegistry
-      startBlock: {{ConverterRegistry.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - ConverterAnchorAdded
-        - ConverterAnchorRemoved
-        - LiquidityPoolAdded
-        - LiquidityPoolRemoved
-        - ConvertibleTokenAdded
-        - ConvertibleTokenRemoved
-        - SmartTokenAdded
-        - SmartTokenRemoved
-        - OwnerUpdate
-      abis:
-        - name: ConverterRegistry
-          file: ./abis/ConverterRegistry.json
-        - name: ERC20
-          file: ./abis/ERC20.json
-      eventHandlers:
-        
-        - event: ConverterAnchorAdded(indexed address)
-          handler: handleConverterAnchorAdded
-        - event: ConverterAnchorRemoved(indexed address)
-          handler: handleConverterAnchorRemoved
-        - event: LiquidityPoolAdded(indexed address)
-          handler: handleLiquidityPoolAdded
-        - event: LiquidityPoolRemoved(indexed address)
-          handler: handleLiquidityPoolRemoved
-        - event: ConvertibleTokenAdded(indexed address,indexed address)
-          handler: handleConvertibleTokenAdded
-        - event: ConvertibleTokenRemoved(indexed address,indexed address)
-          handler: handleConvertibleTokenRemoved
-        - event: SmartTokenAdded(indexed address)
-          handler: handleSmartTokenAdded
-        - event: SmartTokenRemoved(indexed address)
-          handler: handleSmartTokenRemoved
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterRegistry.ts
-
-  - kind: ethereum/contract
-    name: ConverterFactory
-    network: {{network}}
-    source:
-      address: '{{ConverterFactory.address}}'
-      abi: ConverterFactory
-      startBlock: {{ConverterFactory.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - NewConverter
-        - OwnerUpdate
-      abis:
-        - name: ConverterFactory
-          file: ./abis/ConverterFactory.json
-      eventHandlers:
-        
-        - event: NewConverter(indexed uint16,indexed address,indexed address)
-          handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
-      file: ./src/ConverterFactory.ts
+      file: ./src/LiquidityPoolConverter.ts

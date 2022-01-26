@@ -88,21 +88,14 @@ export function handleConvertibleTokenAdded(event: ConvertibleTokenAddedEvent): 
       const smartToken = event.params._smartToken
       const convertibleToken = event.params._convertibleToken.toHex()
       let existingSmartTokens = liquidityPool.smartToken ? liquidityPool.smartToken : [smartToken]
-      let existingUnderlyingAssets = liquidityPool.underlyingAssets ? liquidityPool.underlyingAssets : [convertibleToken]
+
       /** Check whether to add smart tokens and underlying assets to liquidity pool */
       const addSmartToken = existingSmartTokens != null && !existingSmartTokens.includes(smartToken)
-      const addUnderlyingAsset = existingUnderlyingAssets != null && !existingUnderlyingAssets.includes(convertibleToken)
 
       if (addSmartToken && existingSmartTokens != null && existingSmartTokens != []) {
         liquidityPool.smartToken = existingSmartTokens.concat([smartToken])
       } else {
         liquidityPool.smartToken = existingSmartTokens
-      }
-
-      if (addUnderlyingAsset && existingUnderlyingAssets != null && existingUnderlyingAssets != []) {
-        liquidityPool.underlyingAssets = existingUnderlyingAssets.concat([convertibleToken])
-      } else {
-        liquidityPool.underlyingAssets = existingUnderlyingAssets
       }
 
       liquidityPool.save()

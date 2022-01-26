@@ -3,7 +3,6 @@ import { NewConverter, LiquidityPool } from '../generated/schema'
 import { LiquidityPoolV1Converter as LiquidityPoolV1Template, LiquidityPoolV2Converter as LiquidityPoolV2Template } from '../generated/templates'
 import { LiquidityPoolV2Converter as LiquidityPoolV2Contract } from '../generated/ConverterFactory/LiquidityPoolV2Converter'
 import { LiquidityPoolV1Converter as LiquidityPoolV1Contract } from '../generated/ConverterFactory/LiquidityPoolV1Converter'
-import { log } from '@graphprotocol/graph-ts'
 
 import { loadTransaction } from './utils/Transaction'
 import { BigInt, BigDecimal } from '@graphprotocol/graph-ts'
@@ -28,6 +27,8 @@ export function handleNewConverter(event: NewConverterEvent): void {
   }
 }
 
+/** This needs to happen on LiquidityAdded event. It can't happen here because the reserve tokens have not been added at this point */
+
 function _createAndReturnLiquidityPoolV1(event: NewConverterEvent): LiquidityPool {
   let id = event.params._converter.toHexString()
   let liquidityPool = LiquidityPool.load(id)
@@ -35,7 +36,6 @@ function _createAndReturnLiquidityPoolV1(event: NewConverterEvent): LiquidityPoo
   let liquidityPoolContract = LiquidityPoolV1Contract.bind(event.params._converter)
   let conversionFeeResult = liquidityPoolContract.try_conversionFee()
   let isActiveResult = liquidityPoolContract.try_isActive()
-  let connector = liquidityPoolContract.try_connectorTokens(new BigInt(0))
   let rbtcReserveResult = liquidityPoolContract.try_hasETHReserve()
   let maxConversionFeeResult = liquidityPoolContract.try_maxConversionFee()
 
@@ -54,7 +54,7 @@ function _createAndReturnLiquidityPoolV1(event: NewConverterEvent): LiquidityPoo
   liquidityPool.createdAtBlockNumber = event.block.number
   liquidityPool.createdAtLogIndex = event.logIndex
   liquidityPool.createdAtTransaction = event.transaction.hash.toHexString()
-  liquidityPool.smartToken = connector.reverted ? [] : [connector.value]
+
   liquidityPool.save()
 
   return liquidityPool
@@ -67,7 +67,6 @@ function _createAndReturnLiquidityPoolV2(event: NewConverterEvent): LiquidityPoo
   let liquidityPoolContract = LiquidityPoolV2Contract.bind(event.params._converter)
   let conversionFeeResult = liquidityPoolContract.try_conversionFee()
   let isActiveResult = liquidityPoolContract.try_isActive()
-  let connector = liquidityPoolContract.try_connectorTokens(new BigInt(0))
   let rbtcReserveResult = liquidityPoolContract.try_hasETHReserve()
   let maxConversionFeeResult = liquidityPoolContract.try_maxConversionFee()
 
@@ -86,7 +85,7 @@ function _createAndReturnLiquidityPoolV2(event: NewConverterEvent): LiquidityPoo
   liquidityPool.createdAtBlockNumber = event.block.number
   liquidityPool.createdAtLogIndex = event.logIndex
   liquidityPool.createdAtTransaction = event.transaction.hash.toHexString()
-  liquidityPool.smartToken = connector.reverted ? [] : [connector.value]
+
   liquidityPool.save()
 
   return liquidityPool

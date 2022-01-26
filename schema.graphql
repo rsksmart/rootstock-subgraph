@@ -37,8 +37,10 @@ type Token @entity {
   name: String!
   symbol: String!
   decimals: Int!
-  converters: [String!] #TODO: Change to Converter entity when implemented
+  converters: [LiquidityPool!] #TODO: Change to Converter entity when implemented
   owner: Bytes!
+  pathToBtc: [LiquidityPool!]
+  pathToUsd: [LiquidityPool!]
   # tokenSwapTotals: [TokenSwapTotals!]
   lastPriceBtc: BigInt! # TODO: Change to big decimal
   lastPriceUsd: BigInt! # TODO: Change to big decimal
@@ -65,6 +67,7 @@ type LiquidityPool @entity {
   type: Int!
   smartToken: [Bytes!] # TODO: Change to SmartToken
   underlyingAssets: [Token!]
+  poolTokens: [String!]
   owner: Bytes!
   manager: Bytes!
   anchor: Bytes!
@@ -78,6 +81,8 @@ type LiquidityPool @entity {
   createdAtBlockNumber: BigInt!
   createdAtLogIndex: BigInt!
   createdAtTransaction: Transaction!
+  lastPrice: BigDecimal!
+  lastPriceInverted: BigDecimal!
   # OTHER FIELDS TO ADD HERE
 }
 
