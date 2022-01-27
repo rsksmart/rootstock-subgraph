@@ -91,21 +91,22 @@ type PoolToken @entity {
   symbol: String
   decimals: Int
   converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Change to Converter entity when implemented
-  underlyingAssets: [Token!]
+  underlyingAssets: [TokenPoolToken!] @derivedFrom(field: "poolToken")
 }
 
 type Swap @entity {
   id: ID! # transaction hash of the swap
-  ammConversionEvents: [Conversion!]
-  fromToken: Bytes! #TODO: Change to Token entity
-  toToken: Bytes! #TODO: Change to Token entity
-  fromAmount: BigInt!
-  toAmount: BigInt!
-  rate: BigInt! # TODO: Make this a BigDecimal
-  user: User! # TODO: Change to User entity
-  isMarginTrade: Boolean!
-  isBorrow: Boolean!
-  timestamp: BigInt!
+  conversions: [Conversion!] @derivedFrom(field: "swapTransaction")
+  numConversions: Int!
+  fromToken: Bytes #TODO: Change to Token entity
+  toToken: Bytes #TODO: Change to Token entity
+  fromAmount: BigInt
+  toAmount: BigInt
+  rate: BigInt # TODO: Make this a BigDecimal
+  user: User # TODO: Change to User entity
+  isMarginTrade: Boolean
+  isBorrow: Boolean
+  timestamp: BigInt
 }
 
 type LiquidityPool @entity {
@@ -114,6 +115,7 @@ type LiquidityPool @entity {
   version: Int
   smartToken: SmartToken
   connectorTokens: [LiquidityPoolToken!]! @derivedFrom(field: "liquidityPool")
+  poolTokens: [TokenPoolToken!]! @derivedFrom(field: "liquidityPool")
   owner: String
   conversionFee: BigInt
   weight: BigInt
@@ -143,6 +145,13 @@ type TokenSmartToken @entity {
   id: ID! # ID is token address + smartToken address
   token: Token!
   smartToken: SmartToken!
+}
+
+type TokenPoolToken @entity {
+  id: ID! # ID is token address + poolToken address
+  token: Token!
+  poolToken: PoolToken!
+  liquidityPool: LiquidityPool!
 }
 
 
@@ -286,8 +295,9 @@ type Conversion @entity {
   _conversionFee: BigInt! # int256
   _protocolFee: BigInt! # int256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+  swapTransaction: Swap!
 }
 
 type TokenRateUpdate @entity {

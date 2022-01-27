@@ -27,13 +27,14 @@ import {
   LiquidityPool,
   Token,
 } from '../generated/schema'
-import { createSwapV1, createSwapV2 } from './utils/Swap'
+import { ConversionEventForSwap, createAndReturnSwap } from './utils/Swap'
 import { createAndReturnToken } from './utils/Token'
 
 import { loadTransaction } from './utils/Transaction'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 import { createAndReturnSmartToken } from './utils/SmartToken'
+import { createAndReturnPoolToken } from './utils/PoolToken'
 
 export function handlePriceDataUpdate(event: PriceDataUpdateEvent): void {
   let entity = new PriceDataUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -102,9 +103,9 @@ export function handleActivation(event: ActivationEvent): void {
           let reserveTokenResult = contract.try_reserveTokens(BigInt.fromU32(i))
           if (!reserveTokenResult.reverted) {
             createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
+            createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
           }
         }
-        // createAndReturnPoolToken(event.params._anchor)
       }
     } else if (event.params._type == 2) {
       const contract = LiquidityPoolV2Contract.bind(event.address)
@@ -116,7 +117,7 @@ export function handleActivation(event: ActivationEvent): void {
             createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
             let poolTokenResult = contract.try_poolToken(reserveTokenResult.value)
             if (!poolTokenResult.reverted) {
-              //   createAndReturnPoolToken(poolTokenResult.value, [token.id])
+              createAndReturnPoolToken(poolTokenResult.value, event.address, reserveTokenResult.value)
             }
           }
         }
@@ -128,37 +129,59 @@ export function handleActivation(event: ActivationEvent): void {
 }
 
 export function handleConversionV1(event: ConversionEventV1): void {
-  //   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  //   entity._fromToken = event.params._fromToken
-  //   entity._toToken = event.params._toToken
-  //   entity._trader = event.params._trader
-  //   entity._amount = event.params._amount
-  //   entity._return = event.params._return
-  //   entity._conversionFee = event.params._conversionFee
-  //   entity._protocolFee = event.params._protocolFee
-  //   let transaction = loadTransaction(event)
-  //   entity.transaction = transaction.id
-  //   entity.timestamp = transaction.timestamp
-  //   entity.emittedBy = event.address
-  //   entity.save()
-  //   createSwapV1(event)
+  let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._fromToken = event.params._fromToken
+  entity._toToken = event.params._toToken
+  entity._trader = event.params._trader
+  entity._amount = event.params._amount
+  entity._return = event.params._return
+  entity._conversionFee = event.params._conversionFee
+  entity._protocolFee = event.params._protocolFee
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.swapTransaction = event.transaction.hash.toHex()
+  entity.save()
+
+  let parsedEvent: ConversionEventForSwap = {
+    transactionHash: event.transaction.hash,
+    fromToken: event.params._fromToken,
+    toToken: event.params._toToken,
+    fromAmount: event.params._amount,
+    toAmount: event.params._return,
+    timestamp: event.block.timestamp,
+    user: event.transaction.from,
+  }
+  createAndReturnSwap(parsedEvent)
 }
 
 export function handleConversionV2(event: ConversionEventV2): void {
-  //   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  //   entity._fromToken = event.params._fromToken
-  //   entity._toToken = event.params._toToken
-  //   entity._trader = event.params._trader
-  //   entity._amount = event.params._amount
-  //   entity._return = event.params._return
-  //   entity._conversionFee = event.params._conversionFee
-  //   entity._protocolFee = BigInt.fromString('0')
-  //   let transaction = loadTransaction(event)
-  //   entity.transaction = transaction.id
-  //   entity.timestamp = transaction.timestamp
-  //   entity.emittedBy = event.address
-  //   entity.save()
-  //   createSwapV2(event)
+  let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._fromToken = event.params._fromToken
+  entity._toToken = event.params._toToken
+  entity._trader = event.params._trader
+  entity._amount = event.params._amount
+  entity._return = event.params._return
+  entity._conversionFee = event.params._conversionFee
+  entity._protocolFee = BigInt.fromString('0')
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.swapTransaction = event.transaction.hash.toHex()
+  entity.save()
+
+  let parsedEvent: ConversionEventForSwap = {
+    transactionHash: event.transaction.hash,
+    fromToken: event.params._fromToken,
+    toToken: event.params._toToken,
+    fromAmount: event.params._amount,
+    toAmount: event.params._return,
+    timestamp: event.block.timestamp,
+    user: event.transaction.from,
+  }
+  createAndReturnSwap(parsedEvent)
 }
 
 export function handleTokenRateUpdate(event: TokenRateUpdateEvent): void {

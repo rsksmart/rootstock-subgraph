@@ -7,7 +7,6 @@ export function createAndReturnUser(address: Address): User {
   if (userEntity == null) {
     userEntity = new User(address.toHex())
     userEntity.numSwaps = 0
-    userEntity.swaps = []
   }
 
   userEntity.save()
