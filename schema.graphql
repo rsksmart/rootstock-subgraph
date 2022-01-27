@@ -330,3 +330,22 @@ type DynamicFeeFactorUpdate @entity {
     emittedBy: Bytes! #address
     transaction: Transaction!
 }
+type Approval @entity {
+  id: ID!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type Transfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
