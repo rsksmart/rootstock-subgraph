@@ -1,6 +1,6 @@
 import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
-import { Conversion as ConversionEventV1 } from '../../generated/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
-import { Conversion as ConversionEventV2 } from '../../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
+import { Conversion as ConversionEventV1 } from '../../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
+import { Conversion as ConversionEventV2 } from '../../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
 import { Swap, User, LiquidityPool } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 
