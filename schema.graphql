@@ -1,6 +1,146 @@
-type ExampleEntity @entity {
+type ConverterAnchorAdded @entity {
   id: ID!
-  count: BigInt!
+  _anchor: Bytes! # address
+}
+
+type ConverterAnchorRemoved @entity {
+  id: ID!
+  _anchor: Bytes! # address
+}
+
+type LiquidityPoolAdded @entity {
+  id: ID!
+  _liquidityPool: Bytes! # address
+}
+
+type LiquidityPoolRemoved @entity {
+  id: ID!
+  _liquidityPool: Bytes! # address
+}
+
+type ConvertibleTokenAdded @entity {
+  id: ID!
+  _convertibleToken: Bytes! # address
+  _smartToken: Bytes! # address
+}
+
+type ConvertibleTokenRemoved @entity {
+  id: ID!
+  _convertibleToken: Bytes! # address
+  _smartToken: Bytes! # address
+}
+
+type SmartTokenAdded @entity {
+  id: ID!
+  _smartToken: Bytes! # address
+}
+
+type SmartTokenRemoved @entity {
+  id: ID!
+  _smartToken: Bytes! # address
+}
+
+type OwnerUpdate @entity {
+  id: ID!
+  _prevOwner: Bytes! # address
+  _newOwner: Bytes! # address
+}
+
+# type ContractRegistry @entity {
+#   id: ID!
+#   converterRegistries: [ConverterRegistry!]
+#   # contracts: [BancorContract!] @derivedFrom(field: "registry")
+#   owner: String
+# }
+
+type ConverterRegistry @entity {
+  id: ID!
+  converters: [LiquidityPoolV1Converter!] @derivedFrom(field: "currentConverterRegistry") # possibly v2 converter, how to handle?
+  smartTokens: [SmartToken!] @derivedFrom(field: "currentConverterRegistry")
+  connectorTokens: [Token!] @derivedFrom(field: "currentConverterRegistry")
   owner: Bytes! # address
-  spender: Bytes! # address
+  addedToContractRegistryAtBlockTimestamp: BigInt
+  addedToContractRegistryAtTransactionHash: String
+  addedToContractRegistryAtBlockNumber: BigInt
+  lastUsedAtBlockTimestamp: BigInt
+  lastUsedAtTransactionHash: String
+  lastUsedAtBlockNumber: BigInt
+  numConverters: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+  name: String
+  symbol: String
+  decimals: Int
+  version: Int
+  # standard: String
+  # smartTokenType: String # Relay, Liquid, BNT?, Others?
+  # transfersEnabled: Boolean
+  liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token") # possibly v2 converter, how to handle?
+  smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
+  # shortestQuickBuyPath: [QuickBuyPathMember!]
+  # converterWithShortestQuickBuyPath: Converter
+  # owner: String
+  # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
+  currentConverterRegistry: ConverterRegistry
+  # addedToRegistryBlockNumber: BigInt
+  # addedToRegistryTransactionHash: String
+}
+
+type SmartToken @entity {
+  id: ID!
+  name: String
+  symbol: String
+  decimals: Int
+  version: Int
+  # standard: String
+  smartTokenType: String # Relay, Liquid, BNT?, Others?
+  transfersEnabled: Boolean
+  liquidityPool: LiquidityPoolV1Converter! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
+  connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
+  # shortestQuickBuyPath: [QuickBuyPathMember!]
+  # converterWithShortestQuickBuyPath: Converter
+  owner: Bytes!
+  # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
+  currentConverterRegistry: ConverterRegistry
+  addedToRegistryBlockNumber: BigInt
+  addedToRegistryTransactionHash: Bytes
+}
+
+type LiquidityPoolV1Converter @entity {
+  id: ID!
+  version: Int
+  type: Int
+  smartToken: SmartToken
+  connectorTokens: [LiquidityPoolToken!]! @derivedFrom(field: "liquidityPool")
+  # connectors: [Connector!] @derivedFrom(field: "converter")
+  # quickBuyPath: [QuickBuyPathMember!]
+  # quickBuyPathLength: Int
+  owner: Bytes
+  # manager: String
+  conversionFee: BigInt
+  weight: BigInt
+  # maxWeight: BigInt
+  maxConversionFee: BigInt
+  lastResetBlockNumber: BigInt
+  lastResetTimestamp: BigInt
+  firstAddedToRegistryBlockNumber: BigInt
+  firstAddedToRegistryBlockTimestamp: BigInt
+  currentConverterRegistry: ConverterRegistry
+  # currentContractRegistry: ContractRegistry
+  # tokenBalances: [ConverterTokenBalance!] @derivedFrom(field: "converter")
+  # tokenSwapTotals: [ConverterTokenSwapTotal!] @derivedFrom(field: "converter")
+}
+
+type LiquidityPoolToken @entity {
+  id: ID! # ID is token address + liquidityPool address
+  token: Token!
+  liquidityPool: LiquidityPoolV1Converter!
+}
+
+type TokenSmartToken @entity {
+  id: ID! # ID is token address + smartToken address
+  token: Token!
+  smartToken: SmartToken!
 }

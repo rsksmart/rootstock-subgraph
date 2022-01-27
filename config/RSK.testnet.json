@@ -5,9 +5,9 @@
         "address": "https://testnet2.sovryn.app/rpc",
         "log_level": "debug"
     },
-    "SOV": {
+    "ConverterRegistry": {
         "network": "mainnet",
-        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
-        "startBlock": 1606431
+        "address": "0x7816c4E1b61eE09c25974325cc20B056963423b1",
+        "startBlock": 1218799
     }
 }
