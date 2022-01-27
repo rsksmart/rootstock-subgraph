@@ -16,7 +16,7 @@ export function handleNewConverter(event: NewConverterEvent): void {
   /**
    * Create new LiquidityPool
    */
-  createAndReturnLiquidityPool(event.params._converter, event.params._type)
+  createAndReturnLiquidityPool(event.params._converter)
 
   entity.save()
 }

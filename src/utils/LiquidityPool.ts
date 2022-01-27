@@ -14,13 +14,14 @@ export class IGetLiquidityPool {
   isNew: boolean
 }
 
-export function createAndReturnLiquidityPool(converterAddress: Address, type: number): IGetLiquidityPool {
+export function createAndReturnLiquidityPool(converterAddress: Address): IGetLiquidityPool {
   let isNew = false
   let liquidityPool = LiquidityPool.load(converterAddress.toHex())
-  if (liquidityPool == null) {
+  if (liquidityPool === null) {
     liquidityPool = new LiquidityPool(converterAddress.toHex())
+    const type = getPoolType(converterAddress)
     liquidityPool.activated = false
-    if (type == 1) {
+    if (type === 1) {
       LiquidityPoolV1ConverterTemplate.create(converterAddress)
       liquidityPool.type = 1
       let converterContract = LiquidityPoolV1ConverterContract.bind(converterAddress)
@@ -32,7 +33,7 @@ export function createAndReturnLiquidityPool(converterAddress: Address, type: nu
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
-    } else if ((type = 2)) {
+    } else if (type === 2) {
       LiquidityPoolV2ConverterTemplate.create(converterAddress)
       liquidityPool.type = 2
       let converterContract = LiquidityPoolV2ConverterContract.bind(converterAddress)
@@ -49,4 +50,15 @@ export function createAndReturnLiquidityPool(converterAddress: Address, type: nu
     isNew = true
   }
   return { liquidityPool, isNew }
+}
+
+function getPoolType(address: Address): number {
+  let converterContract = LiquidityPoolV1ConverterContract.bind(address)
+  let converterTypeResult = converterContract.try_converterType()
+  let type = -1
+  if (!converterTypeResult.reverted) {
+    type = converterTypeResult.value
+  }
+
+  return type
 }

@@ -1,3 +1,4 @@
+import { BigInt, Address } from '@graphprotocol/graph-ts'
 import {
   ConverterAnchorAdded as ConverterAnchorAddedEvent,
   ConverterAnchorRemoved as ConverterAnchorRemovedEvent,
@@ -26,7 +27,7 @@ import { SmartToken as SmartTokenContract } from '../generated/ConverterRegistry
 import { log } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnSmartToken } from './utils/SmartToken'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 
 export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
   let entity = new ConverterAnchorAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -118,7 +119,7 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
     log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
   }
 
-  SmartTokenContract.bind(smartTokenAddress)
+  const smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
 
   if (smartTokenEntity.addedToRegistryBlockNumber === null) {
     smartTokenEntity.addedToRegistryBlockNumber = event.block.number
@@ -130,6 +131,11 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
   smartTokenEntity.currentConverterRegistry = event.address.toHex()
 
   smartTokenEntity.save()
+
+  const converterAddress = smartTokenContract.owner()
+  let liquidityPoolEntity = createAndReturnLiquidityPool(converterAddress).liquidityPool
+  liquidityPoolEntity.currentConverterRegistry = event.address.toHex()
+  liquidityPoolEntity.save()
 
   let entity = new SmartTokenAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._smartToken = event.params._smartToken
