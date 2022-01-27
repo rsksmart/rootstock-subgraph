@@ -8,7 +8,7 @@
     "build": "graph build",
     "deploy": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "dev": "npm run codegen && npm run deploy-local",
+    "dev": "npm run codegen && npm run deploy-local -- --version-label v0.0.1",
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
     "lint": "npx prettier src/",
     "lint:fix": "npx prettier -w src/",
