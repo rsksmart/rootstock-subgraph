@@ -20,25 +20,25 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
     if (!connectorTokenDecimalsResult.reverted) {
       token.decimals = connectorTokenDecimalsResult.value
     }
-
-    let liquidityPoolToken = LiquidityPoolToken.load(converterAddress.toHex() + tokenAddress.toHex())
-    if (liquidityPoolToken === null) {
-      liquidityPoolToken = new LiquidityPoolToken(converterAddress.toHex() + tokenAddress.toHex())
-    }
-
-    liquidityPoolToken.token = tokenAddress.toHex()
-    liquidityPoolToken.liquidityPool = converterAddress.toHex()
-    liquidityPoolToken.save()
-
-    let tokenSmartToken = TokenSmartToken.load(tokenAddress.toHex() + smartTokenAddress.toHex())
-    if (tokenSmartToken === null) {
-      tokenSmartToken = new TokenSmartToken(tokenAddress.toHex() + smartTokenAddress.toHex())
-    }
-
-    tokenSmartToken.token = tokenAddress.toHex()
-    tokenSmartToken.smartToken = smartTokenAddress.toHex()
-    tokenSmartToken.save()
   }
+
+  let liquidityPoolToken = LiquidityPoolToken.load(converterAddress.toHex() + tokenAddress.toHex())
+  if (liquidityPoolToken === null) {
+    liquidityPoolToken = new LiquidityPoolToken(converterAddress.toHex() + tokenAddress.toHex())
+  }
+
+  liquidityPoolToken.token = tokenAddress.toHex()
+  liquidityPoolToken.liquidityPool = converterAddress.toHex()
+  liquidityPoolToken.save()
+
+  let tokenSmartToken = TokenSmartToken.load(tokenAddress.toHex() + smartTokenAddress.toHex())
+  if (tokenSmartToken === null) {
+    tokenSmartToken = new TokenSmartToken(tokenAddress.toHex() + smartTokenAddress.toHex())
+  }
+
+  tokenSmartToken.token = tokenAddress.toHex()
+  tokenSmartToken.smartToken = smartTokenAddress.toHex()
+  tokenSmartToken.save()
 
   token.save()
 

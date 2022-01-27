@@ -86,6 +86,7 @@ dataSources:
         - SmartTokenRemoved
         - OwnerUpdate
         - LiquidityPool
+        - SmartToken
       abis:
         - name: ConverterRegistry
           file: ./abis/ConverterRegistry.json
@@ -136,11 +137,15 @@ templates:
         - WithdrawFees
         - OwnerUpdate
         - Token
+        - SmartToken
+        - PoolToken
       abis:
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
       eventHandlers:
         
         # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
@@ -184,11 +189,15 @@ templates:
         - ConversionFeeUpdate
         - OwnerUpdate
         - Token
+        - SmartToken
+        - PoolToken
       abis:
         - name: LiquidityPoolV2Converter
           file: ./abis/LiquidityPoolV2Converter.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)
