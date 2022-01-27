@@ -64,6 +64,12 @@ dataSources:
           file: ./abis/ConverterRegistry.json
         - name: SmartToken
           file: ./abis/SmartToken.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         
         - event: ConverterAnchorAdded(indexed address)
