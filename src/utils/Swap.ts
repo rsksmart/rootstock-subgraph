@@ -1,7 +1,5 @@
 import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
-import { Conversion as ConversionEventV1 } from '../../generated/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
-import { Conversion as ConversionEventV2 } from '../../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
-import { Swap, User, LiquidityPool } from '../../generated/schema'
+import { Swap } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 
 export class ConversionEventForSwap {
@@ -21,6 +19,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   /** Create swap  */
   if (swapEntity == null) {
     swapEntity = new Swap(event.transactionHash.toHex())
+    swapEntity.numConversions = 1
     swapEntity.fromToken = event.fromToken
     swapEntity.toToken = event.toToken
     swapEntity.fromAmount = event.fromAmount
@@ -32,10 +31,12 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.timestamp = event.timestamp
     /** Add Swap to User */
     userEntity.numSwaps += 1
-  }
+  } else if (swapEntity != null) {
 
   /** Swap already exists - this means it has multiple conversion events */
-  if (swapEntity != null) {
+    if (swapEntity.numConversions != null) {
+      swapEntity.numConversions += 1
+    }
     swapEntity.toToken = event.toToken
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount)

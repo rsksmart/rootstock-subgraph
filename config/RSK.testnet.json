@@ -29,5 +29,10 @@
         "network": "mainnet",
         "address": "0x7816c4E1b61eE09c25974325cc20B056963423b1",
         "startBlock": 1218799
+    },
+    "ERC20": {
+        "network": "mainnet",
+        "address": "",
+        "startBlock": 0
     }
 }

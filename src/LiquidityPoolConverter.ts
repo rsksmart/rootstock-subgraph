@@ -9,11 +9,11 @@ import {
   WithdrawFees as WithdrawFeesEvent,
   OwnerUpdate as OwnerUpdateEvent,
   LiquidityPoolV1Converter as LiquidityPoolV1Contract,
-} from '../generated/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
+} from '../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import {
   Conversion as ConversionEventV2,
   LiquidityPoolV2Converter as LiquidityPoolV2Contract,
-} from '../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
+} from '../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
 import {
   PriceDataUpdate,
   LiquidityAdded,

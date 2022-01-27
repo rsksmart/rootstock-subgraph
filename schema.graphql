@@ -97,6 +97,7 @@ type PoolToken @entity {
 type Swap @entity {
   id: ID! # transaction hash of the swap
   conversions: [Conversion!] @derivedFrom(field: "swapTransaction")
+  numConversions: Int!
   fromToken: Bytes #TODO: Change to Token entity
   toToken: Bytes #TODO: Change to Token entity
   fromAmount: BigInt
@@ -335,6 +336,25 @@ type DynamicFeeFactorUpdate @entity {
   id: ID!
   _prevFactor: BigInt! # uint256
   _newFactor: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+type Approval @entity {
+  id: ID!
+  owner: Bytes! # address
+  spender: Bytes! # address
+  value: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type Transfer @entity {
+  id: ID!
+  from: Bytes! # address
+  to: Bytes! # address
+  value: BigInt! # uint256
   timestamp: BigInt!
     emittedBy: Bytes! #address
     transaction: Transaction!
