@@ -22,8 +22,9 @@ import {
   LiquidityPool,
 } from '../generated/schema'
 import { SmartToken as SmartTokenContract } from '../generated/ConverterRegistry/SmartToken'
-
+import { log } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
+import { createAndReturnSmartToken } from './utils/SmartToken'
 
 export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
   let entity = new ConverterAnchorAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -74,33 +75,6 @@ export function handleConvertibleTokenAdded(event: ConvertibleTokenAddedEvent): 
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
-
-  /**
-   * Get smart token owner
-   */
-
-  let smartTokenContract = SmartTokenContract.bind(event.params._smartToken)
-  let smartTokenOwnerResult = smartTokenContract.try_owner()
-
-  if (!smartTokenOwnerResult.reverted) {
-    let liquidityPool = LiquidityPool.load(smartTokenOwnerResult.value.toHex())
-    if (liquidityPool != null) {
-      const smartToken = event.params._smartToken
-      const convertibleToken = event.params._convertibleToken.toHex()
-      let existingSmartTokens = liquidityPool.smartToken ? liquidityPool.smartToken : [smartToken]
-
-      /** Check whether to add smart tokens and underlying assets to liquidity pool */
-      const addSmartToken = existingSmartTokens != null && !existingSmartTokens.includes(smartToken)
-
-      if (addSmartToken && existingSmartTokens != null && existingSmartTokens != []) {
-        liquidityPool.smartToken = existingSmartTokens.concat([smartToken])
-      } else {
-        liquidityPool.smartToken = existingSmartTokens
-      }
-
-      liquidityPool.save()
-    }
-  }
 }
 
 export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEvent): void {
@@ -115,19 +89,31 @@ export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEven
 }
 
 export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
+  let smartTokenAddress = event.params._smartToken
+  let smartTokenObj = createAndReturnSmartToken(smartTokenAddress)
+
+  const isNew = smartTokenObj.isNew
+  let smartTokenEntity = smartTokenObj.smartToken
+  if (isNew) {
+    log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
+  }
+
+  SmartTokenContract.bind(smartTokenAddress)
+
+  if (smartTokenEntity.addedToRegistryBlockNumber === null) {
+    smartTokenEntity.addedToRegistryBlockNumber = event.block.number
+    smartTokenEntity.addedToRegistryTransactionHash = event.transaction.hash
+  }
+
+  log.debug('Smart Token added to registry: {}', [smartTokenAddress.toHex()])
+
+  smartTokenEntity.currentConverterRegistry = event.address.toHex()
+
+  smartTokenEntity.save()
+
   let entity = new SmartTokenAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._smartToken = event.params._smartToken
-  let transaction = loadTransaction(event)
-  entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
-  entity.emittedBy = event.address
   entity.save()
-
-  /**
-   * 1. Create SmartToken contract
-   * 2. Add SmartToken to liquidity pool
-   * 3. Add UnderlyingToken to liquidity pool
-   */
 }
 
 export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {

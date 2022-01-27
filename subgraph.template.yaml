@@ -143,8 +143,8 @@ templates:
           file: ./abis/ERC20.json
       eventHandlers:
         
-        - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
-          handler: handlePriceDataUpdate
+        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
+        #   handler: handlePriceDataUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
@@ -152,13 +152,13 @@ templates:
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
-          handler: handleConversion
+          handler: handleConversionV1
         - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
           handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
-          handler: handleWithdrawFees
+        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+        #   handler: handleWithdrawFees
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
@@ -191,8 +191,8 @@ templates:
           file: ./abis/ERC20.json
       eventHandlers:
         
-        - event: DynamicFeeFactorUpdate(uint256,uint256)
-          handler: handleDynamicFeeFactorUpdate
+        # - event: DynamicFeeFactorUpdate(uint256,uint256)
+        #   handler: handleDynamicFeeFactorUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
@@ -200,7 +200,7 @@ templates:
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
-          handler: handleConversion
+          handler: handleConversionV2
         - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
           handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
@@ -208,3 +208,38 @@ templates:
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
+
+  - kind: ethereum/contract
+    name: SmartToken
+    network: {{network}}
+    source:
+      abi: SmartToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Issuance
+        - Destruction
+        - Transfer
+        - Approval
+        - OwnerUpdate
+      abis:
+        - name: SmartToken
+          file: ./abis/SmartToken.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        # - event: Issuance(uint256)
+        #   handler: handleIssuance
+        # - event: Destruction(uint256)
+        #   handler: handleDestruction
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/SmartToken.ts

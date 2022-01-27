@@ -5,6 +5,21 @@ type ExampleEntity @entity {
   spender: Bytes! # address
 }
 
+type ConverterRegistry @entity {
+  id: ID!
+  converters: [LiquidityPool!] @derivedFrom(field: "currentConverterRegistry") # possibly v2 converter, how to handle?
+  smartTokens: [SmartToken!] @derivedFrom(field: "currentConverterRegistry")
+  connectorTokens: [Token!] @derivedFrom(field: "currentConverterRegistry")
+  owner: Bytes! # address
+  addedToContractRegistryAtBlockTimestamp: BigInt
+  addedToContractRegistryAtTransactionHash: String
+  addedToContractRegistryAtBlockNumber: BigInt
+  lastUsedAtBlockTimestamp: BigInt
+  lastUsedAtTransactionHash: String
+  lastUsedAtBlockNumber: BigInt
+  numConverters: BigInt!
+}
+
 type Transaction @entity {
   # txn hash
   id: ID!
@@ -26,7 +41,7 @@ type Transaction @entity {
 type User @entity {
   id: ID! # address
   numSwaps: Int!
-  swaps: [Swap!]
+  swaps: [Swap!] @derivedFrom(field: "user")
   # tokenSwapTotals: [UserTokenSwapTotal!]
   # smartTokenBalances: [UserSmartTokenBalance!]
   # liquidityProvided: [LiquidityProvided]
@@ -34,18 +49,49 @@ type User @entity {
 
 type Token @entity {
   id: ID! #address
-  name: String!
-  symbol: String!
-  decimals: Int!
-  converters: [LiquidityPool!] #TODO: Change to Converter entity when implemented
-  owner: Bytes!
-  pathToBtc: [LiquidityPool!]
-  pathToUsd: [LiquidityPool!]
+  name: String
+  symbol: String
+  decimals: Int
+  version: Int
+  liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token")
+  smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
+  pathToBtc: [SmartToken!]
+  pathToUsd: [SmartToken!]
   # tokenSwapTotals: [TokenSwapTotals!]
-  lastPriceBtc: BigInt! # TODO: Change to big decimal
-  lastPriceUsd: BigInt! # TODO: Change to big decimal
+  lastPriceBtc: BigInt # TODO: Change to big decimal
+  lastPriceUsd: BigInt # TODO: Change to big decimal
   # marketCap: BigInt!
   # circulatingSupply: BigInt!
+  currentConverterRegistry: ConverterRegistry
+}
+
+type SmartToken @entity {
+  id: ID!
+  name: String
+  symbol: String
+  decimals: Int
+  version: Int
+  # standard: String
+  smartTokenType: String # Relay, Liquid, BNT?, Others?
+  transfersEnabled: Boolean
+  liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
+  connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
+  # shortestQuickBuyPath: [QuickBuyPathMember!]
+  # converterWithShortestQuickBuyPath: Converter
+  owner: Bytes!
+  # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
+  currentConverterRegistry: ConverterRegistry
+  addedToRegistryBlockNumber: BigInt
+  addedToRegistryTransactionHash: Bytes
+}
+
+type PoolToken @entity {
+  id: ID! #address
+  name: String
+  symbol: String
+  decimals: Int
+  converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Change to Converter entity when implemented
+  underlyingAssets: [Token!]
 }
 
 type Swap @entity {
@@ -64,26 +110,39 @@ type Swap @entity {
 
 type LiquidityPool @entity {
   id: ID!
-  type: Int!
-  smartToken: [Bytes!] # TODO: Change to SmartToken
-  underlyingAssets: [Token!]
-  poolTokens: [String!]
-  owner: Bytes!
-  manager: Bytes!
-  anchor: Bytes!
-  conversionFee: BigDecimal!
-  hasRBTCReserve: Boolean!
-  maxConversionFee: BigDecimal!
-  reserveRatio: Int!
-  activated: Boolean!
-  numSwaps: BigInt!
-  createdAtTimestamp: BigInt!
-  createdAtBlockNumber: BigInt!
-  createdAtLogIndex: BigInt!
+  type: Int
+  version: Int
+  smartToken: SmartToken
+  connectorTokens: [LiquidityPoolToken!]! @derivedFrom(field: "liquidityPool")
+  owner: String
+  conversionFee: BigInt
+  weight: BigInt
+  activated: Boolean
+  # hasRBTCReserve: Boolean!
+  maxConversionFee: BigInt
+  # reserveRatio: Int!
+  # activated: Boolean!
+  # numSwaps: BigInt!
+  lastResetBlockNumber: BigInt
+  lastResetTimestamp: BigInt
+  createdAtTimestamp: BigInt
+  createdAtBlockNumber: BigInt
   createdAtTransaction: Transaction!
-  lastPrice: BigDecimal!
-  lastPriceInverted: BigDecimal!
+  currentConverterRegistry: ConverterRegistry
   # OTHER FIELDS TO ADD HERE
+}
+
+type LiquidityPoolToken @entity {
+  id: ID! # ID is token address + liquidityPool address
+  token: Token!
+  liquidityPool: LiquidityPool!
+  poolToken: PoolToken!
+}
+
+type TokenSmartToken @entity {
+  id: ID! # ID is token address + smartToken address
+  token: Token!
+  smartToken: SmartToken!
 }
 
 

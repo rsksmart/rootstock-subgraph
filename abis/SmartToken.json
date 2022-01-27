@@ -438,12 +438,12 @@
         "anonymous": false,
         "inputs": [
             {
-                "indexed": false,
+                "indexed": true,
                 "name": "_prevOwner",
                 "type": "address"
             },
             {
-                "indexed": false,
+                "indexed": true,
                 "name": "_newOwner",
                 "type": "address"
             }

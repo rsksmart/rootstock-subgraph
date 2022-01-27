@@ -1,24 +1,12 @@
+import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
 import { Conversion as ConversionEventV1 } from '../../generated/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import { Conversion as ConversionEventV2 } from '../../generated/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
 import { Swap, User, LiquidityPool } from '../../generated/schema'
+import { createAndReturnUser } from './User'
 
-export function createSwapV1(event: ConversionEventV1): void {
-  /**
-   * 1. Check if Swap entity with Tx hash already exists
-   * 2. If not, create it
-   * 3. If it does, add this Conversion event to Conversion array
-   */
-
-  let userEntity = User.load(event.transaction.from.toHex())
+export function createSwapV1(event: ConversionEventV1): Swap {
+  let userEntity = createAndReturnUser(event.address)
   let swapEntity = Swap.load(event.transaction.hash.toHex())
-
-  /** Create user entity */
-  if (userEntity == null) {
-    userEntity = new User(event.transaction.from.toHex())
-    userEntity.numSwaps = 1
-  } else if (userEntity != null && swapEntity == null) {
-    userEntity.numSwaps = userEntity.numSwaps + 1
-  }
 
   /** Create swap  */
   if (swapEntity == null) {
@@ -33,6 +21,9 @@ export function createSwapV1(event: ConversionEventV1): void {
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.timestamp = event.block.timestamp
+
+    /** Add Swap to User */
+    userEntity.numSwaps += 1
   }
 
   /** Swap already exists - this means it has multiple conversion events */
@@ -48,36 +39,15 @@ export function createSwapV1(event: ConversionEventV1): void {
     swapEntity.rate = event.params._amount.div(event.params._return)
   }
 
-  if (userEntity != null && userEntity.swaps == null) {
-    userEntity.swaps = [event.transaction.hash.toHex()]
-  } else if (userEntity != null && userEntity.swaps != null && userEntity.swaps != []) {
-    const existingSwaps = userEntity.swaps
-    if (existingSwaps != null && existingSwaps != [] && existingSwaps.length > 0) {
-      swapEntity.ammConversionEvents = existingSwaps.concat([event.transaction.hash.toHex()])
-    }
-  }
-
   swapEntity.save()
   userEntity.save()
+
+  return swapEntity
 }
 
-export function createSwapV2(event: ConversionEventV2): void {
-  /**
-   * 1. Check if Swap entity with Tx hash already exists
-   * 2. If not, create it
-   * 3. If it does, add this Conversion event to Conversion array
-   */
-
-  let userEntity = User.load(event.transaction.from.toHex())
+export function createSwapV2(event: ConversionEventV2): Swap {
+  let userEntity = createAndReturnUser(event.address)
   let swapEntity = Swap.load(event.transaction.hash.toHex())
-
-  /** Create user entity */
-  if (userEntity == null) {
-    userEntity = new User(event.transaction.from.toHex())
-    userEntity.numSwaps = 1
-  } else if (userEntity != null && swapEntity == null) {
-    userEntity.numSwaps = userEntity.numSwaps + 1
-  }
 
   /** Create swap  */
   if (swapEntity == null) {
@@ -92,6 +62,9 @@ export function createSwapV2(event: ConversionEventV2): void {
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.timestamp = event.block.timestamp
+
+    /** Add Swap to User */
+    userEntity.numSwaps += 1
   }
 
   /** Swap already exists - this means it has multiple conversion events */
@@ -107,15 +80,8 @@ export function createSwapV2(event: ConversionEventV2): void {
     swapEntity.rate = event.params._amount.div(event.params._return)
   }
 
-  if (userEntity != null && userEntity.swaps == null) {
-    userEntity.swaps = [event.transaction.hash.toHex()]
-  } else if (userEntity != null && userEntity.swaps != null && userEntity.swaps != []) {
-    const existingSwaps = userEntity.swaps
-    if (existingSwaps != null && existingSwaps != [] && existingSwaps.length > 0) {
-      swapEntity.ammConversionEvents = existingSwaps.concat([event.transaction.hash.toHex()])
-    }
-  }
-
   swapEntity.save()
   userEntity.save()
+
+  return swapEntity
 }
