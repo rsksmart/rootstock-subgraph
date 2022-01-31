@@ -1,8 +1,8 @@
 import { BigInt } from '@graphprotocol/graph-ts'
-import { SmartToken, Issuance, Destruction, Transfer, Approval, OwnerUpdate } from '../generated/templates/SmartToken/SmartToken'
+import { ERC20Token, Transfer, Approval } from '../generated/templates/ERC20Token/ERC20Token'
 // import { ExampleEntity } from '../generated/schema'
 
-export function handleIssuance(event: Issuance): void {
+export function handleTransfer(event: Transfer): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
   // let entity = ExampleEntity.load(event.transaction.from.toHex())
@@ -16,7 +16,8 @@ export function handleIssuance(event: Issuance): void {
   // // BigInt and BigDecimal math are supported
   // entity.count = entity.count + BigInt.fromI32(1)
   // // Entity fields can be set based on event parameters
-  // entity._amount = event.params._amount
+  // entity._from = event.params._from
+  // entity._to = event.params._to
   // // Entities can be written to the store with `.save()`
   // entity.save()
   // Note: If a handler doesn't require existing field values, it is faster
@@ -34,24 +35,14 @@ export function handleIssuance(event: Issuance): void {
   // state variables and other data:
   //
   // - contract.name(...)
-  // - contract.approve(...)
   // - contract.totalSupply(...)
-  // - contract.transferFrom(...)
   // - contract.decimals(...)
-  // - contract.version(...)
   // - contract.balanceOf(...)
-  // - contract.owner(...)
   // - contract.symbol(...)
-  // - contract.transfer(...)
-  // - contract.transfersEnabled(...)
-  // - contract.newOwner(...)
   // - contract.allowance(...)
+  // - contract.transfer(...)
+  // - contract.transferFrom(...)
+  // - contract.approve(...)
 }
 
-export function handleDestruction(event: Destruction): void {}
-
-export function handleTransfer(event: Transfer): void {}
-
 export function handleApproval(event: Approval): void {}
-
-export function handleOwnerUpdate(event: OwnerUpdate): void {}
