@@ -1,4 +1,4 @@
-import { Address, log } from '@graphprotocol/graph-ts'
+import { Address, log, BigInt } from '@graphprotocol/graph-ts'
 import { LiquidityPool } from '../../generated/schema'
 import { LiquidityPoolV1Converter as LiquidityPoolV1ConverterContract } from '../../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import { LiquidityPoolV2Converter as LiquidityPoolV2ConverterContract } from '../../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
@@ -14,7 +14,7 @@ export class IGetLiquidityPool {
   isNew: boolean
 }
 
-export function createAndReturnLiquidityPool(converterAddress: Address): IGetLiquidityPool {
+export function createAndReturnLiquidityPool(converterAddress: Address, createdAtTimestamp: BigInt): IGetLiquidityPool {
   let isNew = false
   let liquidityPool = LiquidityPool.load(converterAddress.toHex())
   if (liquidityPool === null) {
@@ -46,6 +46,7 @@ export function createAndReturnLiquidityPool(converterAddress: Address): IGetLiq
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
     }
+    liquidityPool.createdAtTimestamp = createdAtTimestamp
     liquidityPool.save()
     isNew = true
   }
