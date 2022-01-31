@@ -136,7 +136,7 @@ export function handleConversionV1(event: ConversionEventV1): void {
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
-  entity._protocolFee = event.params._protocolFee
+  entity._protocolFee = BigInt.fromString('0')
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp

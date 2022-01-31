@@ -134,7 +134,7 @@ templates:
           handler: handleLiquidityRemoved
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
-        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV1
         - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
           handler: handleTokenRateUpdate

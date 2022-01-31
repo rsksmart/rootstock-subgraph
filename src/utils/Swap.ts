@@ -31,11 +31,9 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.timestamp = event.timestamp
     /** Add Swap to User */
     userEntity.numSwaps += 1
-  } else if (swapEntity != null) {
+  } else {
     /** Swap already exists - this means it has multiple conversion events */
-    if (swapEntity.numConversions != null) {
-      swapEntity.numConversions += 1
-    }
+    swapEntity.numConversions += 1
     swapEntity.toToken = event.toToken
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount)

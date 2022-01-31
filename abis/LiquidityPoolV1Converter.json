@@ -951,11 +951,6 @@
                 "indexed": false,
                 "name": "_conversionFee",
                 "type": "int256"
-            },
-            {
-                "indexed": false,
-                "name": "_protocolFee",
-                "type": "int256"
             }
         ],
         "name": "Conversion",
