@@ -13,10 +13,10 @@ export function handleNewConverter(event: NewConverterEvent): void {
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
 
+  entity.save()
+
   /**
    * Create new LiquidityPool
    */
   createAndReturnLiquidityPool(event.params._converter, event.params._type)
-
-  entity.save()
 }

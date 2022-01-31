@@ -21,7 +21,6 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
       token.decimals = connectorTokenDecimalsResult.value
     }
   }
-
   let liquidityPoolToken = LiquidityPoolToken.load(converterAddress.toHex() + tokenAddress.toHex())
   if (liquidityPoolToken === null) {
     liquidityPoolToken = new LiquidityPoolToken(converterAddress.toHex() + tokenAddress.toHex())
@@ -39,7 +38,6 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
   tokenSmartToken.token = tokenAddress.toHex()
   tokenSmartToken.smartToken = smartTokenAddress.toHex()
   tokenSmartToken.save()
-
   token.save()
 
   return token

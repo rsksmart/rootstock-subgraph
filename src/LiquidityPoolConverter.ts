@@ -31,10 +31,10 @@ import { ConversionEventForSwap, createAndReturnSwap } from './utils/Swap'
 import { createAndReturnToken } from './utils/Token'
 
 import { loadTransaction } from './utils/Transaction'
-import { BigInt } from '@graphprotocol/graph-ts'
-import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
+import { BigInt, dataSource } from '@graphprotocol/graph-ts'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { createAndReturnPoolToken } from './utils/PoolToken'
+import { createAndReturnUser } from './utils/User'
 
 export function handlePriceDataUpdate(event: PriceDataUpdateEvent): void {
   let entity = new PriceDataUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -51,29 +51,53 @@ export function handlePriceDataUpdate(event: PriceDataUpdateEvent): void {
 
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
   let entity = new LiquidityAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  let user = createAndReturnUser(event.transaction.from)
+  let reserveToken = Token.load(event.params._reserveToken.toHexString())
+  let liquidityPool = LiquidityPool.load(event.address.toHexString())
+  let transaction = loadTransaction(event)
+
+  if (user != null) {
+    entity.user = user.id
+  }
   entity._provider = event.params._provider
-  entity._reserveToken = event.params._reserveToken
+  if (reserveToken != null) {
+    entity._reserveToken = reserveToken.id
+  }
   entity._amount = event.params._amount
   entity._newBalance = event.params._newBalance
   entity._newSupply = event.params._newSupply
-  let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
+  if (liquidityPool != null) {
+    entity.liquidityPool = liquidityPool.id
+  }
   entity.save()
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
   let entity = new LiquidityRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  let user = createAndReturnUser(event.transaction.from)
+  let reserveToken = Token.load(event.params._reserveToken.toHexString())
+  let liquidityPool = LiquidityPool.load(event.address.toHexString())
+  let transaction = loadTransaction(event)
+
+  if (user != null) {
+    entity.user = user.id
+  }
   entity._provider = event.params._provider
-  entity._reserveToken = event.params._reserveToken
+  if (reserveToken != null) {
+    entity._reserveToken = reserveToken.id
+  }
   entity._amount = event.params._amount
   entity._newBalance = event.params._newBalance
   entity._newSupply = event.params._newSupply
-  let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
+  if (liquidityPool != null) {
+    entity.liquidityPool = liquidityPool.id
+  }
   entity.save()
 }
 
@@ -88,7 +112,7 @@ export function handleActivation(event: ActivationEvent): void {
   entity.emittedBy = event.address
   entity.save()
 
-  let liquidityPool = LiquidityPool.load(event.address.toHex())
+  let liquidityPool = LiquidityPool.load(dataSource.address().toHex())
 
   if (liquidityPool != null) {
     liquidityPool.activated = event.params._activated
@@ -136,7 +160,7 @@ export function handleConversionV1(event: ConversionEventV1): void {
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
-  entity._protocolFee = event.params._protocolFee
+  entity._protocolFee = BigInt.fromString('0')
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp

@@ -39,24 +39,28 @@ type Transaction @entity {
 }
 
 type User @entity {
-  id: ID! # address
+  id: ID! @unique
   numSwaps: Int!
   swaps: [Swap!] @derivedFrom(field: "user")
+  liquidityAddeds: [LiquidityAdded!] @derivedFrom(field: "user")
+  liquidityRemoveds: [LiquidityRemoved!] @derivedFrom(field: "user")
+  # trades: [Trade!] @derivedFrom(field: "user")
+  # borrows: [Borrow!] @derivedFrom(field: "user")
+  loans: [Loan!] @derivedFrom(field: "user")
+
   # tokenSwapTotals: [UserTokenSwapTotal!]
   # smartTokenBalances: [UserSmartTokenBalance!]
   # liquidityProvided: [LiquidityProvided]
 }
 
 type Token @entity {
-  id: ID! #address
+  id: ID! @unique
   name: String
   symbol: String
   decimals: Int
   version: Int
   liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token")
   smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
-  pathToBtc: [SmartToken!]
-  pathToUsd: [SmartToken!]
   # tokenSwapTotals: [TokenSwapTotals!]
   lastPriceBtc: BigInt # TODO: Change to big decimal
   lastPriceUsd: BigInt # TODO: Change to big decimal
@@ -98,15 +102,15 @@ type Swap @entity {
   id: ID! # transaction hash of the swap
   conversions: [Conversion!] @derivedFrom(field: "swapTransaction")
   numConversions: Int!
-  fromToken: Bytes #TODO: Change to Token entity
-  toToken: Bytes #TODO: Change to Token entity
-  fromAmount: BigInt
-  toAmount: BigInt
-  rate: BigInt # TODO: Make this a BigDecimal
-  user: User # TODO: Change to User entity
-  isMarginTrade: Boolean
-  isBorrow: Boolean
-  timestamp: BigInt
+  fromToken: Token! #TODO: Change to Token entity
+  toToken: Token! #TODO: Change to Token entity
+  fromAmount: BigInt!
+  toAmount: BigInt!
+  rate: BigInt! # TODO: Make this a BigDecimal
+  user: User! # TODO: Change to User entity
+  isMarginTrade: Boolean!
+  isBorrow: Boolean!
+  timestamp: BigInt!
 }
 
 type LiquidityPool @entity {
@@ -152,6 +156,36 @@ type TokenPoolToken @entity {
   token: Token!
   poolToken: PoolToken!
   liquidityPool: LiquidityPool!
+}
+
+# Loans
+
+type Loan @entity {
+  id: ID! # ID is LoanId
+  loanToken: Token!
+  collateralToken: Token!
+  isTrade: Boolean!
+  isBorrow: Boolean!
+  startTimestamp: BigInt!
+  endTimestamp: BigInt!
+  borrowedAmount: BigInt!
+  collateralAmount: BigInt!
+  startRate: BigInt!
+  isOpen: Boolean!
+  user: User
+  trade: Trade
+  borrow: Borrow
+  closeWithSwaps: [CloseWithSwap!]
+  closewithDeposits: [CloseWithDeposit!]
+  liquidates: [Liquidate!]
+  depositCollateral: [DepositCollateral!]
+  realizedPnL: BigInt
+}
+
+# Lending
+
+type LendingPool @entity {
+  id: ID! # ID is lending pool address
 }
 
 
@@ -253,26 +287,30 @@ type PriceDataUpdate @entity {
 
 type LiquidityAdded @entity {
   id: ID!
+  user: User!
   _provider: Bytes! # address
-  _reserveToken: Bytes! # address
+  _reserveToken: Token! # address
   _amount: BigInt! # uint256
   _newBalance: BigInt! # uint256
   _newSupply: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  liquidityPool: LiquidityPool!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type LiquidityRemoved @entity {
   id: ID!
+  user: User!
   _provider: Bytes! # address
-  _reserveToken: Bytes! # address
+  _reserveToken: Token! # address
   _amount: BigInt! # uint256
   _newBalance: BigInt! # uint256
   _newSupply: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  liquidityPool: LiquidityPool!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type Activation @entity {
@@ -359,3 +397,405 @@ type Transfer @entity {
     emittedBy: Bytes! #address
     transaction: Transaction!
 }
+
+# Sovryn Protocol Events
+type Borrow @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  newPrincipal: BigInt! # uint256
+  newCollateral: BigInt! # uint256
+  interestRate: BigInt! # uint256
+  interestDuration: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type CloseWithDeposit @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  closer: Bytes! # address
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  repayAmount: BigInt! # uint256
+  collateralWithdrawAmount: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type CloseWithSwap @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  collateralToken: Bytes! # address
+  loanToken: Bytes! # address
+  closer: Bytes! # address
+  positionCloseSize: BigInt! # uint256
+  loanCloseAmount: BigInt! # uint256
+  exitPrice: BigInt! # uint256
+  currentLeverage: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type DepositCollateral @entity {
+  id: ID!
+  loanId: Loan! # bytes32
+  depositAmount: BigInt! # uint256
+  rate: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type EarnReward @entity {
+  id: ID!
+  receiver: Bytes! # address
+  token: Bytes! # address
+  loanId: Loan! # bytes32
+  feeRebatePercent: BigInt! # uint256
+  amount: BigInt! # uint256
+  basisPoint: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type ExternalSwap @entity {
+  id: ID!
+  user: Bytes! # address
+  sourceToken: Bytes! # address
+  destToken: Bytes! # address
+  sourceAmount: BigInt! # uint256
+  destAmount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type Liquidate @entity {
+  id: ID!
+  user: Bytes! # address
+  liquidator: Bytes! # address
+  loanId: Loan! # bytes32
+  lender: Bytes! # address
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  repayAmount: BigInt! # uint256
+  collateralWithdrawAmount: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type LoanSwap @entity {
+  id: ID!
+  loanId: Loan! # bytes32
+  sourceToken: Bytes! # address
+  destToken: Bytes! # address
+  borrower: Bytes! # address
+  sourceAmount: BigInt! # uint256
+  destAmount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type PayBorrowingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  loanId: Loan! # bytes32
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type PayLendingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type PayTradingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  loanId: Loan! # bytes32
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type PayTradingFeeToAffiliate @entity {
+  id: ID!
+  referrer: Bytes! # address
+  trader: Bytes! # address
+  token: Bytes! # address
+  isHeld: Boolean! # bool
+  tradingFeeTokenAmount: BigInt! # uint256
+  tokenBonusAmount: BigInt! # uint256
+  sovBonusAmount: BigInt! # uint256
+  sovBonusAmountPaid: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type PayTradingFeeToAffiliateFail @entity {
+  id: ID!
+  referrer: Bytes! # address
+  trader: Bytes! # address
+  token: Bytes! # address
+  tradingFeeTokenAmount: BigInt! # uint256
+  tokenBonusAmount: BigInt! # uint256
+  sovBonusAmount: BigInt! # uint256
+  sovBonusAmountTryingToPaid: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type ProtocolModuleContractReplaced @entity {
+  id: ID!
+  prevModuleContractAddress: Bytes! # address
+  newModuleContractAddress: Bytes! # address
+  module: Bytes! # bytes32
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetAffiliateFeePercent @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldValue: BigInt! # uint256
+  newValue: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetAffiliateTradingTokenFeePercent @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldValue: BigInt! # uint256
+  newValue: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetAffiliatesReferrer @entity {
+  id: ID!
+  user: Bytes! # address
+  referrer: Bytes! # address
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetAffiliatesReferrerFail @entity {
+  id: ID!
+  user: Bytes! # address
+  referrer: Bytes! # address
+  alreadySet: Boolean! # bool
+  userNotFirstTrade: Boolean! # bool
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetBorrowingFeePercent @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldValue: BigInt! # uint256
+  newValue: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetFeesController @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldController: Bytes! # address
+  newController: Bytes! # address
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetLendingFeePercent @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldValue: BigInt! # uint256
+  newValue: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetLiquidationIncentivePercent @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldValue: BigInt! # uint256
+  newValue: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetLoanPool @entity {
+  id: ID!
+  sender: Bytes! # address
+  loanPool: Bytes! # address
+  underlying: Bytes! # address
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type SetWrbtcToken @entity {
+  id: ID!
+  sender: Bytes! # address
+  oldWethToken: Bytes! # address
+  newWethToken: Bytes! # address
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type Trade @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  collateralToken: Bytes! # address
+  loanToken: Bytes! # address
+  positionSize: BigInt! # uint256
+  borrowedAmount: BigInt! # uint256
+  interestRate: BigInt! # uint256
+  settlementDate: BigInt! # uint256
+  entryPrice: BigInt! # uint256
+  entryLeverage: BigInt! # uint256
+  currentLeverage: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+# type WithdrawFees @entity {
+#   id: ID!
+#   sender: Bytes! # address
+#   token: Bytes! # address
+#   receiver: Bytes! # address
+#   lendingAmount: BigInt! # uint256
+#   tradingAmount: BigInt! # uint256
+#   borrowingAmount: BigInt! # uint256
+#   timestamp: BigInt!
+#     emittedBy: Bytes! #address
+#     transaction: Transaction!
+# }
+
+# Lending Contract events
+
+type WithdrawLendingFees @entity {
+  id: ID!
+  sender: Bytes! # address
+  token: Bytes! # address
+  receiver: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+    emittedBy: Bytes! #address
+    transaction: Transaction!
+}
+
+type WithdrawTradingFees @entity {
+  id: ID!
+  sender: Bytes! # address
+  token: Bytes! # address
+  receiver: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+transaction: Transaction!
+}
+
+type Burn @entity {
+  id: ID!
+  user: User! # address
+  tokenAmount: BigInt! # uint256
+  assetAmount: BigInt! # uint256
+  loanToken: LoanToken!
+  price: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+  underlyingAsset: Token!
+}
+
+type FlashBorrow @entity {
+  id: ID!
+  user: User! # address
+  target: Bytes! # address
+  loanAmount: BigInt! # uint256
+  loanToken: LoanToken!
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+  underlyingAsset: Token!
+}
+
+type Mint @entity {
+  id: ID!
+  user: User! # address
+  tokenAmount: BigInt! # uint256
+  assetAmount: BigInt! # uint256
+  loanToken: LoanToken!
+  price: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type LoanToken @entity {
+  id: ID! #address
+  underlyingAsset: Token!
+}
+
+# Vesting and Staking events
+
+type VestingContract @entity {
+  id: ID!
+  user: User!
+  createdAt: BigInt!
+  cliff: BigInt
+  duration: BigInt
+  vestingRegistry: String # TODO: Change to VestingRegistry
+}
+
+# Rewards
+
+# Governance

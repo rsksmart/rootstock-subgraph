@@ -27,6 +27,8 @@ import { log } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { BigInt } from '@graphprotocol/graph-ts'
+import { createAndReturnConverterRegistry } from './utils/ConverterRegistry'
+import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 
 export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
   let entity = new ConverterAnchorAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -55,24 +57,20 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
+  entity.save()
 
-  let converterRegistryEntity = ConverterRegistry.load(event.address.toHex())
-  if (converterRegistryEntity == null) {
-    converterRegistryEntity = new ConverterRegistry(event.address.toHex())
-    converterRegistryEntity.numConverters = BigInt.zero()
-  }
+  let converterRegistryEntity = createAndReturnConverterRegistry(event.address)
   converterRegistryEntity.lastUsedAtBlockTimestamp = event.block.timestamp
   converterRegistryEntity.lastUsedAtTransactionHash = event.transaction.hash.toHex()
   converterRegistryEntity.lastUsedAtBlockNumber = event.block.number
   converterRegistryEntity.numConverters = converterRegistryEntity.numConverters.plus(BigInt.fromI32(1))
 
   converterRegistryEntity.save()
-  entity.save()
 
-  let liquidityPoolEntity = LiquidityPool.load(event.params._liquidityPool.toHex())
-  if (liquidityPoolEntity != null) {
-    liquidityPoolEntity.currentConverterRegistry = event.address.toHex()
-    liquidityPoolEntity.save()
+  let liquidityPool = LiquidityPool.load(entity._liquidityPool.toHex())
+  if (liquidityPool != null) {
+    liquidityPool.currentConverterRegistry = event.address.toHex()
+    liquidityPool.save()
   }
 }
 

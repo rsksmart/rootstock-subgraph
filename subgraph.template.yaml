@@ -114,6 +114,69 @@ dataSources:
           handler: handleOwnerUpdate
       file: ./src/ConverterRegistry.ts
 
+  - kind: ethereum/contract
+    name: ISovryn
+    network: {{network}}
+    source:
+      address: '{{ISovryn.address}}'
+      abi: ISovryn
+      startBlock: {{ISovryn.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Borrow
+        - CloseWithDeposit
+        - CloseWithSwap
+        - DepositCollateral
+        - EarnReward
+        - ExternalSwap
+        - Liquidate
+        - LoanSwap
+        - PayBorrowingFee
+        - PayLendingFee
+        - PayTradingFee
+        - SetWrbtcToken
+        - SetLoanPool
+        - Trade
+        # - WithdrawFees # this needs to be changed due to naming clash
+      abis:
+        - name: ISovryn
+          file: ./abis/ISovryn.json
+        - name: LoanTokenLogicStandard
+          file: ./abis/LoanTokenLogicStandard.json
+      eventHandlers:
+        - event: Borrow(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleBorrow
+        - event: CloseWithDeposit(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleCloseWithDeposit
+        - event: CloseWithSwap(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleCloseWithSwap
+        - event: DepositCollateral(bytes32,uint256,uint256)
+          handler: handleDepositCollateral
+        - event: EarnReward(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256)
+          handler: handleEarnReward
+        - event: ExternalSwap(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleExternalSwap
+        - event: Liquidate(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleLiquidate
+        - event: LoanSwap(indexed bytes32,indexed address,indexed address,address,uint256,uint256)
+          handler: handleLoanSwap
+        - event: PayBorrowingFee(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handlePayBorrowingFee
+        - event: PayLendingFee(indexed address,indexed address,uint256)
+          handler: handlePayLendingFee
+        - event: PayTradingFee(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handlePayTradingFee
+        - event: SetLoanPool(indexed address,indexed address,indexed address)
+          handler: handleSetLoanPool
+        - event: SetWrbtcToken(indexed address,indexed address,indexed address)
+          handler: handleSetWrbtcToken
+        - event: Trade(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleTrade
+      file: ./src/ISovryn.ts
+
 templates:
   - kind: ethereum/contract
     name: LiquidityPoolV1Converter
@@ -146,6 +209,8 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
+        - name: SovrynSwapNetwork
+          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
@@ -156,7 +221,7 @@ templates:
           handler: handleLiquidityRemoved
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
-        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV1
         - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
           handler: handleTokenRateUpdate
@@ -198,6 +263,8 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
+        - name: SovrynSwapNetwork
+          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)
@@ -277,3 +344,30 @@ templates:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/ERC20.ts
+  
+  - kind: ethereum/contract
+    name: LoanTokenLogicStandard
+    network: {{network}}
+    source:
+      # address: '{{LoanTokenLogicStandard.address}}'
+      abi: LoanTokenLogicStandard
+      # startBlock: {{LoanTokenLogicStandard.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Burn
+        - FlashBorrow
+        - Mint
+      abis:
+        - name: LoanTokenLogicStandard
+          file: ./abis/LoanTokenLogicStandard.json
+      eventHandlers:
+        - event: Burn(indexed address,uint256,uint256,uint256)
+          handler: handleBurn
+        - event: FlashBorrow(address,address,address,uint256)
+          handler: handleFlashBorrow
+        - event: Mint(indexed address,uint256,uint256,uint256)
+          handler: handleMint
+      file: ./src/LoanTokenLogicStandard.ts
