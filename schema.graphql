@@ -82,7 +82,7 @@ type Token @entity {
   liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token")
   smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
   # tokenSwapTotals: [TokenSwapTotals!]
-  lastPriceBtc: BigInt # TODO: Change to big decimal
+  lastPriceBtc: BigInt # TODO: Change to big decimal - or not, maybe keep in BigInt
   lastPriceUsd: BigInt # TODO: Change to big decimal
   # marketCap: BigInt!
   # circulatingSupply: BigInt!
@@ -94,7 +94,7 @@ type PoolToken @entity {
   name: String
   symbol: String
   decimals: Int
-  converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Change to Converter entity when implemented
+  converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Does this need a many-to-many relationship?
   underlyingAssets: [TokenPoolToken!] @derivedFrom(field: "poolToken")
 }
 
@@ -102,15 +102,15 @@ type Swap @entity {
   id: ID! # transaction hash of the swap
   conversions: [Conversion!] @derivedFrom(field: "swapTransaction")
   numConversions: Int!
-  fromToken: Bytes #TODO: Change to Token entity
-  toToken: Bytes #TODO: Change to Token entity
-  fromAmount: BigInt
-  toAmount: BigInt
-  rate: BigInt # TODO: Make this a BigDecimal
-  user: User # TODO: Change to User entity
-  isMarginTrade: Boolean
-  isBorrow: Boolean
-  timestamp: BigInt
+  fromToken: Token!
+  toToken: Token!
+  fromAmount: BigInt!
+  toAmount: BigInt!
+  rate: BigInt # TODO: Should this be a big decimal?
+  user: User!
+  isMarginTrade: Boolean!
+  isBorrow: Boolean!
+  timestamp: BigInt!
 }
 
 type LiquidityPool @entity {

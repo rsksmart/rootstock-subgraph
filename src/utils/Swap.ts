@@ -20,8 +20,8 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   if (swapEntity == null) {
     swapEntity = new Swap(event.transactionHash.toHex())
     swapEntity.numConversions = 1
-    swapEntity.fromToken = event.fromToken
-    swapEntity.toToken = event.toToken
+    swapEntity.fromToken = event.fromToken.toHexString()
+    swapEntity.toToken = event.toToken.toHexString()
     swapEntity.fromAmount = event.fromAmount
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount) // TODO: Change this to proper decimal division using token decimals
@@ -34,7 +34,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   } else {
     /** Swap already exists - this means it has multiple conversion events */
     swapEntity.numConversions += 1
-    swapEntity.toToken = event.toToken
+    swapEntity.toToken = event.toToken.toHexString()
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount)
   }
