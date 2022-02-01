@@ -16,7 +16,7 @@ export function handleNewConverter(event: NewConverterEvent): void {
   /**
    * Create new LiquidityPool
    */
-  createAndReturnLiquidityPool(event.params._converter, event.block.timestamp)
+  createAndReturnLiquidityPool(event.params._converter, event.block.timestamp, event.block.number, event.transaction.hash.toHexString())
 
   entity.save()
 }

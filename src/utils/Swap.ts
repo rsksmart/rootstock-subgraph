@@ -1,5 +1,5 @@
 import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
-import { Swap } from '../../generated/schema'
+import { Swap, User } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 
 export class ConversionEventForSwap {
@@ -10,10 +10,14 @@ export class ConversionEventForSwap {
   toAmount: BigInt
   timestamp: BigInt
   user: Address
+  trader: Address
 }
 
 export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
-  let userEntity = createAndReturnUser(event.user)
+  let userEntity: User | null = null
+  if (event.user.toHexString() == event.trader.toHexString()) {
+    userEntity = createAndReturnUser(event.user)
+  }
   let swapEntity = Swap.load(event.transactionHash.toHex())
 
   /** Create swap  */
@@ -25,12 +29,14 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.fromAmount = event.fromAmount
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount) // TODO: Change this to proper decimal division using token decimals
-    swapEntity.user = userEntity.id
+    if (userEntity != null) {
+      swapEntity.user = userEntity.id
+      userEntity.numSwaps += 1
+      userEntity.save()
+    }
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.timestamp = event.timestamp
-    /** Add Swap to User */
-    userEntity.numSwaps += 1
   } else {
     /** Swap already exists - this means it has multiple conversion events */
     swapEntity.numConversions += 1
@@ -38,8 +44,6 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount)
   }
-
-  userEntity.save()
   swapEntity.save()
 
   return swapEntity

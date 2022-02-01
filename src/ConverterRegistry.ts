@@ -142,9 +142,11 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
   smartTokenEntity.save()
 
   const converterAddress = smartTokenContract.owner()
-  let liquidityPoolEntity = createAndReturnLiquidityPool(converterAddress, event.block.timestamp).liquidityPool
-  liquidityPoolEntity.currentConverterRegistry = event.address.toHex()
-  liquidityPoolEntity.save()
+  let liquidityPoolEntity = LiquidityPool.load(converterAddress.toHexString())
+  if (liquidityPoolEntity != null) {
+    liquidityPoolEntity.currentConverterRegistry = event.address.toHex()
+    liquidityPoolEntity.save()
+  }
 
   let entity = new SmartTokenAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._smartToken = event.params._smartToken

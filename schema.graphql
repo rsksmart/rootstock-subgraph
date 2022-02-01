@@ -284,8 +284,8 @@ type Activation @entity {
 
 type Conversion @entity {
   id: ID!
-  _fromToken: Bytes! # address
-  _toToken: Bytes! # address
+  _fromToken: Token! # address
+  _toToken: Token! # address
   _trader: Bytes! # address
   _amount: BigInt! # uint256
   _return: BigInt! # uint256
@@ -355,4 +355,10 @@ type Transfer @entity {
   timestamp: BigInt!
   emittedBy: Bytes! #address
   transaction: Transaction!
+}
+type ExampleEntity @entity {
+  id: ID!
+  count: BigInt!
+  _connectorToken: Bytes! # address
+  _tokenSupply: BigInt! # uint256
 }

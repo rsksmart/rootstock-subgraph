@@ -15,6 +15,10 @@ import {
   LiquidityPoolV2Converter as LiquidityPoolV2Contract,
 } from '../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
 import {
+  Conversion as ConversionEventV1_2,
+  LiquidityPoolV1Converter_V2 as LiquidityV1Contract_2,
+} from '../generated/templates/LiquidityPoolV1Converter_V2/LiquidityPoolV1Converter_V2'
+import {
   PriceDataUpdate,
   LiquidityAdded,
   LiquidityRemoved,
@@ -32,7 +36,6 @@ import { createAndReturnToken } from './utils/Token'
 
 import { loadTransaction } from './utils/Transaction'
 import { BigInt } from '@graphprotocol/graph-ts'
-import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { createAndReturnPoolToken } from './utils/PoolToken'
 
@@ -130,8 +133,8 @@ export function handleActivation(event: ActivationEvent): void {
 
 export function handleConversionV1(event: ConversionEventV1): void {
   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  entity._fromToken = event.params._fromToken
-  entity._toToken = event.params._toToken
+  entity._fromToken = event.params._fromToken.toHexString()
+  entity._toToken = event.params._toToken.toHexString()
   entity._trader = event.params._trader
   entity._amount = event.params._amount
   entity._return = event.params._return
@@ -152,14 +155,15 @@ export function handleConversionV1(event: ConversionEventV1): void {
     toAmount: event.params._return,
     timestamp: event.block.timestamp,
     user: event.transaction.from,
+    trader: event.params._trader,
   }
   createAndReturnSwap(parsedEvent)
 }
 
 export function handleConversionV2(event: ConversionEventV2): void {
   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  entity._fromToken = event.params._fromToken
-  entity._toToken = event.params._toToken
+  entity._fromToken = event.params._fromToken.toHexString()
+  entity._toToken = event.params._toToken.toHexString()
   entity._trader = event.params._trader
   entity._amount = event.params._amount
   entity._return = event.params._return
@@ -180,6 +184,35 @@ export function handleConversionV2(event: ConversionEventV2): void {
     toAmount: event.params._return,
     timestamp: event.block.timestamp,
     user: event.transaction.from,
+    trader: event.params._trader,
+  }
+  createAndReturnSwap(parsedEvent)
+}
+
+export function handleConversionV1_2(event: ConversionEventV1_2): void {
+  let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._fromToken = event.params._fromToken.toHexString()
+  entity._toToken = event.params._toToken.toHexString()
+  entity._trader = event.params._trader
+  entity._amount = event.params._amount
+  entity._return = event.params._return
+  entity._conversionFee = event.params._conversionFee
+  entity._protocolFee = event.params._protocolFee
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
+
+  let parsedEvent: ConversionEventForSwap = {
+    transactionHash: event.transaction.hash,
+    fromToken: event.params._fromToken,
+    toToken: event.params._toToken,
+    fromAmount: event.params._amount,
+    toAmount: event.params._return,
+    timestamp: event.block.timestamp,
+    user: event.transaction.from,
+    trader: event.params._trader,
   }
   createAndReturnSwap(parsedEvent)
 }
