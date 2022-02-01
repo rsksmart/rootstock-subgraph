@@ -1,8 +1,7 @@
 import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
-import { Swap, Token } from '../../generated/schema'
+import { Swap, Token, User } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 import { USDTAddress, WRBTCAddress } from '../contracts/contracts'
-import { log } from '@graphprotocol/graph-ts'
 
 export class ConversionEventForSwap {
   transactionHash: Bytes
@@ -12,11 +11,15 @@ export class ConversionEventForSwap {
   toAmount: BigInt
   timestamp: BigInt
   user: Address
+  trader: Address
 }
 
 export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
-  let userEntity = createAndReturnUser(event.user)
-  let swapEntity = Swap.load(event.transactionHash.toHexString())
+  let userEntity: User | null = null
+  if (event.user.toHexString() == event.trader.toHexString()) {
+    userEntity = createAndReturnUser(event.user)
+  }
+  let swapEntity = Swap.load(event.transactionHash.toHex())
 
   /** Create swap  */
   if (swapEntity == null) {
@@ -27,23 +30,21 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.fromAmount = event.fromAmount
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount) // TODO: Change this to proper decimal division using token decimals
-    swapEntity.user = userEntity.id
+    if (userEntity != null) {
+      swapEntity.user = userEntity.id
+      userEntity.numSwaps += 1
+      userEntity.save()
+    }
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.timestamp = event.timestamp
-    /** Add Swap to User */
-    userEntity.numSwaps += 1
-  } else if (swapEntity != null) {
+  } else {
     /** Swap already exists - this means it has multiple conversion events */
-    if (swapEntity.numConversions > 0) {
-      swapEntity.numConversions += 1
-    }
+    swapEntity.numConversions += 1
     swapEntity.toToken = event.toToken.toHexString()
     swapEntity.toAmount = event.toAmount
     swapEntity.rate = event.fromAmount.div(event.toAmount)
   }
-
-  userEntity.save()
   swapEntity.save()
 
   /**

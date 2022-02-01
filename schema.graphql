@@ -1,13 +1,39 @@
-type ExampleEntity @entity {
+# type ContractRegistry @entity {
+#   id: ID!
+#   converterRegistries: [ConverterRegistry!]
+#   # contracts: [BancorContract!] @derivedFrom(field: "registry")
+#   owner: String
+# }
+
+type SmartToken @entity {
   id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  spender: Bytes! # address
+  name: String
+  symbol: String
+  decimals: Int
+  version: Int
+  # standard: String
+  smartTokenType: String # Relay, Liquid, BNT?, Others?
+  transfersEnabled: Boolean
+  liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
+  connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
+  # shortestQuickBuyPath: [QuickBuyPathMember!]
+  # converterWithShortestQuickBuyPath: Converter
+  owner: Bytes!
+  # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
+  currentConverterRegistry: ConverterRegistry
+  addedToRegistryBlockNumber: BigInt
+  addedToRegistryTransactionHash: Bytes
+}
+
+type TokenSmartToken @entity {
+  id: ID! # ID is token address + smartToken address
+  token: Token!
+  smartToken: SmartToken!
 }
 
 type ConverterRegistry @entity {
   id: ID!
-  converters: [LiquidityPool!] @derivedFrom(field: "currentConverterRegistry") # possibly v2 converter, how to handle?
+  converters: [LiquidityPool!] @derivedFrom(field: "currentConverterRegistry")
   smartTokens: [SmartToken!] @derivedFrom(field: "currentConverterRegistry")
   connectorTokens: [Token!] @derivedFrom(field: "currentConverterRegistry")
   owner: Bytes! # address
@@ -62,31 +88,11 @@ type Token @entity {
   liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token")
   smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
   # tokenSwapTotals: [TokenSwapTotals!]
-  lastPriceBtc: BigInt # TODO: Change to big decimal
+  lastPriceBtc: BigInt # TODO: Change to big decimal - or not, maybe keep in BigInt
   lastPriceUsd: BigInt # TODO: Change to big decimal
   # marketCap: BigInt!
   # circulatingSupply: BigInt!
   currentConverterRegistry: ConverterRegistry
-}
-
-type SmartToken @entity {
-  id: ID!
-  name: String
-  symbol: String
-  decimals: Int
-  version: Int
-  # standard: String
-  smartTokenType: String # Relay, Liquid, BNT?, Others?
-  transfersEnabled: Boolean
-  liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
-  connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
-  # shortestQuickBuyPath: [QuickBuyPathMember!]
-  # converterWithShortestQuickBuyPath: Converter
-  owner: Bytes!
-  # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
-  currentConverterRegistry: ConverterRegistry
-  addedToRegistryBlockNumber: BigInt
-  addedToRegistryTransactionHash: Bytes
 }
 
 type PoolToken @entity {
@@ -94,7 +100,7 @@ type PoolToken @entity {
   name: String
   symbol: String
   decimals: Int
-  converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Change to Converter entity when implemented
+  converters: LiquidityPoolToken! @derivedFrom(field: "poolToken") #TODO: Does this need a many-to-many relationship?
   underlyingAssets: [TokenPoolToken!] @derivedFrom(field: "poolToken")
 }
 
@@ -143,12 +149,6 @@ type LiquidityPoolToken @entity {
   token: Token!
   liquidityPool: LiquidityPool!
   poolToken: PoolToken!
-}
-
-type TokenSmartToken @entity {
-  id: ID! # ID is token address + smartToken address
-  token: Token!
-  smartToken: SmartToken!
 }
 
 type TokenPoolToken @entity {
@@ -205,39 +205,39 @@ type NewConverter @entity {
   _converter: Bytes! # address
   _owner: Bytes! # address
   timestamp: BigInt!
-    transaction: Transaction!
+  transaction: Transaction!
 }
 
 type ConverterAnchorAdded @entity {
   id: ID!
   _anchor: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type ConverterAnchorRemoved @entity {
   id: ID!
   _anchor: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type LiquidityPoolAdded @entity {
   id: ID!
   _liquidityPool: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type LiquidityPoolRemoved @entity {
   id: ID!
   _liquidityPool: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type ConvertibleTokenAdded @entity {
@@ -245,8 +245,8 @@ type ConvertibleTokenAdded @entity {
   _convertibleToken: Bytes! # address
   _smartToken: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type ConvertibleTokenRemoved @entity {
@@ -254,24 +254,24 @@ type ConvertibleTokenRemoved @entity {
   _convertibleToken: Bytes! # address
   _smartToken: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type SmartTokenAdded @entity {
   id: ID!
   _smartToken: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type SmartTokenRemoved @entity {
   id: ID!
   _smartToken: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type PriceDataUpdate @entity {
@@ -281,8 +281,8 @@ type PriceDataUpdate @entity {
   _connectorBalance: BigInt! # uint256
   _connectorWeight: BigInt! # uint32
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type LiquidityAdded @entity {
@@ -319,14 +319,14 @@ type Activation @entity {
   _anchor: Bytes! # address
   _activated: Boolean! # bool
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type Conversion @entity {
   id: ID!
-  _fromToken: Bytes! # address
-  _toToken: Bytes! # address
+  _fromToken: Token! # address
+  _toToken: Token! # address
   _trader: Bytes! # address
   _amount: BigInt! # uint256
   _return: BigInt! # uint256
@@ -345,8 +345,8 @@ type TokenRateUpdate @entity {
   _rateN: BigInt! # uint256
   _rateD: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type ConversionFeeUpdate @entity {
@@ -354,8 +354,8 @@ type ConversionFeeUpdate @entity {
   _prevFee: BigInt! # uint32
   _newFee: BigInt! # uint32
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type WithdrawFees @entity {
@@ -366,8 +366,8 @@ type WithdrawFees @entity {
   protocolFeeAmount: BigInt! # uint256
   wRBTCConverted: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type DynamicFeeFactorUpdate @entity {
@@ -375,8 +375,8 @@ type DynamicFeeFactorUpdate @entity {
   _prevFactor: BigInt! # uint256
   _newFactor: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 type Approval @entity {
   id: ID!
@@ -384,8 +384,8 @@ type Approval @entity {
   spender: Bytes! # address
   value: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type Transfer @entity {
@@ -394,8 +394,14 @@ type Transfer @entity {
   to: Bytes! # address
   value: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+type ExampleEntity @entity {
+  id: ID!
+  count: BigInt!
+  _connectorToken: Bytes! # address
+  _tokenSupply: BigInt! # uint256
 }
 
 # Sovryn Protocol Events

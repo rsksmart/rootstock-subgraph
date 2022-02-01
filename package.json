@@ -8,15 +8,14 @@
     "build": "graph build",
     "deploy": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
-    "dev": "npm run codegen && npm run deploy-local",
+    "dev": "npm run codegen && npm run deploy-local -- --version-label v0.0.1",
     "dev:nodemon": "node_modules/nodemon/bin/nodemon.js --exec 'npm run dev' --ignore build/ --ignore generated/ --ignore data/ --ext 'ts,json,graphql,yaml'",
     "lint": "npx prettier src/",
     "lint:fix": "npx prettier -w src/",
     "scaffold": "node utils/scaffoldFromAbi.js",
     "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml",
     "prepare:RSK:mainnet": "npx mustache config/RSK.mainnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.mainnet.json docker-compose.template.yml > docker-compose.yml",
-    "prepare:contracts:testnet": "npx mustache config/RSK.testnet.json src/contracts/contracts.template.ts > src/contracts/contracts.ts",
-    "prepare:contracts:mainnet": "npx mustache config/RSK.mainnet.json src/contracts/contracts.template.ts > src/contracts/contracts.ts"
+    "prepare:BlockNumbers:testnet": "npx mustache config/RSK.testnet.json src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.template.ts > src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.ts"
   },
   "devDependencies": {
     "@amxx/graphprotocol-utils": "^1.1.0-alpha.2",

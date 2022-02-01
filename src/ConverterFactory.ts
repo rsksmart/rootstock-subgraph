@@ -18,7 +18,7 @@ export function handleNewConverter(event: NewConverterEvent): void {
   /**
    * Create new LiquidityPool
    */
-  createAndReturnLiquidityPool(event.params._converter, event.params._type)
+  createAndReturnLiquidityPool(event.params._converter, event.block.timestamp, event.block.number, event.transaction.hash.toHexString())
 }
 
 export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
@@ -28,5 +28,6 @@ export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
   entity.save()
 }

@@ -5,34 +5,6 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: SOV
-    network: {{network}}
-    source:
-      address: '{{SOV.address}}'
-      abi: SOV
-      startBlock: {{SOV.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Approval
-        - OwnershipTransferred
-        - Transfer
-      abis:
-        - name: SOV
-          file: ./abis/SOV.json
-      eventHandlers:
-        
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ./src/SOV.ts
-
-  - kind: ethereum/contract
     name: ConverterFactory
     network: {{network}}
     source:
@@ -92,6 +64,12 @@ dataSources:
           file: ./abis/ConverterRegistry.json
         - name: SmartToken
           file: ./abis/SmartToken.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         
         - event: ConverterAnchorAdded(indexed address)
@@ -324,9 +302,7 @@ templates:
     name: ERC20
     network: {{network}}
     source:
-      # address: '{{ERC20.address}}'
       abi: ERC20
-      # startBlock: {{ERC20.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -356,7 +332,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
-      entities:
+      entities: 
         - Burn
         - FlashBorrow
         - Mint
@@ -371,3 +347,47 @@ templates:
         - event: Mint(indexed address,uint256,uint256,uint256)
           handler: handleMint
       file: ./src/LoanTokenLogicStandard.ts
+
+  - kind: ethereum/contract
+    name: LiquidityPoolV1Converter_V2
+    network: {{network}}
+    source:
+      abi: LiquidityPoolV1Converter_V2
+      mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PriceDataUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
+        - WithdrawFees
+        - OwnerUpdate
+      abis:
+        - name: LiquidityPoolV1Converter_V2
+          file: ./abis/LiquidityPoolV1Converter_V2.json
+      eventHandlers:
+        
+        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
+        #   handler: handlePriceDataUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+          handler: handleConversionV1_2
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+        #   handler: handleWithdrawFees
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/LiquidityPoolConverter.ts
