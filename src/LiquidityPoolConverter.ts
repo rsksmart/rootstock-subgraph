@@ -14,10 +14,7 @@ import {
   Conversion as ConversionEventV2,
   LiquidityPoolV2Converter as LiquidityPoolV2Contract,
 } from '../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
-import {
-  Conversion as ConversionEventV1_2,
-  LiquidityPoolV1Converter_V2 as LiquidityV1Contract_2,
-} from '../generated/templates/LiquidityPoolV1Converter_V2/LiquidityPoolV1Converter_V2'
+import { Conversion as ConversionEventV1_2 } from '../generated/templates/LiquidityPoolV1Converter_V2/LiquidityPoolV1Converter_V2'
 import {
   PriceDataUpdate,
   LiquidityAdded,
@@ -139,7 +136,7 @@ export function handleConversionV1(event: ConversionEventV1): void {
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
-  entity._protocolFee = BigInt.fromString('0')
+  entity._protocolFee = BigInt.zero()
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -168,7 +165,7 @@ export function handleConversionV2(event: ConversionEventV2): void {
   entity._amount = event.params._amount
   entity._return = event.params._return
   entity._conversionFee = event.params._conversionFee
-  entity._protocolFee = BigInt.fromString('0')
+  entity._protocolFee = BigInt.zero()
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
