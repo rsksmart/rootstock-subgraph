@@ -5,6 +5,38 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: ConverterFactory
+    network: {{network}}
+    source:
+      address: '{{ConverterFactory.address}}'
+      abi: ConverterFactory
+      startBlock: {{ConverterFactory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - NewConverter
+        - OwnerUpdate
+        - LiquidityPool
+      abis:
+        - name: ConverterFactory
+          file: ./abis/ConverterFactory.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        
+        - event: NewConverter(indexed uint16,indexed address,indexed address)
+          handler: handleNewConverter
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/ConverterFactory.ts
+
+  - kind: ethereum/contract
     name: ConverterRegistry
     network: {{network}}
     source:
@@ -25,6 +57,8 @@ dataSources:
         - SmartTokenAdded
         - SmartTokenRemoved
         - OwnerUpdate
+        - LiquidityPool
+        - SmartToken
       abis:
         - name: ConverterRegistry
           file: ./abis/ConverterRegistry.json
@@ -32,8 +66,10 @@ dataSources:
           file: ./abis/SmartToken.json
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
-        - name: ERC20Token
-          file: ./abis/ERC20Token.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         
         - event: ConverterAnchorAdded(indexed address)
@@ -55,7 +91,111 @@ dataSources:
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/ConverterRegistry.ts
+
 templates:
+  - kind: ethereum/contract
+    name: LiquidityPoolV1Converter
+    network: {{network}}
+    source:
+      # address: '{{LiquidityPoolV1Converter.address}}'
+      abi: LiquidityPoolV1Converter
+      # startBlock: {{LiquidityPoolV1Converter.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - PriceDataUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
+        - WithdrawFees
+        - OwnerUpdate
+        - Token
+        - SmartToken
+        - PoolToken
+      abis:
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
+      eventHandlers:
+        
+        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
+        #   handler: handlePriceDataUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
+          handler: handleConversionV1
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+        #   handler: handleWithdrawFees
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/LiquidityPoolConverter.ts
+
+  - kind: ethereum/contract
+    name: LiquidityPoolV2Converter
+    network: {{network}}
+    source:
+      # address: '{{LiquidityPoolV2Converter.address}}'
+      abi: LiquidityPoolV2Converter
+      # startBlock: {{LiquidityPoolV2Converter.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DynamicFeeFactorUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
+        - OwnerUpdate
+        - Token
+        - SmartToken
+        - PoolToken
+      abis:
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
+      eventHandlers:
+        
+        # - event: DynamicFeeFactorUpdate(uint256,uint256)
+        #   handler: handleDynamicFeeFactorUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
+          handler: handleConversionV2
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/LiquidityPoolConverter.ts
+
   - kind: ethereum/contract
     name: SmartToken
     network: {{network}}
@@ -76,8 +216,8 @@ templates:
           file: ./abis/SmartToken.json
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
-        - name: ERC20Token
-          file: ./abis/ERC20Token.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         # - event: Issuance(uint256)
         #   handler: handleIssuance
@@ -90,12 +230,35 @@ templates:
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/SmartToken.ts
-
+  
   - kind: ethereum/contract
-    name: LiquidityPoolV1Converter
+    name: ERC20
     network: {{network}}
     source:
-      abi: LiquidityPoolV1Converter
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - Transfer
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/ERC20.ts
+
+  - kind: ethereum/contract
+    name: LiquidityPoolV1Converter_V2
+    network: {{network}}
+    source:
+      abi: LiquidityPoolV1Converter_V2
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -108,50 +271,29 @@ templates:
         - Conversion
         - TokenRateUpdate
         - ConversionFeeUpdate
+        - WithdrawFees
         - OwnerUpdate
       abis:
-        - name: LiquidityPoolV1Converter
-          file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV1Converter_V2
+          file: ./abis/LiquidityPoolV1Converter_V2.json
       eventHandlers:
         
-        - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
-          handler: handlePriceDataUpdate
+        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
+        #   handler: handlePriceDataUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityRemoved
         - event: Activation(indexed uint16,indexed address,indexed bool)
           handler: handleActivation
-        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
-          handler: handleConversion
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+          handler: handleConversionV1_2
         - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
           handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
+        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+        #   handler: handleWithdrawFees
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
-      file: ./src/LiquidityPoolV1Converter.ts
-
-  - kind: ethereum/contract
-    name: ERC20Token
-    network: {{network}}
-    source:
-      abi: ERC20Token
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-        - Approval
-      abis:
-        - name: ERC20Token
-          file: ./abis/ERC20Token.json
-      eventHandlers:
-        
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-      file: ./src/ERC20Token.ts
-      
+      file: ./src/LiquidityPoolConverter.ts

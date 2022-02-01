@@ -65,7 +65,7 @@ generated/
 build/
 data/
 bin/
-abis/
+# abis/
 subgraph.yaml
 subgraph.yml
 docker-compose.yml

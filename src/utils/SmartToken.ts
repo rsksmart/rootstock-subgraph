@@ -8,7 +8,7 @@ export class IGetSmartToken {
   isNew: boolean
 }
 
-export function getSmartToken(smartTokenAddress: Address): IGetSmartToken {
+export function createAndReturnSmartToken(smartTokenAddress: Address): IGetSmartToken {
   let isNew = false
   let smartToken = SmartToken.load(smartTokenAddress.toHex())
   if (smartToken == null) {
