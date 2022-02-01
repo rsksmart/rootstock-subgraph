@@ -1,10 +1,3 @@
-# type ContractRegistry @entity {
-#   id: ID!
-#   converterRegistries: [ConverterRegistry!]
-#   # contracts: [BancorContract!] @derivedFrom(field: "registry")
-#   owner: String
-# }
-
 type SmartToken @entity {
   id: ID!
   name: String
@@ -66,20 +59,22 @@ type Transaction @entity {
 
 type User @entity {
   id: ID! @unique
-  numSwaps: Int!
   swaps: [Swap!] @derivedFrom(field: "user")
-  liquidityAddeds: [LiquidityAdded!] @derivedFrom(field: "user")
-  liquidityRemoveds: [LiquidityRemoved!] @derivedFrom(field: "user")
+  numSwaps: Int!
+  liquidityHistory: [UserLiquidityHistory!] @derivedFrom(field: "user")
   trades: [Trade!] @derivedFrom(field: "user")
   borrows: [Borrow!] @derivedFrom(field: "user")
   liquidations: [Liquidate!] @derivedFrom(field: "user")
   loans: [Loan!] @derivedFrom(field: "user")
   lendingHistory: [UserLendingHistory!] @derivedFrom(field: "lender")
   dividendsCollected: [DividendsCollected!] @derivedFrom(field: "receiver")
+  stakeHistory: [UserStakeHistory!] @derivedFrom(field: "user")
+  feesEarnedHistory: [FeesEarnedHistory!] @derivedFrom(field: "user")
   # vestedTokensWithdrawn: [TokensWithdrawn!] @derivedFrom(field: "receiver")
   vestingContracts: [VestingContract!] @derivedFrom(field:"user")
-  # tokensStaked: [StakedTokenHistory!] @derivedFrom(field: "user")
-  # rewards: [Rewards!] @derivedFrom(field: "user")
+
+  availableTradingRewards: BigInt!
+  availableRewardSov: BigInt!
 
   # tokenSwapTotals: [UserTokenSwapTotal!]
   # smartTokenBalances: [UserSmartTokenBalance!]
@@ -259,28 +254,15 @@ type PriceDataUpdate @entity {
   transaction: Transaction!
 }
 
-type LiquidityAdded @entity {
+type UserLiquidityHistory @entity {
   id: ID!
   user: User!
-  _provider: Bytes! # address
-  _reserveToken: Token! # address
-  _amount: BigInt! # uint256
-  _newBalance: BigInt! # uint256
-  _newSupply: BigInt! # uint256
-  timestamp: BigInt!
-  liquidityPool: LiquidityPool!
-  emittedBy: Bytes! #address
-  transaction: Transaction!
-}
-
-type LiquidityRemoved @entity {
-  id: ID!
-  user: User!
-  _provider: Bytes! # address
-  _reserveToken: Token! # address
-  _amount: BigInt! # uint256
-  _newBalance: BigInt! # uint256
-  _newSupply: BigInt! # uint256
+  type: String!
+  provider: Bytes! # address
+  reserveToken: Token! # address
+  amount: BigInt! # uint256
+  newBalance: BigInt! # uint256
+  newSupply: BigInt! # uint256
   timestamp: BigInt!
   liquidityPool: LiquidityPool!
   emittedBy: Bytes! #address
@@ -423,33 +405,21 @@ type DepositCollateral @entity {
   depositAmount: BigInt! # uint256
   rate: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type EarnReward @entity {
   id: ID!
-  receiver: Bytes! # address
-  token: Bytes! # address
+  receiver: User! # address
+  token: Token! # address
   loanId: Loan! # bytes32
   feeRebatePercent: BigInt! # uint256
   amount: BigInt! # uint256
   basisPoint: BigInt! # uint256
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
-}
-
-type ExternalSwap @entity {
-  id: ID!
-  user: Bytes! # address
-  sourceToken: Bytes! # address
-  destToken: Bytes! # address
-  sourceAmount: BigInt! # uint256
-  destAmount: BigInt! # uint256
-  timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type Liquidate @entity {
@@ -756,14 +726,14 @@ type LoanToken @entity {
 type VestingContract @entity {
   id: ID! # vesting contract id
   user: User!
-  createdAtTimestamp: BigInt!
-  cliff: BigInt! # uint256
-  duration: BigInt! # uint256
-  amount: BigInt! # uint256
-  type: String! # Team, Non-team, Rewards
+  createdAtTimestamp: BigInt
+  cliff: BigInt # uint256
+  duration: BigInt # uint256
+  amount: BigInt # uint256
+  type: String # Team, Non-team, Rewards
   emittedBy: Bytes!
   createdAtTransaction: Transaction!
-  sovTransferred: [SOVTransferred!] @derivedFrom(field: "receiver")
+  # sovTransferred: [SOVTransferred!] @derivedFrom(field: "receiver")
 }
 
 type SOVTransferred @entity {
@@ -788,10 +758,168 @@ type DividendsCollected @entity {
   transaction: Transaction!
 }
 
-type TokensWithdrawn @entity {
+type TokensWithdrawn_Vesting @entity {
   id: ID!
   caller: Bytes! # address
   receiver: Bytes! # address
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# Staking contract
+
+type DelegateStakeChanged @entity {
+  id: ID!
+  delegate: Bytes! # address
+  lockedUntil: BigInt! # uint256
+  previousBalance: BigInt! # uint256
+  newBalance: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type TokensStaked @entity {
+  id: ID!
+  user: User
+  staker: Bytes! # address
+  amount: BigInt! # uint256
+  lockedUntil: BigInt! # uint256
+  totalStaked: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+  isUserStaked: Boolean!
+}
+
+type VestingTokensWithdrawn @entity {
+  id: ID!
+  vesting: VestingContract! # address
+  receiver: Bytes! # address
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# This maps to existing stakeHistory api
+
+type UserStakeHistory @entity {
+  id: ID! # transaction hash
+  user: User!
+  action: String!
+  timestamp: BigInt!
+  transaction: Transaction!
+  amount: BigInt
+  lockedUntil: BigInt
+}
+
+# Fee Sharing Proxy and Fees History
+
+# Matches feesEarnedHistory sql
+type FeesEarnedHistory @entity {
+  id: ID! # transaction hash
+  action: String!
+  user: User!
+  token: Token
+  amount: BigInt
+  timestamp: BigInt
+  transaction: Transaction!
+}
+
+# Matches liquidSovHistory sql
+type LiquidSovHistory @entity {
+  id: ID! #transaction hash
+  action: String!
+  user: User!
+  sovAmount: BigInt!
+  timestamp: BigInt!
+  transaction: Transaction!
+}
+
+# Matches rewardHistorySql_new
+type RewardHistory @entity {
+  id: ID!
+  action: String!
+  user: User!
+  amount: BigInt!
+  poolToken: PoolToken
+  timestamp: BigInt!
+  transaction: Transaction!
+}
+
+type FeeAMMWithdrawn @entity {
+  id: ID!
+  sender: Bytes! # address
+  converter: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type FeeWithdrawn @entity {
+  id: ID!
+  sender: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type TokensTransferred @entity {
+  id: ID!
+  sender: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type UserFeeWithdrawn @entity {
+  id: ID!
+  sender: Bytes! # address
+  receiver: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# Locked SOV 
+
+type Deposited @entity {
+  id: ID!
+  _initiator: Bytes! # address
+  _userAddress: Bytes! # address
+  _sovAmount: BigInt! # uint256
+  _basisPoint: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# Mining Proxy
+
+type RewardClaimed @entity {
+  id: ID!
+  user: Bytes! # address
+  poolToken: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# Staking Reward
+
+type RewardWithdrawn @entity {
+  id: ID!
+  receiver: Bytes! # address
+  amount: BigInt! # uint256
   timestamp: BigInt!
   emittedBy: Bytes! #address
   transaction: Transaction!

@@ -7,6 +7,7 @@ import {
   SOVTransferred as SOVTransferredEvent,
   TeamVestingCreated as TeamVestingCreatedEvent,
   VestingCreated as VestingCreatedEvent,
+  TokensStaked as TokensStakedEvent,
 } from '../generated/VestingRegistry1/VestingRegistry'
 import { SOVTransferred, VestingContract } from '../generated/schema'
 import { VestingLogic as VestingContractTemplate } from '../generated/templates'
@@ -14,6 +15,7 @@ import { VestingLogic as VestingContractTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
 import { vestingRegistry3 } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
+import { log } from '@graphprotocol/graph-ts'
 
 export function handleAdminAdded(event: AdminAddedEvent): void {}
 
@@ -37,6 +39,7 @@ export function handleSOVTransferred(event: SOVTransferredEvent): void {
 }
 
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
+  log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
   let entity = new VestingContract(event.params.vesting.toHexString())
   let user = createAndReturnUser(event.params.tokenOwner)
   entity.user = user.id
@@ -53,7 +56,10 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   VestingContractTemplate.create(event.params.vesting)
 }
 
+export function handleTokensStaked(event: TokensStakedEvent): void {}
+
 export function handleVestingCreated(event: VestingCreatedEvent): void {
+  log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
   let entity = new VestingContract(event.params.vesting.toHexString())
   let user = createAndReturnUser(event.params.tokenOwner)
   entity.user = user.id

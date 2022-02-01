@@ -4,8 +4,9 @@ import {
   TokensStaked as TokensStakedEvent,
   TokensWithdrawn as TokensWithdrawnEvent,
   VotesDelegated as VotesDelegatedEvent,
+  OwnershipTransferred as OwnershipTransferredEvent,
 } from '../generated/templates/VestingLogic/VestingLogic'
-import { DividendsCollected, TokensWithdrawn } from '../generated/schema'
+import { DividendsCollected, TokensWithdrawn_Vesting as TokensWithdrawn } from '../generated/schema'
 
 import { loadTransaction } from './utils/Transaction'
 
@@ -38,3 +39,5 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
 }
 
 export function handleVotesDelegated(event: VotesDelegatedEvent): void {}
+
+export function handleOwnershipTransferred(event: OwnershipTransferredEvent): void {}

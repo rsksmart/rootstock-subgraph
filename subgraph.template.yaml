@@ -290,6 +290,198 @@ dataSources:
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
 
+  - kind: ethereum/contract
+    name: Staking
+    network: {{network}}
+    source:
+      address: '{{Staking.address}}'
+      abi: Staking
+      startBlock: {{Staking.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DelegateChanged
+        - DelegateStakeChanged
+        - ExtendedStakingDuration
+        - OwnershipTransferred
+        - TokensStaked
+        - TokensUnlocked
+        - TokensWithdrawn
+        - VestingTokensWithdrawn
+      abis:
+        - name: Staking
+          file: ./abis/Staking.json
+      eventHandlers:
+        
+        - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateStakeChanged(indexed address,uint256,uint256,uint256)
+          handler: handleDelegateStakeChanged
+        - event: ExtendedStakingDuration(indexed address,uint256,uint256)
+          handler: handleExtendedStakingDuration
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensStaked(indexed address,uint256,uint256,uint256)
+          handler: handleTokensStaked
+        - event: TokensUnlocked(uint256)
+          handler: handleTokensUnlocked
+        - event: TokensWithdrawn(indexed address,address,uint256)
+          handler: handleTokensWithdrawn
+        - event: VestingTokensWithdrawn(address,address)
+          handler: handleVestingTokensWithdrawn
+      file: ./src/Staking.ts
+   
+  - kind: ethereum/contract
+    name: FeeSharingProxy_start
+    network: {{network}}
+    source:
+      address: '{{FeeSharingProxy_start.address}}'
+      abi: FeeSharingProxy
+      startBlock: {{FeeSharingProxy_start.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+
+  - kind: ethereum/contract
+    name: FeeSharingProxy_ammFeeSplit
+    network: {{network}}
+    source:
+      address: '{{FeeSharingProxy_ammFeeSplit.address}}'
+      abi: FeeSharingProxy
+      startBlock: {{FeeSharingProxy_start.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+
+  - kind: ethereum/contract
+    name: LockedSov
+    network: {{network}}
+    source:
+      address: '{{LockedSov.address}}'
+      abi: LockedSov
+      startBlock: {{LockedSov.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Deposited
+      abis:
+        - name: LockedSov
+          file: ./abis/LockedSov.json
+      eventHandlers:
+        - event: Deposited(indexed address,indexed address,uint256,uint256)
+          handler: handleDeposited
+      file: ./src/LockedSov.ts
+
+  - kind: ethereum/contract
+    name: MiningProxy
+    network: {{network}}
+    source:
+      address: '{{MiningProxy.address}}'
+      abi: MiningProxy
+      startBlock: {{MiningProxy.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - RewardClaimed
+      abis:
+        - name: MiningProxy
+          file: ./abis/MiningProxy.json
+      eventHandlers:
+        - event: RewardClaimed(indexed address,indexed address,uint256)
+          handler: handleRewardClaimed
+      file: ./src/MiningProxy.ts
+
+  - kind: ethereum/contract
+    name: StakingReward
+    network: {{network}}
+    source:
+      address: '{{StakingReward.address}}'
+      abi: StakingReward
+      startBlock: {{StakingReward.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - RewardWithdrawn
+      abis:
+        - name: StakingReward
+          file: ./abis/StakingReward.json
+      eventHandlers:
+        - event: RewardWithdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+      file: ./src/StakingReward.ts
+
 templates:
   - kind: ethereum/contract
     name: LiquidityPoolV1Converter
@@ -547,7 +739,6 @@ templates:
         - name: VestingLogic
           file: ./abis/VestingLogic.json
       eventHandlers:
-        
         - event: DividendsCollected(indexed address,address,address,uint32)
           handler: handleDividendsCollected
         - event: MigratedToNewStakingContract(indexed address,address)

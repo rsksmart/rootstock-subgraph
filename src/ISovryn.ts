@@ -20,7 +20,6 @@ import {
   CloseWithSwap,
   DepositCollateral,
   EarnReward,
-  ExternalSwap,
   Liquidate,
   LoanSwap,
   PayBorrowingFee,
@@ -31,11 +30,13 @@ import {
   Trade,
   Loan,
   LoanToken,
+  Swap,
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade } from './utils/Loan'
 import { DataSourceContext } from '@graphprotocol/graph-ts'
+import { createAndReturnUser } from './utils/User'
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -140,8 +141,8 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
 export function handleEarnReward(event: EarnRewardEvent): void {
   let entity = new EarnReward(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanEntity = Loan.load(event.params.loanId.toHexString())
-  entity.receiver = event.params.receiver
-  entity.token = event.params.token
+  entity.receiver = event.params.receiver.toHexString()
+  entity.token = event.params.token.toHexString()
   if (loanEntity != null) {
     entity.loanId = loanEntity.id
   }
@@ -153,20 +154,20 @@ export function handleEarnReward(event: EarnRewardEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let user = createAndReturnUser(event.params.receiver)
+  user.availableRewardSov = user.availableRewardSov.plus(event.params.amount)
+  user.availableTradingRewards = user.availableTradingRewards.plus(event.params.amount)
+  user.save()
 }
 
 export function handleExternalSwap(event: ExternalSwapEvent): void {
-  let entity = new ExternalSwap(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  entity.user = event.params.user
-  entity.sourceToken = event.params.sourceToken
-  entity.destToken = event.params.destToken
-  entity.sourceAmount = event.params.sourceAmount
-  entity.destAmount = event.params.destAmount
-  let transaction = loadTransaction(event)
-  entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.save()
+  let swapEntity = Swap.load(event.transaction.hash.toHexString())
+  if (swapEntity != null) {
+    let user = createAndReturnUser(event.transaction.from)
+    swapEntity.user = user.id
+    swapEntity.save()
+  }
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {

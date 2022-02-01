@@ -1,4 +1,4 @@
-import { Address } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { User } from '../../generated/schema'
 
 export function createAndReturnUser(address: Address): User {
@@ -7,6 +7,8 @@ export function createAndReturnUser(address: Address): User {
   if (userEntity == null) {
     userEntity = new User(address.toHex())
     userEntity.numSwaps = 0
+    userEntity.availableTradingRewards = BigInt.zero()
+    userEntity.availableRewardSov = BigInt.zero()
   }
 
   userEntity.save()
