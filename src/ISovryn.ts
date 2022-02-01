@@ -52,7 +52,7 @@ export function handleBorrow(event: BorrowEvent): void {
     startRate: event.params.collateralToLoanRate,
   }
   let loanEntity = createAndReturnLoan(loanParams)
-  entity.user = event.params.user
+  entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
   if (loanEntity != null) {
     entity.loanId = loanEntity.id
@@ -172,7 +172,7 @@ export function handleExternalSwap(event: ExternalSwapEvent): void {
 export function handleLiquidate(event: LiquidateEvent): void {
   let entity = new Liquidate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanEntity = Loan.load(event.params.loanId.toHexString())
-  entity.user = event.params.user
+  entity.user = event.params.user.toHexString()
   entity.liquidator = event.params.liquidator
   if (loanEntity != null) {
     entity.loanId = loanEntity.id
@@ -304,7 +304,7 @@ export function handleTrade(event: TradeEvent): void {
     startRate: event.params.entryPrice,
   }
   let loanEntity = createAndReturnLoan(loanParams)
-  entity.user = event.params.user
+  entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
   if (loanEntity != null) {
     entity.loanId = loanEntity.id

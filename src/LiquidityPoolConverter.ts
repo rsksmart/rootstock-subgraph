@@ -24,7 +24,6 @@ import {
   TokenRateUpdate,
   ConversionFeeUpdate,
   WithdrawFees,
-  OwnerUpdate,
   LiquidityPool,
   Token,
 } from '../generated/schema'
@@ -277,13 +276,4 @@ export function handleWithdrawFees(event: WithdrawFeesEvent): void {
   entity.save()
 }
 
-export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
-  let entity = new OwnerUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  entity._prevOwner = event.params._prevOwner
-  entity._newOwner = event.params._newOwner
-  let transaction = loadTransaction(event)
-  entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.save()
-}
+export function handleOwnerUpdate(event: OwnerUpdateEvent): void {}

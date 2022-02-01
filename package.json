@@ -15,7 +15,8 @@
     "scaffold": "node utils/scaffoldFromAbi.js",
     "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml",
     "prepare:RSK:mainnet": "npx mustache config/RSK.mainnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.mainnet.json docker-compose.template.yml > docker-compose.yml",
-    "prepare:BlockNumbers:testnet": "npx mustache config/RSK.testnet.json src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.template.ts > src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.ts"
+    "prepare:BlockNumbers:testnet": "npx mustache config/RSK.testnet.json src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.template.ts > src/backwardsCompatibilityBlocks/liquidityPoolAbiVersions.ts",
+    "prepare:Contracts:testnet": "npx mustache config/RSK.testnet.json src/contracts/contracts.template.ts > src/contracts/contracts.ts"
   },
   "devDependencies": {
     "@amxx/graphprotocol-utils": "^1.1.0-alpha.2",
