@@ -733,6 +733,7 @@ type VestingContract @entity {
   type: String # Team, Non-team, Rewards
   emittedBy: Bytes!
   createdAtTransaction: Transaction!
+  stakeHistory: [TokensStaked!]!
   # sovTransferred: [SOVTransferred!] @derivedFrom(field: "receiver")
 }
 

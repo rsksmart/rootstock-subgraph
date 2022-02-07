@@ -36,6 +36,8 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  /** Load Vesting Contract and subtract balance of TokensWithdrawn */
 }
 
 export function handleVotesDelegated(event: VotesDelegatedEvent): void {}

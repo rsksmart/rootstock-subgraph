@@ -23,7 +23,12 @@ export function handleAdminRemoved(event: AdminRemovedEvent): void {}
 
 export function handleCSOVReImburse(event: CSOVReImburseEvent): void {}
 
-export function handleCSOVTokensExchanged(event: CSOVTokensExchangedEvent): void {}
+export function handleCSOVTokensExchanged(event: CSOVTokensExchangedEvent): void {
+  /**
+   * Genesis vesting contract creation did not trigger a VestingCreated event.
+   * However, it did trigger this event.
+   */
+}
 
 export function handleOwnershipTransferred(event: OwnershipTransferredEvent): void {}
 
@@ -51,8 +56,8 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   entity.createdAtTimestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.type = 'Team'
+  entity.stakeHistory = []
   entity.save()
-
   VestingContractTemplate.create(event.params.vesting)
 }
 
@@ -70,7 +75,8 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp
   entity.emittedBy = event.address
-  entity.type = event.address.toHexString().toLowerCase() == vestingRegistry3.toLowerCase() ? 'Rewards' : 'Non-team'
+  entity.type = event.address.toHexString().toLowerCase() == vestingRegistry3.toLowerCase() ? 'Rewards' : 'Origins'
+  entity.stakeHistory = []
   entity.save()
 
   VestingContractTemplate.create(event.params.vesting)

@@ -14,7 +14,7 @@ import {
   Conversion as ConversionEventV2,
   LiquidityPoolV2Converter as LiquidityPoolV2Contract,
 } from '../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
-import { Conversion as ConversionEventV1_2 } from '../generated/templates/LiquidityPoolV1Converter_V2/LiquidityPoolV1Converter_V2'
+import { Conversion as ConversionEventV1WithProtocol } from '../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
 import {
   PriceDataUpdate,
   UserLiquidityHistory,
@@ -209,7 +209,7 @@ export function handleConversionV2(event: ConversionEventV2): void {
   createAndReturnSwap(parsedEvent)
 }
 
-export function handleConversionV1_2(event: ConversionEventV1_2): void {
+export function handleConversionV1_2(event: ConversionEventV1WithProtocol): void {
   let entity = new Conversion(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._fromToken = event.params._fromToken.toHexString()
   entity._toToken = event.params._toToken.toHexString()
