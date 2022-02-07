@@ -47,40 +47,5 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   }
   swapEntity.save()
 
-  /**
-   * Update lastPriceBtc on token
-   */
-  if (event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let token = Token.load(event.toToken.toHexString())
-    if (token != null) {
-      token.lastPriceBtc = event.toAmount.div(event.fromAmount)
-      token.save()
-    }
-  } else if (event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let token = Token.load(event.fromToken.toHexString())
-    if (token != null) {
-      token.lastPriceBtc = event.fromAmount.div(event.toAmount)
-      token.save()
-    }
-  }
-
-  /** Update lastPriceUsd on BTC */
-
-  if (event.fromToken.toHexString() == USDTAddress.toLowerCase() && event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let BTCToken = Token.load(WRBTCAddress.toLowerCase())
-    if (BTCToken != null) {
-      BTCToken.lastPriceUsd = event.toAmount.div(event.fromAmount)
-      BTCToken.save()
-    }
-    /** Trigger update of all tokens and candlesticks */
-  } else if (event.toToken.toHexString() == USDTAddress.toLowerCase() && event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let BTCToken = Token.load(WRBTCAddress.toLowerCase())
-    if (BTCToken != null) {
-      BTCToken.lastPriceUsd = event.fromAmount.div(event.toAmount)
-      BTCToken.save()
-    }
-    /** Trigger update of all tokens and candlesticks */
-  }
-
   return swapEntity
 }
