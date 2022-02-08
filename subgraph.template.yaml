@@ -26,6 +26,8 @@ dataSources:
           file: ./abis/LiquidityPoolV1Converter.json
         - name: LiquidityPoolV2Converter
           file: ./abis/LiquidityPoolV2Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
@@ -68,6 +70,8 @@ dataSources:
           file: ./abis/LiquidityPoolV1Converter.json
         - name: LiquidityPoolV2Converter
           file: ./abis/LiquidityPoolV2Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
@@ -155,6 +159,7 @@ dataSources:
           handler: handleTrade
       file: ./src/ISovryn.ts
 
+  # 3 Vesting Registries (same abi). We need to add FISH here
   - kind: ethereum/contract
     name: VestingRegistry1
     network: {{network}}
@@ -336,6 +341,7 @@ dataSources:
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
    
+  #  The next 2 contracts are FeeSharingProxy contracts
   - kind: ethereum/contract
     name: FeeSharingProxy_start
     network: {{network}}
@@ -611,10 +617,6 @@ templates:
       abis:
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: LiquidityPoolV1Converter
-          file: ./abis/LiquidityPoolV1Converter.json
-        - name: ERC20
-          file: ./abis/ERC20.json
       eventHandlers:
         # - event: Issuance(uint256)
         #   handler: handleIssuance
@@ -682,7 +684,52 @@ templates:
     name: LiquidityPoolV1ConverterProtocolFee
     network: {{network}}
     source:
+      # address: '{{LiquidityPoolV2Converter.address}}'
       abi: LiquidityPoolV1ConverterProtocolFee
+      # startBlock: {{LiquidityPoolV2Converter.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DynamicFeeFactorUpdate
+        - LiquidityAdded
+        - LiquidityRemoved
+        - Activation
+        - Conversion
+        - TokenRateUpdate
+        - ConversionFeeUpdate
+        - OwnerUpdate
+        - Token
+        - SmartToken
+        - PoolToken
+      abis:
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
+        - name: SovrynSwapNetwork
+          file: ./abis/SovrynSwapNetwork.json
+      eventHandlers:
+        
+        # - event: DynamicFeeFactorUpdate(uint256,uint256)
+        #   handler: handleDynamicFeeFactorUpdate
+        - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLiquidityRemoved
+        - event: Activation(indexed uint16,indexed address,indexed bool)
+          handler: handleActivation
+        - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
+          handler: handleConversionV1_2
+        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
+          handler: handleTokenRateUpdate
+        - event: ConversionFeeUpdate(uint32,uint32)
+          handler: handleConversionFeeUpdate
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
   - kind: ethereum/contract
@@ -718,8 +765,3 @@ templates:
         - event: VotesDelegated(indexed address,address)
           handler: handleVotesDelegated
       file: ./src/VestingLogic.ts
-        - Issuance
-        - Destruction
-        - Transfer
-        - Approval
-        - OwnerUpdate
