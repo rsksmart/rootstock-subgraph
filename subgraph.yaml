@@ -1,0 +1,84 @@
+specVersion: 0.0.2
+description: Sovryn RSK Subgraph
+repository: https://github.com/graphprotocol/example-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ConverterRegistry
+    network: mainnet
+    source:
+      address: '0x31A0F8400c75d52FdB413372233F28E3bdFB1c06'
+      abi: ConverterRegistry
+      startBlock: 2742580
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ConverterAnchorAdded
+        - ConverterAnchorRemoved
+        - LiquidityPoolAdded
+        - LiquidityPoolRemoved
+        - ConvertibleTokenAdded
+        - ConvertibleTokenRemoved
+        - SmartTokenAdded
+        - SmartTokenRemoved
+        - OwnerUpdate
+      abis:
+        - name: ConverterRegistry
+          file: ./abis/ConverterRegistry.json
+        - name: SmartTokenContract
+          file: ./abis/SmartToken.json
+      eventHandlers:
+        
+        - event: ConverterAnchorAdded(indexed address)
+          handler: handleConverterAnchorAdded
+        - event: ConverterAnchorRemoved(indexed address)
+          handler: handleConverterAnchorRemoved
+        - event: LiquidityPoolAdded(indexed address)
+          handler: handleLiquidityPoolAdded
+        - event: LiquidityPoolRemoved(indexed address)
+          handler: handleLiquidityPoolRemoved
+        - event: ConvertibleTokenAdded(indexed address,indexed address)
+          handler: handleConvertibleTokenAdded
+        - event: ConvertibleTokenRemoved(indexed address,indexed address)
+          handler: handleConvertibleTokenRemoved
+        - event: SmartTokenAdded(indexed address)
+          handler: handleSmartTokenAdded
+        - event: SmartTokenRemoved(indexed address)
+          handler: handleSmartTokenRemoved
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/ConverterRegistry.ts
+templates:
+  - kind: ethereum/contract
+    name: SmartToken
+    network: mainnet
+    source:
+      abi: SmartToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Issuance
+        - Destruction
+        - Transfer
+        - Approval
+        - OwnerUpdate
+      abis:
+        - name: SmartToken
+          file: ./abis/SmartToken.json
+      eventHandlers:
+        # - event: Issuance(uint256)
+        #   handler: handleIssuance
+        # - event: Destruction(uint256)
+        #   handler: handleDestruction
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
+        - event: OwnerUpdate(indexed address,indexed address)
+          handler: handleOwnerUpdate
+      file: ./src/SmartToken.ts

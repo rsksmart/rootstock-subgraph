@@ -1,3 +1,5 @@
+import { BigInt } from '@graphprotocol/graph-ts'
+
 import {
   ConverterAnchorAdded as ConverterAnchorAddedEvent,
   ConverterAnchorRemoved as ConverterAnchorRemovedEvent,
@@ -9,18 +11,45 @@ import {
   SmartTokenRemoved as SmartTokenRemovedEvent,
   OwnerUpdate as OwnerUpdateEvent,
 } from '../generated/ConverterRegistry/ConverterRegistry'
-import { LiquidityPoolAdded, LiquidityPoolRemoved, SmartTokenAdded, SmartTokenRemoved, LiquidityPool } from '../generated/schema'
+import {
+  ConverterAnchorAdded,
+  ConverterAnchorRemoved,
+  LiquidityPoolAdded,
+  LiquidityPoolRemoved,
+  ConvertibleTokenAdded,
+  ConvertibleTokenRemoved,
+  SmartTokenAdded,
+  SmartTokenRemoved,
+  OwnerUpdate,
+  LiquidityPool,
+  ConverterRegistry,
+} from '../generated/schema'
 import { SmartToken as SmartTokenContract } from '../generated/ConverterRegistry/SmartToken'
 import { log } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnToken } from './utils/Token'
 import { createAndReturnSmartToken } from './utils/SmartToken'
-import { BigInt } from '@graphprotocol/graph-ts'
-import { createAndReturnConverterRegistry } from './utils/ConverterRegistry'
+import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 
-export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {}
+export function handleConverterAnchorAdded(event: ConverterAnchorAddedEvent): void {
+  let entity = new ConverterAnchorAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._anchor = event.params._anchor
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address  
+  entity.save()
+}
 
-export function handleConverterAnchorRemoved(event: ConverterAnchorRemovedEvent): void {}
+export function handleConverterAnchorRemoved(event: ConverterAnchorRemovedEvent): void {
+  let entity = new ConverterAnchorRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._anchor = event.params._anchor
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
+}
 
 export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   let entity = new LiquidityPoolAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -29,20 +58,24 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
-  entity.save()
 
-  let converterRegistryEntity = createAndReturnConverterRegistry(event.address)
+  let converterRegistryEntity = ConverterRegistry.load(event.address.toHex())
+  if (converterRegistryEntity == null) {
+    converterRegistryEntity = new ConverterRegistry(event.address.toHex())
+    converterRegistryEntity.numConverters = BigInt.zero()
+  }
   converterRegistryEntity.lastUsedAtBlockTimestamp = event.block.timestamp
   converterRegistryEntity.lastUsedAtTransactionHash = event.transaction.hash.toHex()
   converterRegistryEntity.lastUsedAtBlockNumber = event.block.number
   converterRegistryEntity.numConverters = converterRegistryEntity.numConverters.plus(BigInt.fromI32(1))
 
   converterRegistryEntity.save()
+  entity.save()
 
-  let liquidityPool = LiquidityPool.load(entity._liquidityPool.toHex())
-  if (liquidityPool != null) {
-    liquidityPool.currentConverterRegistry = event.address.toHex()
-    liquidityPool.save()
+  let liquidityPoolEntity = LiquidityPool.load(event.params._liquidityPool.toHex())
+  if (liquidityPoolEntity != null) {
+    liquidityPoolEntity.currentConverterRegistry = event.address.toHex()
+    liquidityPoolEntity.save()
   }
 }
 
@@ -63,9 +96,27 @@ export function handleConvertibleTokenAdded(event: ConvertibleTokenAddedEvent): 
   const token = createAndReturnToken(event.params._convertibleToken, converterAddress, smartTokenAddress)
   token.currentConverterRegistry = event.address.toHex()
   token.save()
+
+  let entity = new ConvertibleTokenAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._convertibleToken = event.params._convertibleToken
+  entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
 }
 
-export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEvent): void {}
+export function handleConvertibleTokenRemoved(event: ConvertibleTokenRemovedEvent): void {
+  let entity = new ConvertibleTokenRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._convertibleToken = event.params._convertibleToken
+  entity._smartToken = event.params._smartToken
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
+}
 
 export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
   let smartTokenAddress = event.params._smartToken
@@ -112,4 +163,12 @@ export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {
   entity.save()
 }
 
-export function handleOwnerUpdate(event: OwnerUpdateEvent): void {}
+export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
+  let entity = new OwnerUpdate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity._prevOwner = event.params._prevOwner
+  entity._newOwner = event.params._newOwner
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.save()
+}
