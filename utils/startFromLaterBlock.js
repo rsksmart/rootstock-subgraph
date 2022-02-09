@@ -1,0 +1,37 @@
+import config from '../config/RSK.testnet.json'
+import backupConfig from './RSK.testnetBackup.json'
+const fs = require('fs-extra')
+
+function setStartBlockForTesting(newStartBlock) {
+    const startBlocks = Object.keys(config).map(item => config[item].startBlock).filter(item => item !== undefined)
+    const rewriteBackupFile = !(startBlocks.every(v => v === startBlocks[0]))
+
+    if (rewriteBackupFile) {
+        fs.writeFile('./utils/RSK.testnetBackup.json', JSON.stringify(config))
+        console.log('Backup file written')
+    } else {
+        console.log('Not writing backup file because it looks like config start blocks have already been altered for testing')
+    }
+
+    let newObj = config
+
+    for (const key of Object.keys(newObj)) {
+        if (newObj[key].startBlock) {
+            newObj[key].startBlock = newStartBlock
+        }
+    }
+
+    fs.writeFile('./config/RSK.testnet.json', JSON.stringify(newObj))
+    console.log("Start block set", newStartBlock)
+    console.log("Run prepare:RSK:testnet to start from new block")
+}
+
+function resetStartBlocks() {
+    console.log('Resetting original start blocks')
+    fs.writeFile('./config/RSK.testnet.json', JSON.stringify(backupConfig))
+    console.log("Finished resetting config file")
+    console.log("Run prepare:RSK:testnet to start from new block")
+}
+
+// setStartBlockForTesting(1729780)
+resetStartBlocks()
