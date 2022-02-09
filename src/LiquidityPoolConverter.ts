@@ -14,7 +14,10 @@ import {
   Conversion as ConversionEventV2,
   LiquidityPoolV2Converter as LiquidityPoolV2Contract,
 } from '../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
-import { Conversion as ConversionEventV1WithProtocol } from '../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
+import {
+  Conversion as ConversionEventV1WithProtocol,
+  LiquidityPoolV1ConverterProtocolFee as LiquidityPoolV1ConverterProtocolFeeContract,
+} from '../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
 import {
   PriceDataUpdate,
   UserLiquidityHistory,
@@ -119,14 +122,28 @@ export function handleActivation(event: ActivationEvent): void {
     liquidityPool.smartToken = smartToken.smartToken.id
 
     if (event.params._type == 1) {
-      const contract = LiquidityPoolV1Contract.bind(event.address)
-      let reserveTokenCountResult = contract.try_reserveTokenCount()
-      if (!reserveTokenCountResult.reverted) {
-        for (let i = 0; i < reserveTokenCountResult.value; i++) {
-          let reserveTokenResult = contract.try_reserveTokens(BigInt.fromU32(i))
-          if (!reserveTokenResult.reverted) {
-            createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
-            createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
+      if (event.block.number < BigInt.fromString('2393856')) {
+        const contract = LiquidityPoolV1Contract.bind(event.address)
+        let reserveTokenCountResult = contract.try_reserveTokenCount()
+        if (!reserveTokenCountResult.reverted) {
+          for (let i = 0; i < reserveTokenCountResult.value; i++) {
+            let reserveTokenResult = contract.try_reserveTokens(BigInt.fromI32(i))
+            if (!reserveTokenResult.reverted) {
+              createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
+              createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
+            }
+          }
+        }
+      } else {
+        const contract = LiquidityPoolV1ConverterProtocolFeeContract.bind(event.address)
+        let reserveTokenCountResult = contract.try_reserveTokenCount()
+        if (!reserveTokenCountResult.reverted) {
+          for (let i = 0; i < reserveTokenCountResult.value; i++) {
+            let reserveTokenResult = contract.try_reserveTokens(BigInt.fromI32(i))
+            if (!reserveTokenResult.reverted) {
+              createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
+              createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
+            }
           }
         }
       }
@@ -135,7 +152,7 @@ export function handleActivation(event: ActivationEvent): void {
       let reserveTokenCountResult = contract.try_reserveTokenCount()
       if (!reserveTokenCountResult.reverted) {
         for (let i = 0; i < reserveTokenCountResult.value; i++) {
-          let reserveTokenResult = contract.try_reserveTokens(BigInt.fromU32(i))
+          let reserveTokenResult = contract.try_reserveTokens(BigInt.fromI32(i))
           if (!reserveTokenResult.reverted) {
             createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
             let poolTokenResult = contract.try_poolToken(reserveTokenResult.value)

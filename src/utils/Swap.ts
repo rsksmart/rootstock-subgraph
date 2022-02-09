@@ -16,6 +16,7 @@ export class ConversionEventForSwap {
 
 export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   let userEntity: User | null = null
+  /** Check if the trader property on the swap is the same as the caller of the tx. If it is, this is a user-instigated swap */
   if (event.user.toHexString() == event.trader.toHexString()) {
     userEntity = createAndReturnUser(event.user)
   }

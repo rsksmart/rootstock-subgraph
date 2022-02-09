@@ -1,4 +1,5 @@
-import { Deposited as DepositedEvent } from '../generated/LockedSov/LockedSov'
+import { BigInt } from '@graphprotocol/graph-ts'
+import { Deposited as DepositedEvent, TokenStaked as TokenStakedEvent } from '../generated/LockedSov/LockedSov'
 import { Deposited } from '../generated/schema'
 
 import { loadTransaction } from './utils/Transaction'
@@ -21,6 +22,8 @@ export function handleDeposited(event: DepositedEvent): void {
   user.save()
 }
 
-/** TODO:
- * Add mapping for TokensStaked event on LockedSov contract. It should set user.availableTradingRewards to 0
- */
+export function handleTokenStaked(event: TokenStakedEvent): void {
+  let user = createAndReturnUser(event.params._initiator)
+  user.availableTradingRewards = BigInt.zero()
+  user.save()
+}

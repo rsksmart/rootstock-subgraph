@@ -4,6 +4,7 @@ repository: https://github.com/DistributedCollective/Sovryn-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
+  # Converter Factory
   - kind: ethereum/contract
     name: ConverterFactory
     network: {{network}}
@@ -38,6 +39,7 @@ dataSources:
           handler: handleOwnerUpdate
       file: ./src/ConverterFactory.ts
 
+  #Converter Registry
   - kind: ethereum/contract
     name: ConverterRegistry
     network: {{network}}
@@ -96,6 +98,7 @@ dataSources:
           handler: handleOwnerUpdate
       file: ./src/ConverterRegistry.ts
 
+  # ISovryn
   - kind: ethereum/contract
     name: ISovryn
     network: {{network}}
@@ -295,6 +298,7 @@ dataSources:
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
 
+  # Staking
   - kind: ethereum/contract
     name: Staking
     network: {{network}}
@@ -341,7 +345,7 @@ dataSources:
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
    
-  #  The next 2 contracts are FeeSharingProxy contracts
+  #  2 FeeSharingProxy contracts
   - kind: ethereum/contract
     name: FeeSharingProxy_start
     network: {{network}}
@@ -427,6 +431,7 @@ dataSources:
           handler: handleWhitelistedConverter
       file: ./src/FeeSharingProxy.ts
 
+  # LockedSov
   - kind: ethereum/contract
     name: LockedSov
     network: {{network}}
@@ -446,8 +451,11 @@ dataSources:
       eventHandlers:
         - event: Deposited(indexed address,indexed address,uint256,uint256)
           handler: handleDeposited
+        - event: TokenStaked(indexed address,indexed address,uint256)
+          handler: handleTokenStaked
       file: ./src/LockedSov.ts
 
+  # Mining Proxy
   - kind: ethereum/contract
     name: MiningProxy
     network: {{network}}
@@ -469,6 +477,7 @@ dataSources:
           handler: handleRewardClaimed
       file: ./src/MiningProxy.ts
 
+  # Staking Reward
   - kind: ethereum/contract
     name: StakingReward
     network: {{network}}
@@ -491,7 +500,32 @@ dataSources:
           handler: handleRewardWithdrawn
       file: ./src/StakingReward.ts
 
+  # rBTCWrapperProxy
+  - kind: ethereum/contract
+    name: rbtcWrapperProxyTokenConverted
+    network: {{network}}
+    source:
+      address: '{{rbtcWrapperProxyTokenConverted.address}}'
+      abi: rbtcWrapperProxyTokenConverted
+      startBlock: {{rbtcWrapperProxyTokenConverted.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenConverted
+      abis:
+        - name: rbtcWrapperProxyTokenConverted
+          file: ./abis/rbtcWrapperProxyTokenConverted.json
+      eventHandlers:
+        - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
+          handler: handleTokenConverted
+      blockHandlers:
+        - handler: handleBlock
+      file: ./src/rbtcWrapperProxyTokenConverted.ts
+
 templates:
+  # LiquidityPoolV1Converter
   - kind: ethereum/contract
     name: LiquidityPoolV1Converter
     network: {{network}}
@@ -547,6 +581,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
+  # LiquidityPoolV2Converter
   - kind: ethereum/contract
     name: LiquidityPoolV2Converter
     network: {{network}}
@@ -599,6 +634,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
+  # SmartToken
   - kind: ethereum/contract
     name: SmartToken
     network: {{network}}
@@ -630,6 +666,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/SmartToken.ts
 
+  # ERC20
   - kind: ethereum/contract
     name: ERC20
     network: {{network}}
@@ -653,6 +690,7 @@ templates:
           handler: handleTransfer
       file: ./src/ERC20.ts
   
+  # LoanTokenLogicStandard
   - kind: ethereum/contract
     name: LoanTokenLogicStandard
     network: {{network}}
@@ -680,6 +718,7 @@ templates:
           handler: handleMint
       file: ./src/LoanTokenLogicStandard.ts
 
+  # LiquidityPoolV1ConverterProtocolFee
   - kind: ethereum/contract
     name: LiquidityPoolV1ConverterProtocolFee
     network: {{network}}
@@ -732,6 +771,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
+  # Vesting Logic
   - kind: ethereum/contract
     name: VestingLogic
     network: {{network}}
@@ -765,3 +805,23 @@ templates:
         - event: VotesDelegated(indexed address,address)
           handler: handleVotesDelegated
       file: ./src/VestingLogic.ts
+
+ # rBTCWrapperProxy template
+  - kind: ethereum/contract
+    name: rbtcWrapperProxyTokenConverted
+    network: {{network}}
+    source:
+      abi: rbtcWrapperProxyTokenConverted
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenConverted
+      abis:
+        - name: rbtcWrapperProxyTokenConverted
+          file: ./abis/rbtcWrapperProxyTokenConverted.json
+      eventHandlers:
+        - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
+          handler: handleTokenConverted
+      file: ./src/rbtcWrapperProxyTokenConverted.ts
