@@ -9,12 +9,11 @@ import {
   StakingWithdrawn as StakingWithdrawnEvent,
   VestingTokensWithdrawn as VestingTokensWithdrawnEvent,
 } from '../generated/Staking/Staking'
-import { DelegateStakeChanged, UserStakeHistory, TokensStaked, VestingContract, VestingTokensWithdrawn, User } from '../generated/schema'
+import { DelegateStakeChanged, UserStakeHistory, TokensStaked, VestingContract, VestingTokensWithdrawn, User, Transaction } from '../generated/schema'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
-import { BigInt } from '@graphprotocol/graph-ts'
-import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
   let user = User.load(event.params.delegator.toHexString())
@@ -111,48 +110,24 @@ export function handleTokensUnlocked(event: TokensUnlockedEvent): void {}
 
 export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   let transaction = loadTransaction(event)
-  let stakeHistoryEntity = new UserStakeHistory(event.transaction.hash.toHexString())
-  let user = User.load(event.params.staker.toHexString())
-  let vesting = VestingContract.load(event.params.staker.toHexString())
-  if (user !== null) {
-    stakeHistoryEntity.user = event.params.receiver.toHexString()
-    /** In the FeeSharingProxy mapping, the handleTokensTransferred function will change this to Unstaked if a slashing event occurred */
-    stakeHistoryEntity.action = 'WithdrawStaked'
-    stakeHistoryEntity.timestamp = event.block.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.save()
-  } else if (vesting != null) {
-    /** TODO: Don't hard code the addresses. They are GovernorAlpha, GovernorOwner and Multisig */
-    const adminContracts = [
-      '0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711'.toLowerCase(),
-      '0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247'.toLowerCase(),
-      '0x51C754330c6cD04B810014E769Dab0343E31409E'.toLowerCase(),
-    ]
-    if (adminContracts.includes(event.params.receiver.toHexString().toLowerCase()) && vesting.type == 'Team') {
-      /** This happens when a team member with vesting contract leaves the project and their remaining balance is returned to the protocol */
-      stakeHistoryEntity.action = 'Revoked'
-      stakeHistoryEntity.user = vesting.user
-    } else {
-      stakeHistoryEntity.action = 'WithdrawVested'
-      stakeHistoryEntity.user = event.params.receiver.toHexString()
-    }
-    stakeHistoryEntity.timestamp = event.block.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.save()
-  }
+  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver)
 }
 
-/** This is a copy of handleTokensWithdrawn. The event was renamed but params remained the same. TODO: Dry this up */
+/** This is a copy of handleTokensWithdrawn. The event was renamed but params remained the same. */
 export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
   let transaction = loadTransaction(event)
-  let stakeHistoryEntity = new UserStakeHistory(event.transaction.hash.toHexString())
-  let user = User.load(event.params.staker.toHexString())
-  let vesting = VestingContract.load(event.params.staker.toHexString())
+  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver)
+}
+
+function handleStakingOrTokensWithdrawn(transaction: Transaction, staker: Address, receiver: Address): void {
+  let stakeHistoryEntity = new UserStakeHistory(transaction.id)
+  let user = User.load(staker.toHexString())
+  let vesting = VestingContract.load(staker.toHexString())
   if (user !== null) {
-    stakeHistoryEntity.user = event.params.receiver.toHexString()
+    stakeHistoryEntity.user = receiver.toHexString()
     /** In the FeeSharingProxy mapping, the handleTokensTransferred function will change this to Unstaked if a slashing event occurred */
     stakeHistoryEntity.action = 'WithdrawStaked'
-    stakeHistoryEntity.timestamp = event.block.timestamp
+    stakeHistoryEntity.timestamp = transaction.timestamp
     stakeHistoryEntity.transaction = transaction.id
     stakeHistoryEntity.save()
   } else if (vesting != null) {
@@ -162,15 +137,15 @@ export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
       '0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247'.toLowerCase(),
       '0x51C754330c6cD04B810014E769Dab0343E31409E'.toLowerCase(),
     ]
-    if (adminContracts.includes(event.params.receiver.toHexString().toLowerCase()) && vesting.type == 'Team') {
+    if (adminContracts.includes(receiver.toHexString().toLowerCase()) && vesting.type == 'Team') {
       /** This happens when a team member with vesting contract leaves the project and their remaining balance is returned to the protocol */
       stakeHistoryEntity.action = 'Revoked'
       stakeHistoryEntity.user = vesting.user
     } else {
       stakeHistoryEntity.action = 'WithdrawVested'
-      stakeHistoryEntity.user = event.params.receiver.toHexString()
+      stakeHistoryEntity.user = receiver.toHexString()
     }
-    stakeHistoryEntity.timestamp = event.block.timestamp
+    stakeHistoryEntity.timestamp = transaction.timestamp
     stakeHistoryEntity.transaction = transaction.id
     stakeHistoryEntity.save()
   }

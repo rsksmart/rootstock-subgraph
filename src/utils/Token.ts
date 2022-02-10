@@ -1,11 +1,16 @@
-import { Address, log } from '@graphprotocol/graph-ts'
-import { Token, LiquidityPoolToken, TokenSmartToken } from '../../generated/schema'
+import { Address, BigDecimal, log } from '@graphprotocol/graph-ts'
+import { Token, LiquidityPoolToken, TokenSmartToken, ProtocolStats } from '../../generated/schema'
 import { ERC20 as ERC20TokenContract } from '../../generated/templates/ERC20/ERC20'
+import { createAndReturnProtocolStats } from './ProtocolStats'
 
 export function createAndReturnToken(tokenAddress: Address, converterAddress: Address, smartTokenAddress: Address): Token {
   let token = Token.load(tokenAddress.toHex())
+  let protocolStats: ProtocolStats | null
   if (token === null) {
     token = new Token(tokenAddress.toHex())
+    token.lastPriceUsd = BigDecimal.zero()
+    token.lastPriceBtc = BigDecimal.zero()
+
     log.debug('Token created: {}', [smartTokenAddress.toHex()])
     const tokenContract = ERC20TokenContract.bind(tokenAddress)
     let connectorTokenNameResult = tokenContract.try_name()
@@ -20,6 +25,8 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
     if (!connectorTokenDecimalsResult.reverted) {
       token.decimals = connectorTokenDecimalsResult.value
     }
+    protocolStats = createAndReturnProtocolStats()
+    protocolStats.tokens.push(tokenAddress.toHex())
   }
   let liquidityPoolToken = LiquidityPoolToken.load(converterAddress.toHex() + tokenAddress.toHex())
   if (liquidityPoolToken === null) {
@@ -39,6 +46,10 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
   tokenSmartToken.smartToken = smartTokenAddress.toHex()
   tokenSmartToken.save()
   token.save()
+
+  if (protocolStats !== null) {
+    protocolStats.save()
+  }
 
   return token
 }

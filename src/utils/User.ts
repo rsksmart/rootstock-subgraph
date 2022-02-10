@@ -1,5 +1,6 @@
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { User } from '../../generated/schema'
+import { createAndReturnProtocolStats } from './ProtocolStats'
 
 export function createAndReturnUser(address: Address): User {
   let userEntity = User.load(address.toHex())
@@ -9,6 +10,9 @@ export function createAndReturnUser(address: Address): User {
     userEntity.numSwaps = 0
     userEntity.availableTradingRewards = BigInt.zero()
     userEntity.availableRewardSov = BigInt.zero()
+    let protocolStats = createAndReturnProtocolStats()
+    protocolStats.totalUsers = protocolStats.totalUsers.plus(BigInt.fromI32(1))
+    protocolStats.save()
   }
 
   userEntity.save()

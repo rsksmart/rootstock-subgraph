@@ -1,6 +1,8 @@
 import config from '../config/RSK.testnet.json'
 import backupConfig from './RSK.testnetBackup.json'
 const fs = require('fs-extra')
+const { Command } = require('commander');
+const program = new Command();
 
 function setStartBlockForTesting(newStartBlock) {
     const startBlocks = Object.keys(config).map(item => config[item].startBlock).filter(item => item !== undefined)
@@ -33,5 +35,22 @@ function resetStartBlocks() {
     console.log("Run prepare:RSK:testnet to start from new block")
 }
 
-// setStartBlockForTesting(1729780)
-resetStartBlocks()
+const run = async () => {
+    program
+        .requiredOption('-reset, --reset', 'reset block numbers to correct non-test versions', false)
+        .option('-b, --blockNumber <blockNumber>', 'contract deployment block number', 0)
+
+    program.parse()
+    const options = program.opts()
+    const { reset, blockNumber } = options
+    if (reset) {
+        await resetStartBlocks()
+    } else {
+        await setStartBlockForTesting(parseInt(blockNumber))
+    }
+}
+
+run().catch(error => {
+    console.log('error', error)
+    process.exit(1)
+})
