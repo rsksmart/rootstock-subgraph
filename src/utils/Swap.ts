@@ -1,8 +1,10 @@
-import { Address, Bytes, BigInt } from '@graphprotocol/graph-ts'
+import { Address, Bytes, BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import { Swap, Token, User } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 import { USDTAddress, WRBTCAddress } from '../contracts/contracts'
 import { updateLastPriceUsdAll } from './Prices'
+import { decimal } from '@protofire/subgraph-toolkit'
+import { handleCandlesticks } from './Candlesticks'
 
 export class ConversionEventForSwap {
   transactionHash: Bytes
@@ -49,46 +51,95 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   }
   swapEntity.save()
 
-  /**
-   * Update lastPriceBtc on token
-   */
-  if (event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let token = Token.load(event.toToken.toHexString())
-    if (token != null) {
-      token.lastPriceBtc = event.toAmount.divDecimal(event.fromAmount.toBigDecimal())
-      token.lastPriceUsd = token.lastPriceBtc.times(token.lastPriceUsd)
-      token.save()
-    }
-    /** TODO: Update token candlesticks for btc and usd */
-  } else if (event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let token = Token.load(event.fromToken.toHexString())
-    if (token != null) {
-      token.lastPriceBtc = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
-      token.lastPriceUsd = token.lastPriceBtc.times(token.lastPriceUsd)
-      token.save()
-    }
-    /** TODO: Update token candlesticks for btc and usd */
-  }
-
-  /** IF SWAP IS BTC/USDT: Update lastPriceUsd on BTC */
-
-  if (event.fromToken.toHexString() == USDTAddress.toLowerCase() && event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let BTCToken = Token.load(WRBTCAddress.toLowerCase())
-    if (BTCToken != null) {
-      BTCToken.lastPriceUsd = event.toAmount.divDecimal(event.fromAmount.toBigDecimal())
-      BTCToken.save()
-      updateLastPriceUsdAll(BTCToken.lastPriceUsd)
-    }
-    /** TODO: Update all candlesticks for usd */
-  } else if (event.toToken.toHexString() == USDTAddress.toLowerCase() && event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
-    let BTCToken = Token.load(WRBTCAddress.toLowerCase())
-    if (BTCToken != null) {
-      BTCToken.lastPriceUsd = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
-      BTCToken.save()
-      updateLastPriceUsdAll(BTCToken.lastPriceUsd)
-    }
-    /** TODO: Update all candlesticks for usd */
-  }
+  updatePricingAndCandlesticks(event)
 
   return swapEntity
+}
+
+function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
+  let BTCToken = Token.load(WRBTCAddress.toLowerCase())
+
+  if (BTCToken != null) {
+    const btcPrice = BTCToken.lastPriceUsd
+    let token: Token | null
+    let tokenAmount: BigInt
+    let btcAmount: BigInt
+
+    if (event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
+      token = Token.load(event.toToken.toHexString())
+      tokenAmount = event.toAmount
+      btcAmount = event.fromAmount
+    } else if (event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
+      token = Token.load(event.fromToken.toHexString())
+      tokenAmount = event.fromAmount
+      btcAmount = event.toAmount
+    } else {
+      /** TODO: Handle case where neither token is rBTC for when AMM pools with non-rBTC tokens are introduced */
+    }
+
+    if (token != null) {
+      const oldPriceBtc = token.lastPriceBtc
+      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal())
+      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals)
+
+      const oldPriceUsd = token.lastPriceUsd
+      const newPriceUsd = newPriceBtc.times(token.lastPriceUsd)
+      const usdVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).times(btcPrice)
+
+      token.lastPriceBtc = newPriceBtc
+      token.lastPriceUsd = newPriceUsd
+
+      token.btcVolume = token.btcVolume.plus(btcVolume)
+      token.usdVolume = token.usdVolume.plus(usdVolume)
+      token.tokenVolume = token.tokenVolume.plus(decimal.fromBigInt(tokenAmount, token.decimals))
+
+      BTCToken.btcVolume = BTCToken.btcVolume.plus(btcVolume)
+      BTCToken.usdVolume = BTCToken.usdVolume.plus(usdVolume)
+      BTCToken.tokenVolume = BTCToken.btcVolume.plus(btcVolume)
+
+      token.save()
+
+      /** Update BTC Candlesticks for token */
+      handleCandlesticks({
+        tradingPair: token.id.toLowerCase() + '_' + WRBTCAddress.toLowerCase(),
+        blockTimestamp: event.timestamp,
+        oldPrice: oldPriceBtc,
+        newPrice: newPriceBtc,
+        volume: btcVolume,
+      })
+
+      if (token.id.toLowerCase() != USDTAddress.toLowerCase()) {
+        /** Update USD Candlesticks for token */
+        handleCandlesticks({
+          tradingPair: token.id.toLowerCase() + '_' + USDTAddress.toLowerCase(),
+          blockTimestamp: event.timestamp,
+          oldPrice: oldPriceUsd,
+          newPrice: newPriceUsd,
+          volume: usdVolume,
+        })
+      }
+    }
+
+    /** IF SWAP IS BTC/USDT: Update lastPriceUsd on BTC */
+
+    let usdBtcPrice: BigDecimal
+    if (event.fromToken.toHexString() == USDTAddress.toLowerCase() && event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
+      if (BTCToken != null) {
+        usdBtcPrice = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
+        BTCToken.lastPriceUsd = usdBtcPrice
+        BTCToken.lastPriceBtc = BigDecimal.fromString('1')
+        updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
+      }
+    } else if (event.toToken.toHexString() == USDTAddress.toLowerCase() && event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
+      let usdBtcPrice: BigDecimal
+      if (BTCToken != null) {
+        usdBtcPrice = event.toAmount.divDecimal(event.fromAmount.toBigDecimal())
+        BTCToken.lastPriceUsd = usdBtcPrice
+        BTCToken.lastPriceBtc = BigDecimal.fromString('1')
+        updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
+      }
+    }
+
+    BTCToken.save()
+  }
 }

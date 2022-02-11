@@ -18,8 +18,9 @@ function setStartBlockForTesting(newStartBlock) {
     let newObj = config
 
     for (const key of Object.keys(newObj)) {
-        if (newObj[key].startBlock) {
+        if (newObj[key].startBlock !== undefined) {
             newObj[key].startBlock = newStartBlock
+            console.log("Info", key, newStartBlock)
         }
     }
 
@@ -38,7 +39,7 @@ function resetStartBlocks() {
 const run = async () => {
     program
         .requiredOption('-reset, --reset', 'reset block numbers to correct non-test versions', false)
-        .option('-b, --blockNumber <blockNumber>', 'contract deployment block number', 0)
+        .option('-b, --blockNumber <blockNumber>', 'contract deployment block number', 1200000)
 
     program.parse()
     const options = program.opts()

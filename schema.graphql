@@ -1,23 +1,38 @@
-# This entity will have only once instance and will be used to cache protocol-wide data like list of tokens. ID is 0
+"""
+This entity will have only one instance and will be used to store protocol-wide data like list of tokens and number or users. 
+The ID of this one entity is "0"
+"""
 type ProtocolStats @entity {
+  """
+  Only one entity should be created, with ID "0"
+  """
   id: ID!
+  """
+  An array of all tokens in the protocol
+  """ 
   tokens: [Token!]!
+  """
+  Total number of users of the protocol. This number is incremented each time a user is created
+  """
   totalUsers: BigInt!
 }
 
 type SmartToken @entity {
+  """
+  ID is smart token address
+  """
   id: ID!
   name: String
   symbol: String
   decimals: Int
   version: Int
-  # standard: String
+  """
+  smartTokenType can be Relay or Liquid
+  """
   smartTokenType: String # Relay, Liquid, BNT?, Others?
   transfersEnabled: Boolean
   liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
   connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
-  # shortestQuickBuyPath: [QuickBuyPathMember!]
-  # converterWithShortestQuickBuyPath: Converter
   owner: Bytes!
   # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
   currentConverterRegistry: ConverterRegistry
@@ -25,13 +40,22 @@ type SmartToken @entity {
   addedToRegistryTransactionHash: Bytes
 }
 
+"""
+This entity is to store a many-to-many relationship between tokens and smart tokens
+"""
 type TokenSmartToken @entity {
+  """
+  ID is token address + smart token address
+  """
   id: ID! # ID is token address + smartToken address
   token: Token!
   smartToken: SmartToken!
 }
 
 type ConverterRegistry @entity {
+  """
+  ID is the address of the converter registry contract
+  """
   id: ID!
   converters: [LiquidityPool!] @derivedFrom(field: "currentConverterRegistry")
   smartTokens: [SmartToken!] @derivedFrom(field: "currentConverterRegistry")
@@ -46,10 +70,14 @@ type ConverterRegistry @entity {
   numConverters: BigInt!
 }
 
+"""
+Transaction data, including hash and timestamp
+"""
 type Transaction @entity {
-  # txn hash
+  """
+  ID is transaction hash
+  """
   id: ID!
-  # block txn was included in
   blockNumber: BigInt!
   # timestamp txn was confirmed
   timestamp: BigInt!
@@ -64,28 +92,60 @@ type Transaction @entity {
   gasLimit: BigInt!
 }
 
+"""
+This entity contains all user-specific data displayed on the dapp, including all user actions
+"""
 type User @entity {
-  id: ID! @unique
+  """
+  ID is user wallet address
+  """
+  id: ID!
+  """
+  Swaps here refers to only user-triggered swaps. For example, a swap that is part of a margin trade would not be included. 
+  Swaps involving multiple amm pools are stored as a single swap, comprised of multiple Conversion events
+  """
   swaps: [Swap!] @derivedFrom(field: "user")
+  """
+  Number of swaps the user has made. This can be used for pagination.
+  """
   numSwaps: Int!
+  """
+  An array of all LiquidityAdded and LiquidityRemoved events
+  """
   liquidityHistory: [UserLiquidityHistory!] @derivedFrom(field: "user")
+  """
+  An array of margin trade Trade events
+  """
   trades: [Trade!] @derivedFrom(field: "user")
+  """
+  An array of Borrow events
+  """
   borrows: [Borrow!] @derivedFrom(field: "user")
+  """
+  An array of Liquidation events linked to this user
+  """
   liquidations: [Liquidate!] @derivedFrom(field: "user")
+  """
+  All loans taken out by this user, including for margin trading and for borrowing
+  """
   loans: [Loan!] @derivedFrom(field: "user")
+  """
+  An array of all Mint and Burn events
+  """
   lendingHistory: [UserLendingHistory!] @derivedFrom(field: "lender")
   dividendsCollected: [DividendsCollected!] @derivedFrom(field: "receiver")
+  """
+  An array of Stake, Unstake, Extend Stake and Withdraw Stake actions
+  """
   stakeHistory: [UserStakeHistory!] @derivedFrom(field: "user")
   feesEarnedHistory: [FeesEarnedHistory!] @derivedFrom(field: "user")
   # vestedTokensWithdrawn: [TokensWithdrawn!] @derivedFrom(field: "receiver")
+  """
+  Vesting contracts owned by this user
+  """
   vestingContracts: [VestingContract!] @derivedFrom(field:"user")
-
   availableTradingRewards: BigInt!
   availableRewardSov: BigInt!
-
-  # tokenSwapTotals: [UserTokenSwapTotal!]
-  # smartTokenBalances: [UserSmartTokenBalance!]
-  # liquidityProvided: [LiquidityProvided]
 }
 
 type UserLendingHistory @entity {
@@ -106,13 +166,19 @@ type Token @entity {
   liquidityPools: [LiquidityPoolToken!] @derivedFrom(field: "token")
   smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
   # tokenSwapTotals: [TokenSwapTotals!]
-  lastPriceBtc: BigDecimal! # TODO: Change to big decimal - or not, maybe keep in BigInt
-  lastPriceUsd: BigDecimal! # TODO: Change to big decimal
+  lastPriceBtc: BigDecimal!
+  lastPriceUsd: BigDecimal!
+  btcVolume: BigDecimal!
+  usdVolume: BigDecimal!
+  tokenVolume: BigDecimal!
   # marketCap: BigInt!
   # circulatingSupply: BigInt!
   currentConverterRegistry: ConverterRegistry
 }
 
+"""
+For the V1 pools, the pool token and smart token are the same. However, for V2 pools, there is one pool token per asset and only one smart token for the pool.
+"""
 type PoolToken @entity {
   id: ID! #address
   name: String
@@ -940,4 +1006,18 @@ type TokenConverted @entity {
   timestamp: BigInt!
   emittedBy: Bytes! #address
   transaction: Transaction!
+}
+
+# Candlesticks
+
+type CandleSticksFifteenMinute @entity {
+  id: ID!  # fromToken + toToken + timestamp
+  tradingPair: String!  # baseToken_quoteToken
+  open: BigDecimal # opening price
+  high: BigDecimal! # high price
+  low: BigDecimal! # low price
+  close: BigDecimal! # close price
+  txCount: BigInt! # number of transactions during period
+  totalVolume: BigDecimal! # total volume in quote currency
+  periodStartUnix: Int! # unix timestamp for start of candle
 }

@@ -2,7 +2,7 @@
     "network": "mainnet",
     "node": {
         "network": "mainnet",
-        "address": "https://testnet2.sovryn.app/rpc",
+        "address": "https://testnet.sovryn.app/rpc",
         "log_level": "debug"
     },
     "SOV": {
