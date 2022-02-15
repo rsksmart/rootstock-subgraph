@@ -39,6 +39,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "esm": "^3.2.25",
+    "js-yaml": "^4.1.0",
     "matchstick-as": "^0.3.0"
   }
 }
