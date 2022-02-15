@@ -32,7 +32,6 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        
         - event: NewConverter(indexed uint16,indexed address,indexed address)
           handler: handleNewConverter
         - event: OwnerUpdate(indexed address,indexed address)

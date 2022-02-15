@@ -608,6 +608,350 @@ dataSources:
           handler: handleWhitelistedConverter
       file: ./src/FeeSharingProxy.ts
   - kind: ethereum/contract
+    name: FeeSharingProxy1729783
+    network: mainnet
+    source:
+      address: '0xFFB9470e0B11aAC25a331D8E6Df557Db6c3c0c53'
+      abi: FeeSharingProxy
+      startBlock: 1729783
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1748059
+    network: mainnet
+    source:
+      address: '0x106f117Af68586A994234E208c29DE0f1A764C60'
+      abi: FeeSharingProxy
+      startBlock: 1748059
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1834540
+    network: mainnet
+    source:
+      address: '0x2C468f9c82C20c37cd1606Cf3a09702f94910691'
+      abi: FeeSharingProxy
+      startBlock: 1834540
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1839810
+    network: mainnet
+    source:
+      address: '0x6b1a4735b1E25ccE9406B2d5D7417cE53d1cf90e'
+      abi: FeeSharingProxy
+      startBlock: 1839810
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1729783
+    network: mainnet
+    source:
+      address: '0xFFB9470e0B11aAC25a331D8E6Df557Db6c3c0c53'
+      abi: FeeSharingProxy
+      startBlock: 1729783
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1748059
+    network: mainnet
+    source:
+      address: '0x106f117Af68586A994234E208c29DE0f1A764C60'
+      abi: FeeSharingProxy
+      startBlock: 1748059
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1834540
+    network: mainnet
+    source:
+      address: '0x2C468f9c82C20c37cd1606Cf3a09702f94910691'
+      abi: FeeSharingProxy
+      startBlock: 1834540
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
+    name: FeeSharingProxy1839810
+    network: mainnet
+    source:
+      address: '0x6b1a4735b1E25ccE9406B2d5D7417cE53d1cf90e'
+      abi: FeeSharingProxy
+      startBlock: 1839810
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: >-
+            UserFeeWithdrawn(indexed address,indexed address,indexed
+            address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+  - kind: ethereum/contract
     name: LockedSov
     network: mainnet
     source:
