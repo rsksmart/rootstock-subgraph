@@ -16,6 +16,9 @@ export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
   entity.save()
 
   let user = createAndReturnUser(event.params.receiver)
+  /** TODO: Find out if we can change this to user.availableRewardSov = user.availableRewardSov.minus(event.params.amount)
+   * This should have the same effect of reseting it to 0, but the logic would be more future-proof
+   */
   user.availableRewardSov = BigInt.zero()
   user.save()
 }

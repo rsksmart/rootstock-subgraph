@@ -53,7 +53,7 @@ export function handleMint(event: MintEvent): void {
   let underlyingAsset = context.get('underlyingAsset')
   let entity = new Mint(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let user = createAndReturnUser(event.params.minter)
-  entity.user = user.id
+  entity.user = event.params.minter.toHexString()
   entity.tokenAmount = event.params.tokenAmount
   entity.assetAmount = event.params.assetAmount
   entity.loanToken = event.address.toHexString()
@@ -65,7 +65,7 @@ export function handleMint(event: MintEvent): void {
   entity.save()
 
   let userHistoryEntity = new UserLendingHistory(user.id)
-  userHistoryEntity.lender = user.id
+  userHistoryEntity.lender = event.params.minter.toHexString()
   userHistoryEntity.type = 'Lend'
   userHistoryEntity.lendingPool = dataSource.address().toHexString()
   if (underlyingAsset != null) {

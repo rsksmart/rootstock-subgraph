@@ -52,12 +52,10 @@ export function handleBorrow(event: BorrowEvent): void {
     collateralAmount: event.params.newCollateral,
     startRate: event.params.collateralToLoanRate,
   }
-  let loanEntity = createAndReturnLoan(loanParams)
+  createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
   entity.newPrincipal = event.params.newPrincipal
@@ -76,12 +74,9 @@ export function handleBorrow(event: BorrowEvent): void {
 /** Close from a Borrow Event */
 export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
   let entity = new CloseWithDeposit(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.user = event.params.user
   entity.lender = event.params.lender
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.closer = event.params.closer
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
@@ -101,12 +96,9 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
 /** Close from Trade Event */
 export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
   let entity = new CloseWithSwap(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.user = event.params.user
   entity.lender = event.params.lender
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.collateralToken = event.params.collateralToken
   entity.loanToken = event.params.loanToken
   entity.closer = event.params.closer
@@ -125,10 +117,7 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
 
 export function handleDepositCollateral(event: DepositCollateralEvent): void {
   let entity = new DepositCollateral(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.depositAmount = event.params.depositAmount
   entity.rate = event.params.rate
   let transaction = loadTransaction(event)
@@ -140,12 +129,9 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
 
 export function handleEarnReward(event: EarnRewardEvent): void {
   let entity = new EarnReward(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.receiver = event.params.receiver.toHexString()
   entity.token = event.params.token.toHexString()
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.feeRebatePercent = event.params.feeRebatePercent
   entity.amount = event.params.amount
   entity.basisPoint = event.params.basisPoint
@@ -172,12 +158,9 @@ export function handleExternalSwap(event: ExternalSwapEvent): void {
 
 export function handleLiquidate(event: LiquidateEvent): void {
   let entity = new Liquidate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.user = event.params.user.toHexString()
   entity.liquidator = event.params.liquidator
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.lender = event.params.lender
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
@@ -194,10 +177,7 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
 export function handleLoanSwap(event: LoanSwapEvent): void {
   let entity = new LoanSwap(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.sourceToken = event.params.sourceToken
   entity.destToken = event.params.destToken
   entity.borrower = event.params.borrower
@@ -212,12 +192,9 @@ export function handleLoanSwap(event: LoanSwapEvent): void {
 
 export function handlePayBorrowingFee(event: PayBorrowingFeeEvent): void {
   let entity = new PayBorrowingFee(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.payer = event.params.payer
   entity.token = event.params.token
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.amount = event.params.amount
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
@@ -240,12 +217,9 @@ export function handlePayLendingFee(event: PayLendingFeeEvent): void {
 
 export function handlePayTradingFee(event: PayTradingFeeEvent): void {
   let entity = new PayTradingFee(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let loanEntity = Loan.load(event.params.loanId.toHexString())
   entity.payer = event.params.payer
   entity.token = event.params.token
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.amount = event.params.amount
   let transaction = loadTransaction(event)
   entity.transaction = transaction.id
@@ -304,12 +278,10 @@ export function handleTrade(event: TradeEvent): void {
     collateralAmount: getCollateralAmountFromTrade(event.params.positionSize, event.params.currentLeverage),
     startRate: event.params.entryPrice,
   }
-  let loanEntity = createAndReturnLoan(loanParams)
+  createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
-  if (loanEntity != null) {
-    entity.loanId = loanEntity.id
-  }
+  entity.loanId = event.params.loanId.toHexString()
   entity.collateralToken = event.params.collateralToken
   entity.loanToken = event.params.loanToken
   /** In Collteral tokens */

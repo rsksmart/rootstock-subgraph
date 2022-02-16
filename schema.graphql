@@ -149,7 +149,7 @@ type User @entity {
 }
 
 type UserLendingHistory @entity {
-  id: ID! # user address
+  id: ID! # tx hash
   lender: User!
   type: String! # Lend or Unlend
   lendingPool: LendingPool!
