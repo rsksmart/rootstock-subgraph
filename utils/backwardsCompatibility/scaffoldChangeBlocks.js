@@ -1,46 +1,42 @@
 /**
- * Case 1 - Address changes, ABI stays the same
- * 1. Find original instance in subgraph.yaml
- * 2. Loop over array of new addresses
- * 3.
- * 
- * Case 2 - ABI changes, no address changes
- * 
- * Case 3 - Address and abi changes
+ * This script handles the case where an address changes but the relevant parts of the abi remain the same
  */
 
 const yaml = require('js-yaml');
 const { dump } = require('js-yaml')
 const fs = require('fs-extra');
-const { wrapperProxyContracts } = require('./changeBlocks')
+const { newDataSources } = require('./changeBlocks')
 
-function scaffoldChangeBlocks(contractObj) {
+function scaffoldChangeBlocks(dataSourceArr) {
     try {
-        const doc = yaml.load(fs.readFileSync('./subgraph.yaml', 'utf8'));
-        const originalContract = doc.dataSources.find(item => item.name === contractObj.originalName)
+        let doc = yaml.load(fs.readFileSync('./subgraph.yaml', 'utf8'));
 
-        if (!originalContract) {
-            console.error("ERROR: Original contract is not in the subgraph.yaml. Check for spelling errors in originalName property.")
-            return
-        }
+        for (const contractObj of dataSourceArr) {
+            const originalContract = doc.dataSources.find(item => item.name === contractObj.originalName)
 
-        let index = doc.dataSources.indexOf(originalContract) + 1
+            if (!originalContract) {
+                console.error("ERROR: Original contract is not in the subgraph.yaml. Check for spelling errors in originalName property.")
+                return
+            }
 
-        for (const contract of contractObj.changeBlocks) {
-            /** Check if datasource already exists */
-            const alreadyExists = doc.dataSources.find(item => item.name === contract.name)
-            if (alreadyExists) {
-                console.log(`Not scaffolding ${contract.name}. It already exists.`)
-            } else {
-                const newSource = JSON.parse(JSON.stringify(originalContract))
-                newSource.source.address = contract.address
-                newSource.source.startBlock = contract.block
-                newSource.name = contract.name
+            let index = doc.dataSources.indexOf(originalContract) + 1
 
-                /** Insert new data source into yml json */
-                doc.dataSources.splice(index, 0, newSource)
-                index++
-                console.log(`Scaffolded ${contract.name}`)
+            for (const contract of contractObj.changeBlocks) {
+                /** Check if datasource already exists */
+                const alreadyExists = doc.dataSources.find(item => item.name === contract.name)
+                if (alreadyExists) {
+                    console.log(`Not scaffolding ${contract.name}. It already exists.`)
+                } else {
+                    const newSource = JSON.parse(JSON.stringify(originalContract))
+                    newSource.source.address = contract.address
+                    newSource.source.startBlock = contract.block
+                    newSource.name = contract.name
+
+                    /** Insert new data source into yml json */
+                    doc.dataSources.splice(index, 0, newSource)
+                    index++
+                    console.log(`Scaffolded ${contract.name}`)
+                }
             }
         }
 
@@ -57,4 +53,4 @@ function scaffoldChangeBlocks(contractObj) {
     }
 }
 
-scaffoldChangeBlocks(wrapperProxyContracts)
+scaffoldChangeBlocks(newDataSources)
