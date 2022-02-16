@@ -1,3 +1,7 @@
+/**
+ * This file is a work in progress - the goal is to have all PnL calculations and ot
+ */
+
 import { BigInt, Bytes, Address } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
 import { createAndReturnUser } from './User'

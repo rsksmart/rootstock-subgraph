@@ -53,53 +53,39 @@ export function handlePriceDataUpdate(event: PriceDataUpdateEvent): void {
 
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
   let entity = new UserLiquidityHistory(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let user = createAndReturnUser(event.transaction.from)
-  let reserveToken = Token.load(event.params._reserveToken.toHexString())
-  let liquidityPool = LiquidityPool.load(event.address.toHexString())
+  createAndReturnUser(event.transaction.from)
   let transaction = loadTransaction(event)
   entity.type = 'Added'
-  if (user != null) {
-    entity.user = user.id
-  }
+  entity.user = event.transaction.from.toHexString()
   entity.provider = event.params._provider
-  if (reserveToken != null) {
-    entity.reserveToken = reserveToken.id
-  }
+  entity.reserveToken = event.params._reserveToken.toHexString()
   entity.amount = event.params._amount
   entity.newBalance = event.params._newBalance
   entity.newSupply = event.params._newSupply
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
-  if (liquidityPool != null) {
-    entity.liquidityPool = liquidityPool.id
-  }
+  entity.liquidityPool = event.address.toHexString()
   entity.save()
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
   let entity = new UserLiquidityHistory(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let user = createAndReturnUser(event.transaction.from)
-  let reserveToken = Token.load(event.params._reserveToken.toHexString())
-  let liquidityPool = LiquidityPool.load(event.address.toHexString())
   let transaction = loadTransaction(event)
   entity.type = 'Removed'
   if (user != null) {
     entity.user = user.id
   }
   entity.provider = event.params._provider
-  if (reserveToken != null) {
-    entity.reserveToken = reserveToken.id
-  }
+  entity.reserveToken = event.params._reserveToken.toHexString()
   entity.amount = event.params._amount
   entity.newBalance = event.params._newBalance
   entity.newSupply = event.params._newSupply
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
-  if (liquidityPool != null) {
-    entity.liquidityPool = liquidityPool.id
-  }
+  entity.liquidityPool = event.address.toHexString()
   entity.save()
 }
 

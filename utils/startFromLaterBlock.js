@@ -33,7 +33,6 @@ function resetStartBlocks() {
     console.log('Resetting original start blocks')
     fs.writeFile('./config/RSK.testnet.json', JSON.stringify(backupConfig))
     console.log("Finished resetting config file")
-    console.log("Run prepare:RSK:testnet to start from new block")
 }
 
 const run = async () => {
