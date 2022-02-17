@@ -7,11 +7,14 @@ import { Loan } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 import { Token } from '../../generated/schema'
 
+export enum LoanType {
+  TRADE = 'Trade',
+  BORROW = 'Borrow',
+}
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
-  isTrade: boolean
-  isBorrow: boolean
+  type: LoanType
   startTimestamp: BigInt
   loanToken: Bytes
   collateralToken: Bytes
@@ -36,8 +39,7 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
   let loanEntity = Loan.load(startParams.loanId.toHexString())
   if (loanEntity == null) {
     loanEntity = new Loan(startParams.loanId.toHexString())
-    loanEntity.isTrade = startParams.isTrade
-    loanEntity.isBorrow = startParams.isBorrow
+    loanEntity.type = startParams.type
     loanEntity.isOpen = true
     loanEntity.startTimestamp = startParams.startTimestamp
     let userEntity = createAndReturnUser(Address.fromString(startParams.user.toHexString()))

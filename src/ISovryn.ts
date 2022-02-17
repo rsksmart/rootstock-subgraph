@@ -34,7 +34,7 @@ import {
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
-import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade } from './utils/Loan'
+import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade, LoanType } from './utils/Loan'
 import { DataSourceContext } from '@graphprotocol/graph-ts'
 import { createAndReturnUser } from './utils/User'
 
@@ -42,8 +42,7 @@ export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
-    isBorrow: true,
-    isTrade: false,
+    type: LoanType.BORROW,
     startTimestamp: event.block.timestamp,
     user: event.params.user,
     loanToken: event.params.loanToken,
@@ -268,8 +267,7 @@ export function handleTrade(event: TradeEvent): void {
   let entity = new Trade(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
-    isBorrow: false,
-    isTrade: true,
+    type: LoanType.TRADE,
     startTimestamp: event.block.timestamp,
     user: event.params.user,
     loanToken: event.params.loanToken,

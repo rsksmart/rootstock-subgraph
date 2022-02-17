@@ -27,7 +27,6 @@ import {
   ConversionFeeUpdate,
   WithdrawFees,
   LiquidityPool,
-  Token,
 } from '../generated/schema'
 import { ConversionEventForSwap, createAndReturnSwap } from './utils/Swap'
 import { createAndReturnToken } from './utils/Token'

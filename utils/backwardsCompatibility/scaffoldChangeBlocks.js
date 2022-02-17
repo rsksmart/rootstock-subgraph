@@ -10,6 +10,7 @@ const { newDataSources } = require('./changeBlocks')
 function scaffoldChangeBlocks(dataSourceArr) {
     try {
         let doc = yaml.load(fs.readFileSync('./subgraph.yaml', 'utf8'));
+        // console.log(doc)
 
         for (const contractObj of dataSourceArr) {
             const originalContract = doc.dataSources.find(item => item.name === contractObj.originalName)
@@ -41,7 +42,7 @@ function scaffoldChangeBlocks(dataSourceArr) {
         }
 
         /** Convert json back to yaml */
-        const newYamlDoc = dump(doc)
+        const newYamlDoc = dump(doc, { lineWidth: -1 })
 
         // console.log(newYamlDoc)
 

@@ -515,8 +515,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
@@ -570,8 +568,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)
@@ -707,8 +703,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)
