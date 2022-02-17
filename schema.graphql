@@ -243,13 +243,16 @@ type TokenPoolToken @entity {
 }
 
 # Loans
+enum LoanType {
+  Trade
+  Borrow
+}
 
 type Loan @entity {
   id: ID! # ID is LoanId
   loanToken: Token!
   collateralToken: Token!
-  isTrade: Boolean!
-  isBorrow: Boolean!
+  type: LoanType!
   startTimestamp: BigInt!
   endTimestamp: BigInt!
   borrowedAmount: BigInt!

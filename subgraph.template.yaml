@@ -32,7 +32,6 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        
         - event: NewConverter(indexed uint16,indexed address,indexed address)
           handler: handleNewConverter
         - event: OwnerUpdate(indexed address,indexed address)
@@ -345,57 +344,14 @@ dataSources:
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
    
-  #  2 FeeSharingProxy contracts
+  #  FeeSharingProxy contract
   - kind: ethereum/contract
-    name: FeeSharingProxy_start
+    name: FeeSharingProxy
     network: {{network}}
     source:
-      address: '{{FeeSharingProxy_start.address}}'
+      address: '{{FeeSharingProxy.address}}'
       abi: FeeSharingProxy
-      startBlock: {{FeeSharingProxy_start.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - CheckpointAdded
-        - FeeAMMWithdrawn
-        - FeeWithdrawn
-        - OwnershipTransferred
-        - TokensTransferred
-        - UnwhitelistedConverter
-        - UserFeeWithdrawn
-        - WhitelistedConverter
-      abis:
-        - name: FeeSharingProxy
-          file: ./abis/FeeSharingProxy.json
-      eventHandlers:
-        
-        - event: CheckpointAdded(indexed address,indexed address,uint256)
-          handler: handleCheckpointAdded
-        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
-          handler: handleFeeAMMWithdrawn
-        - event: FeeWithdrawn(indexed address,indexed address,uint256)
-          handler: handleFeeWithdrawn
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: TokensTransferred(indexed address,indexed address,uint256)
-          handler: handleTokensTransferred
-        - event: UnwhitelistedConverter(indexed address,address)
-          handler: handleUnwhitelistedConverter
-        - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
-          handler: handleUserFeeWithdrawn
-        - event: WhitelistedConverter(indexed address,address)
-          handler: handleWhitelistedConverter
-      file: ./src/FeeSharingProxy.ts
-
-  - kind: ethereum/contract
-    name: FeeSharingProxy_ammFeeSplit
-    network: {{network}}
-    source:
-      address: '{{FeeSharingProxy_ammFeeSplit.address}}'
-      abi: FeeSharingProxy
-      startBlock: {{FeeSharingProxy_start.startBlock}}
+      startBlock: {{FeeSharingProxy.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -559,8 +515,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
@@ -614,8 +568,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)
@@ -751,8 +703,6 @@ templates:
           file: ./abis/ERC20.json
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: SovrynSwapNetwork
-          file: ./abis/SovrynSwapNetwork.json
       eventHandlers:
         
         # - event: DynamicFeeFactorUpdate(uint256,uint256)

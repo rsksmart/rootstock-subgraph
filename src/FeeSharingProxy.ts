@@ -7,7 +7,7 @@ import {
   UnwhitelistedConverter as UnwhitelistedConverterEvent,
   UserFeeWithdrawn as UserFeeWithdrawnEvent,
   WhitelistedConverter as WhitelistedConverterEvent,
-} from '../generated/FeeSharingProxy_start/FeeSharingProxy'
+} from '../generated/FeeSharingProxy/FeeSharingProxy'
 import { FeeAMMWithdrawn, FeeWithdrawn, TokensTransferred, UserFeeWithdrawn, UserStakeHistory } from '../generated/schema'
 
 import { loadTransaction } from './utils/Transaction'
