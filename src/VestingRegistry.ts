@@ -11,7 +11,7 @@ import {
 } from '../generated/VestingRegistry1/VestingRegistry'
 import { SOVTransferred, VestingContract } from '../generated/schema'
 import { VestingLogic as VestingContractTemplate } from '../generated/templates'
-
+import { BigInt } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
 import { vestingRegistry3 } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
@@ -50,7 +50,8 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration
-  entity.amount = event.params.amount
+  entity.startingBalance = event.params.amount
+  entity.currentBalance = BigInt.zero()
   let transaction = loadTransaction(event)
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp
@@ -70,7 +71,8 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration
-  entity.amount = event.params.amount
+  entity.startingBalance = event.params.amount
+  entity.currentBalance = BigInt.zero()
   let transaction = loadTransaction(event)
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp

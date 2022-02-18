@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { LiquidityPool } from '../../generated/schema'
 import { LiquidityPoolV1Converter as LiquidityPoolV1ConverterContract } from '../../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import { LiquidityPoolV2Converter as LiquidityPoolV2ConverterContract } from '../../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
@@ -19,7 +19,7 @@ export function createAndReturnLiquidityPool(
   converterAddress: Address,
   createdAtTimestamp: BigInt,
   createdAtBlockNumber: BigInt,
-  createdAtTransaction: string,
+  createdAtTransaction: string
 ): IGetLiquidityPool {
   let isNew = false
   let liquidityPool = LiquidityPool.load(converterAddress.toHex())

@@ -6,7 +6,7 @@ import {
   VotesDelegated as VotesDelegatedEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
 } from '../generated/templates/VestingLogic/VestingLogic'
-import { DividendsCollected, TokensWithdrawn_Vesting as TokensWithdrawn } from '../generated/schema'
+import { DividendsCollected, TokensWithdrawn_Vesting as TokensWithdrawn, VestingContract } from '../generated/schema'
 
 import { loadTransaction } from './utils/Transaction'
 
@@ -25,7 +25,13 @@ export function handleDividendsCollected(event: DividendsCollectedEvent): void {
 
 export function handleMigratedToNewStakingContract(event: MigratedToNewStakingContractEvent): void {}
 
-export function handleTokensStaked(event: TokensStakedEvent): void {}
+export function handleTokensStaked(event: TokensStakedEvent): void {
+  let vestingContract = VestingContract.load(event.address.toHexString())
+  if (vestingContract != null) {
+    vestingContract.currentBalance = vestingContract.currentBalance.plus(event.params.amount)
+    vestingContract.save()
+  }
+}
 
 export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   let entity = new TokensWithdrawn(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -37,7 +43,7 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   entity.emittedBy = event.address
   entity.save()
 
-  /** Load Vesting Contract and subtract balance of TokensWithdrawn */
+  /** There is no amount field here, so withdrawn tokens are subtracted in TokensWithdrawn event on the Staking contract */
 }
 
 export function handleVotesDelegated(event: VotesDelegatedEvent): void {}

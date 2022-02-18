@@ -6,15 +6,10 @@ import { BigInt, Bytes, Address } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 import { Token } from '../../generated/schema'
-
-export enum LoanType {
-  TRADE = 'Trade',
-  BORROW = 'Borrow',
-}
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
-  type: LoanType
+  type: string
   startTimestamp: BigInt
   loanToken: Bytes
   collateralToken: Bytes

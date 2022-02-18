@@ -31,7 +31,10 @@ type SmartToken @entity {
   """
   smartTokenType: String # Relay, Liquid, BNT?, Others?
   transfersEnabled: Boolean
-  liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken") # possibly v2 converter, how to handle?
+  liquidityPool: LiquidityPool! @derivedFrom(field: "smartToken")
+  """
+  connectorTokens are the entity that holds the many-to-many relationship between the underlying token asset and the smart token
+  """
   connectorTokens: [TokenSmartToken!] @derivedFrom(field: "smartToken")
   owner: Bytes!
   # tokenSwapTotals: [TokenSwapTotal!] @derivedFrom(field: "toToken")
@@ -47,7 +50,10 @@ type TokenSmartToken @entity {
   """
   ID is token address + smart token address
   """
-  id: ID! # ID is token address + smartToken address
+  id: ID!
+  """
+  token is the underlying asset represented by the smartToken
+  """
   token: Token!
   smartToken: SmartToken!
 }
@@ -132,29 +138,41 @@ type User @entity {
   """
   An array of all Mint and Burn events
   """
-  lendingHistory: [UserLendingHistory!] @derivedFrom(field: "lender")
+  lendingHistory: [UserLendingHistory!] @derivedFrom(field: "user")
   dividendsCollected: [DividendsCollected!] @derivedFrom(field: "receiver")
   """
   An array of Stake, Unstake, Extend Stake and Withdraw Stake actions
   """
   stakeHistory: [UserStakeHistory!] @derivedFrom(field: "user")
-  feesEarnedHistory: [FeesEarnedHistory!] @derivedFrom(field: "user")
+  rewardsEarnedHistory: [UserRewardsEarnedHistory!] @derivedFrom(field: "user")
+  # feesEarnedHistory: [UserFeesEarnedHistory!] @derivedFrom(field: "user")
   # vestedTokensWithdrawn: [TokensWithdrawn!] @derivedFrom(field: "receiver")
   """
   Vesting contracts owned by this user
   """
   vestingContracts: [VestingContract!] @derivedFrom(field:"user")
-  availableTradingRewards: BigInt!
-  availableRewardSov: BigInt!
 }
 
 type UserLendingHistory @entity {
+  id: ID! # user address + lending pool
+  user: User!
+  lendingPool: LendingPool!
+  lendingHistory: [LendingHistoryItem!] @derivedFrom(field: "userLendingHistory")
+  totalLendVolume: BigInt!
+  totalUnlendVolume: BigInt!
+}
+
+type LendingHistoryItem @entity {
   id: ID! # tx hash
   lender: User!
   type: String! # Lend or Unlend
   lendingPool: LendingPool!
-  asset: Token!
+  asset: Token # this is nullable because context is not working properly currently
   amount: BigInt!
+  loanTokenAmount: BigInt!
+  transaction: Transaction!
+  emittedBy: String!
+  userLendingHistory: UserLendingHistory!
 }
 
 type Token @entity {
@@ -208,6 +226,8 @@ type LiquidityPool @entity {
   type: Int
   version: Int
   smartToken: SmartToken
+  token0: Token
+  token1: Token
   connectorTokens: [LiquidityPoolToken!]! @derivedFrom(field: "liquidityPool")
   poolTokens: [TokenPoolToken!]! @derivedFrom(field: "liquidityPool")
   owner: String
@@ -331,17 +351,29 @@ type PriceDataUpdate @entity {
 }
 
 type UserLiquidityHistory @entity {
-  id: ID!
+  id: ID! # user + liquidity pool
   user: User!
-  type: String!
-  provider: Bytes! # address
+  liquidityPool: LiquidityPool!
+  totalAsset0LiquidityAdded: BigInt!
+  totalAsset0LiquidityRemoved: BigInt!
+  totalAsset1LiquidityAdded: BigInt!
+  totalAsset1LiquidityRemoved: BigInt!
+  liquidityHistory: [LiquidityHistoryItem!] @derivedFrom(field: "userLiquidityHistory")
+}
+
+type LiquidityHistoryItem @entity {
+  id: ID! # transaction hash + log index
+  user: User!
+  userLiquidityHistory: UserLiquidityHistory!
+  type: String! # Added or removed
+  provider: String! # address
   reserveToken: Token! # address
   amount: BigInt! # uint256
   newBalance: BigInt! # uint256
   newSupply: BigInt! # uint256
   timestamp: BigInt!
   liquidityPool: LiquidityPool!
-  emittedBy: Bytes! #address
+  emittedBy: String! #address
   transaction: Transaction!
 }
 
@@ -695,8 +727,8 @@ type SetWrbtcToken @entity {
   oldWethToken: Bytes! # address
   newWethToken: Bytes! # address
   timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }
 
 type Trade @entity {
@@ -717,19 +749,6 @@ type Trade @entity {
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
-
-# type WithdrawFees @entity {
-#   id: ID!
-#   sender: Bytes! # address
-#   token: Bytes! # address
-#   receiver: Bytes! # address
-#   lendingAmount: BigInt! # uint256
-#   tradingAmount: BigInt! # uint256
-#   borrowingAmount: BigInt! # uint256
-#   timestamp: BigInt!
-#     emittedBy: Bytes! #address
-#     transaction: Transaction!
-# }
 
 # Lending Contract events
 
@@ -802,11 +821,12 @@ type LoanToken @entity {
 type VestingContract @entity {
   id: ID! # vesting contract id
   user: User!
-  createdAtTimestamp: BigInt
+  createdAtTimestamp: BigInt!
   cliff: BigInt # uint256
   duration: BigInt # uint256
-  amount: BigInt # uint256
-  type: String # Team, Non-team, Rewards
+  startingBalance: BigInt! # uint256
+  currentBalance: BigInt!
+  type: String! # Team, Non-team, Rewards, Fish
   emittedBy: Bytes!
   createdAtTransaction: Transaction!
   stakeHistory: [TokensStaked!]!
@@ -882,8 +902,17 @@ type VestingTokensWithdrawn @entity {
 # This maps to existing stakeHistory api
 
 type UserStakeHistory @entity {
-  id: ID! # transaction hash
+  id: ID! # id is user
   user: User!
+  stakeHistory: [StakeHistoryItem!] @derivedFrom(field: "user")
+  totalStaked: BigInt!
+  totalWithdrawn: BigInt!
+  totalRemaining: BigInt!
+}
+
+type StakeHistoryItem @entity {
+  id: ID! # transaction hash
+  user: UserStakeHistory!
   action: String!
   timestamp: BigInt!
   transaction: Transaction!
@@ -892,15 +921,22 @@ type UserStakeHistory @entity {
 }
 
 # Fee Sharing Proxy and Fees History
+type UserRewardsEarnedHistory @entity {
+  id: ID! # user
+  user: User!
+  totalFeesAndRewardsEarned: BigInt!
+  availableTradingRewards: BigInt!
+  availableRewardSov: BigInt!
+  rewardsEarnedHistory: [RewardsEarnedHistoryItem!] @derivedFrom(field: "user")
+}
 
-# Matches feesEarnedHistory sql
-type FeesEarnedHistory @entity {
+type RewardsEarnedHistoryItem @entity {
   id: ID! # transaction hash
   action: String!
-  user: User!
+  user: UserRewardsEarnedHistory!
   token: Token
-  amount: BigInt
-  timestamp: BigInt
+  amount: BigInt!
+  timestamp: BigInt!
   transaction: Transaction!
 }
 

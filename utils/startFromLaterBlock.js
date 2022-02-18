@@ -37,11 +37,11 @@ function resetStartBlocks() {
 
 const run = async () => {
     program
-        .requiredOption('-reset, --reset', 'reset block numbers to correct non-test versions', true)
-        .option('-b, --blockNumber <blockNumber>', 'contract deployment block number', 1200000)
-
+        .option('-reset, --reset', 'reset block numbers to correct non-test versions')
+        .option('-b , --blockNumber <blockNumber>', 'contract deployment block number')
     program.parse()
     const options = program.opts()
+    console.log(options)
     const { reset, blockNumber } = options
     if (reset) {
         await resetStartBlocks()

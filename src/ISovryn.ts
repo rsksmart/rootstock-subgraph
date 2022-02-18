@@ -9,6 +9,7 @@ import {
   LoanSwap as LoanSwapEvent,
   PayBorrowingFee as PayBorrowingFeeEvent,
   PayLendingFee as PayLendingFeeEvent,
+  PayInterestTransfer as PayInterestTransferEvent,
   PayTradingFee as PayTradingFeeEvent,
   SetLoanPool as SetLoanPoolEvent,
   SetWrbtcToken as SetWrbtcTokenEvent,
@@ -28,13 +29,14 @@ import {
   SetLoanPool,
   SetWrbtcToken,
   Trade,
-  Loan,
   LoanToken,
   Swap,
+  UserRewardsEarnedHistory,
+  RewardsEarnedHistoryItem,
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
-import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade, LoanType } from './utils/Loan'
+import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade } from './utils/Loan'
 import { DataSourceContext } from '@graphprotocol/graph-ts'
 import { createAndReturnUser } from './utils/User'
 
@@ -42,7 +44,7 @@ export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
-    type: LoanType.BORROW,
+    type: 'Borrow',
     startTimestamp: event.block.timestamp,
     user: event.params.user,
     loanToken: event.params.loanToken,
@@ -140,10 +142,29 @@ export function handleEarnReward(event: EarnRewardEvent): void {
   entity.emittedBy = event.address
   entity.save()
 
-  let user = createAndReturnUser(event.params.receiver)
-  user.availableRewardSov = user.availableRewardSov.plus(event.params.amount)
-  user.availableTradingRewards = user.availableTradingRewards.plus(event.params.amount)
-  user.save()
+  createAndReturnUser(event.params.receiver)
+  let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.receiver.toHexString())
+  if (userRewardsEarnedHistory != null) {
+    userRewardsEarnedHistory.availableRewardSov = userRewardsEarnedHistory.availableRewardSov.plus(event.params.amount)
+    userRewardsEarnedHistory.availableTradingRewards = userRewardsEarnedHistory.availableTradingRewards.plus(event.params.amount)
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(event.params.amount)
+    userRewardsEarnedHistory.save()
+  } else {
+    userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params.receiver.toHexString())
+    userRewardsEarnedHistory.availableRewardSov = event.params.amount
+    userRewardsEarnedHistory.availableTradingRewards = event.params.amount
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = event.params.amount
+    userRewardsEarnedHistory.user = event.params.receiver.toHexString()
+    userRewardsEarnedHistory.save()
+  }
+
+  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHexString())
+  rewardsEarnedHistoryItem.action = 'EarnReward'
+  rewardsEarnedHistoryItem.user = event.params.receiver.toHexString()
+  rewardsEarnedHistoryItem.amount = event.params.amount
+  rewardsEarnedHistoryItem.timestamp = event.block.timestamp
+  rewardsEarnedHistoryItem.transaction = event.transaction.hash.toHexString()
+  rewardsEarnedHistoryItem.save()
 }
 
 export function handleExternalSwap(event: ExternalSwapEvent): void {
@@ -214,6 +235,8 @@ export function handlePayLendingFee(event: PayLendingFeeEvent): void {
   entity.save()
 }
 
+export function handlePayInterestTransfer(event: PayInterestTransferEvent): void {}
+
 export function handlePayTradingFee(event: PayTradingFeeEvent): void {
   let entity = new PayTradingFee(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.payer = event.params.payer
@@ -267,7 +290,7 @@ export function handleTrade(event: TradeEvent): void {
   let entity = new Trade(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
-    type: LoanType.TRADE,
+    type: 'Trade',
     startTimestamp: event.block.timestamp,
     user: event.params.user,
     loanToken: event.params.loanToken,

@@ -30,21 +30,19 @@ function scaffoldChangeBlocks(dataSourceArr) {
                 } else {
                     const newSource = JSON.parse(JSON.stringify(originalContract))
                     newSource.source.address = contract.address
-                    newSource.source.startBlock = contract.block
+                    newSource.source.startBlock = contract.startBlock
                     newSource.name = contract.name
-
                     /** Insert new data source into yml json */
                     doc.dataSources.splice(index, 0, newSource)
                     index++
                     console.log(`Scaffolded ${contract.name}`)
+
                 }
             }
         }
 
         /** Convert json back to yaml */
         const newYamlDoc = dump(doc, { lineWidth: -1 })
-
-        // console.log(newYamlDoc)
 
         /** Rewrite subgraph.yaml with new content */
         fs.writeFile('./subgraph.yaml', newYamlDoc)

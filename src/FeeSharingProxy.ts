@@ -8,7 +8,7 @@ import {
   UserFeeWithdrawn as UserFeeWithdrawnEvent,
   WhitelistedConverter as WhitelistedConverterEvent,
 } from '../generated/FeeSharingProxy/FeeSharingProxy'
-import { FeeAMMWithdrawn, FeeWithdrawn, TokensTransferred, UserFeeWithdrawn, UserStakeHistory } from '../generated/schema'
+import { FeeAMMWithdrawn, FeeWithdrawn, StakeHistoryItem, TokensTransferred, UserFeeWithdrawn } from '../generated/schema'
 
 import { loadTransaction } from './utils/Transaction'
 
@@ -51,7 +51,7 @@ export function handleTokensTransferred(event: TokensTransferredEvent): void {
   entity.emittedBy = event.address
   entity.save()
 
-  let stakeHistoryEntity = UserStakeHistory.load(event.transaction.hash.toHexString())
+  let stakeHistoryEntity = StakeHistoryItem.load(event.transaction.hash.toHexString())
   if (stakeHistoryEntity != null) {
     stakeHistoryEntity.action = 'Unstake'
     stakeHistoryEntity.save()
@@ -71,6 +71,14 @@ export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let stakeHistoryItem = new StakeHistoryItem(event.params.sender.toHexString())
+  stakeHistoryItem.user = event.params.sender.toHexString()
+  stakeHistoryItem.action = 'Fee Withdrawn'
+  stakeHistoryItem.timestamp = event.block.timestamp
+  stakeHistoryItem.amount = event.params.amount
+  stakeHistoryItem.transaction = event.transaction.hash.toHexString()
+  stakeHistoryItem.save()
 }
 
 export function handleWhitelistedConverter(event: WhitelistedConverterEvent): void {}

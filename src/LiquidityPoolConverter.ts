@@ -21,6 +21,7 @@ import {
 import {
   PriceDataUpdate,
   UserLiquidityHistory,
+  LiquidityHistoryItem,
   Activation,
   Conversion,
   TokenRateUpdate,
@@ -50,42 +51,128 @@ export function handlePriceDataUpdate(event: PriceDataUpdateEvent): void {
   entity.save()
 }
 
+/**
+ * TODO: Dry and refactor this code
+ */
+
+class LiquidityHistoryItemParams {
+  id: string
+  user: string
+  userLiquidityHistory: string
+  type: string
+  provider: string
+  reserveToken: string
+  amount: BigInt
+  newBalance: BigInt
+  newSupply: BigInt
+  transaction: string
+  timestamp: BigInt
+  emittedBy: string
+  liquidityPool: string
+}
+
+function createLiquidityHistoryItem(params: LiquidityHistoryItemParams): void {
+  let liquidityHistoryItem = new LiquidityHistoryItem(params.id)
+  liquidityHistoryItem.user = params.user
+  liquidityHistoryItem.userLiquidityHistory = params.userLiquidityHistory
+  liquidityHistoryItem.type = params.type
+  liquidityHistoryItem.provider = params.provider
+  liquidityHistoryItem.reserveToken = params.reserveToken
+  liquidityHistoryItem.amount = params.amount
+  liquidityHistoryItem.newBalance = params.newBalance
+  liquidityHistoryItem.newSupply = params.newSupply
+  liquidityHistoryItem.transaction = params.transaction
+  liquidityHistoryItem.timestamp = params.timestamp
+  liquidityHistoryItem.emittedBy = params.emittedBy
+  liquidityHistoryItem.liquidityPool = params.liquidityPool
+  liquidityHistoryItem.save()
+}
+
+function updateUserLiquidityHistory(
+  liquidityPool: LiquidityPool,
+  userLiquidityHistory: UserLiquidityHistory,
+  token: string,
+  amountAdded: BigInt,
+  amountRemoved: BigInt
+): void {
+  /** TODO: This would be more efficient with anoter if/else statement for type, but less readable? */
+  if (liquidityPool.token0 == token) {
+    userLiquidityHistory.totalAsset0LiquidityAdded = userLiquidityHistory.totalAsset0LiquidityAdded.plus(amountAdded)
+    userLiquidityHistory.totalAsset0LiquidityRemoved = userLiquidityHistory.totalAsset0LiquidityRemoved.plus(amountRemoved)
+  } else if (liquidityPool.token1 == token) {
+    userLiquidityHistory.totalAsset1LiquidityAdded = userLiquidityHistory.totalAsset1LiquidityAdded.plus(amountAdded)
+    userLiquidityHistory.totalAsset1LiquidityRemoved = userLiquidityHistory.totalAsset1LiquidityRemoved.plus(amountRemoved)
+  }
+  userLiquidityHistory.save()
+}
+
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
-  let entity = new UserLiquidityHistory(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   createAndReturnUser(event.transaction.from)
-  let transaction = loadTransaction(event)
-  entity.type = 'Added'
-  entity.user = event.transaction.from.toHexString()
-  entity.provider = event.params._provider
-  entity.reserveToken = event.params._reserveToken.toHexString()
-  entity.amount = event.params._amount
-  entity.newBalance = event.params._newBalance
-  entity.newSupply = event.params._newSupply
-  entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.liquidityPool = event.address.toHexString()
-  entity.save()
+  let liquidityPool = LiquidityPool.load(event.address.toHexString())
+  if (liquidityPool != null) {
+    let userLiquidityHistory = UserLiquidityHistory.load(event.transaction.from.toHexString() + event.address.toHexString())
+    if (userLiquidityHistory == null) {
+      userLiquidityHistory = new UserLiquidityHistory(event.transaction.from.toHexString() + event.address.toHexString())
+      userLiquidityHistory.user = event.transaction.from.toHexString()
+      userLiquidityHistory.liquidityPool = event.address.toHexString()
+      /** TODO: Correct this logic */
+      userLiquidityHistory.totalAsset0LiquidityAdded = BigInt.zero()
+      userLiquidityHistory.totalAsset0LiquidityRemoved = BigInt.zero()
+      userLiquidityHistory.totalAsset1LiquidityAdded = BigInt.zero()
+      userLiquidityHistory.totalAsset1LiquidityRemoved = BigInt.zero()
+    }
+
+    if (userLiquidityHistory != null) {
+      updateUserLiquidityHistory(liquidityPool, userLiquidityHistory, event.params._reserveToken.toHexString(), event.params._amount, BigInt.zero())
+    }
+  }
+
+  loadTransaction(event)
+  createLiquidityHistoryItem({
+    id: event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
+    user: event.transaction.from.toHexString(),
+    userLiquidityHistory: event.transaction.from.toHexString() + event.address.toHexString(),
+    type: 'Added',
+    provider: event.params._provider.toHexString(),
+    reserveToken: event.params._reserveToken.toHexString(),
+    amount: event.params._amount,
+    newBalance: event.params._newBalance,
+    newSupply: event.params._newSupply,
+    transaction: event.transaction.hash.toHexString(),
+    timestamp: event.block.timestamp,
+    emittedBy: event.address.toHexString(),
+    liquidityPool: event.address.toHexString(),
+  })
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
-  let entity = new UserLiquidityHistory(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  let user = createAndReturnUser(event.transaction.from)
-  let transaction = loadTransaction(event)
-  entity.type = 'Removed'
-  if (user != null) {
-    entity.user = user.id
+  createAndReturnUser(event.transaction.from)
+  let liquidityPool = LiquidityPool.load(event.address.toHexString())
+  if (liquidityPool != null) {
+    let userLiquidityHistory = UserLiquidityHistory.load(event.transaction.from.toHexString() + event.address.toHexString())
+    if (userLiquidityHistory != null) {
+      if (userLiquidityHistory != null) {
+        updateUserLiquidityHistory(liquidityPool, userLiquidityHistory, event.params._reserveToken.toHexString(), BigInt.zero(), event.params._amount)
+      }
+    }
   }
-  entity.provider = event.params._provider
-  entity.reserveToken = event.params._reserveToken.toHexString()
-  entity.amount = event.params._amount
-  entity.newBalance = event.params._newBalance
-  entity.newSupply = event.params._newSupply
-  entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.liquidityPool = event.address.toHexString()
-  entity.save()
+
+  loadTransaction(event)
+  createLiquidityHistoryItem({
+    id: event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
+    user: event.transaction.from.toHexString(),
+    userLiquidityHistory: event.transaction.from.toHexString() + event.address.toHexString(),
+    type: 'Removed',
+    provider: event.params._provider.toHexString(),
+    reserveToken: event.params._reserveToken.toHexString(),
+    amount: event.params._amount,
+    newBalance: event.params._newBalance,
+    newSupply: event.params._newSupply,
+    transaction: event.transaction.hash.toHexString(),
+    timestamp: event.block.timestamp,
+    emittedBy: event.address.toHexString(),
+    liquidityPool: event.address.toHexString(),
+  })
 }
 
 export function handleActivation(event: ActivationEvent): void {
@@ -107,6 +194,7 @@ export function handleActivation(event: ActivationEvent): void {
     liquidityPool.smartToken = smartToken.smartToken.id
 
     if (event.params._type == 1) {
+      /** TODO: Don't hard-code this block number */
       if (event.block.number < BigInt.fromString('2393856')) {
         const contract = LiquidityPoolV1Contract.bind(event.address)
         let reserveTokenCountResult = contract.try_reserveTokenCount()
@@ -116,6 +204,11 @@ export function handleActivation(event: ActivationEvent): void {
             if (!reserveTokenResult.reverted) {
               createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
               createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
+            }
+            if (i == 0) {
+              liquidityPool.token0 = reserveTokenResult.value.toHexString()
+            } else if (i == 1) {
+              liquidityPool.token1 = reserveTokenResult.value.toHexString()
             }
           }
         }
@@ -128,6 +221,11 @@ export function handleActivation(event: ActivationEvent): void {
             if (!reserveTokenResult.reverted) {
               createAndReturnToken(reserveTokenResult.value, event.address, event.params._anchor)
               createAndReturnPoolToken(event.params._anchor, event.address, reserveTokenResult.value)
+            }
+            if (i == 0) {
+              liquidityPool.token0 = reserveTokenResult.value.toHexString()
+            } else if (i == 1) {
+              liquidityPool.token1 = reserveTokenResult.value.toHexString()
             }
           }
         }
@@ -144,6 +242,11 @@ export function handleActivation(event: ActivationEvent): void {
             if (!poolTokenResult.reverted) {
               createAndReturnPoolToken(poolTokenResult.value, event.address, reserveTokenResult.value)
             }
+          }
+          if (i == 0) {
+            liquidityPool.token0 = reserveTokenResult.value.toHexString()
+          } else if (i == 1) {
+            liquidityPool.token1 = reserveTokenResult.value.toHexString()
           }
         }
       }

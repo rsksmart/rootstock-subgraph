@@ -9,9 +9,9 @@ import {
   StakingWithdrawn as StakingWithdrawnEvent,
   VestingTokensWithdrawn as VestingTokensWithdrawnEvent,
 } from '../generated/Staking/Staking'
-import { DelegateStakeChanged, UserStakeHistory, TokensStaked, VestingContract, VestingTokensWithdrawn, User, Transaction } from '../generated/schema'
+import { DelegateStakeChanged, StakeHistoryItem, TokensStaked, VestingContract, VestingTokensWithdrawn, User, Transaction } from '../generated/schema'
 import { loadTransaction } from './utils/Transaction'
-import { createAndReturnUser } from './utils/User'
+import { createAndReturnUser, createAndReturnUserStakeHistory } from './utils/User'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
 
@@ -19,13 +19,13 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
   let user = User.load(event.params.delegator.toHexString())
   if (event.params.fromDelegate.toHexString() != ZERO_ADDRESS && user != null) {
     let transaction = loadTransaction(event)
-    let stakeHistoryEntity = new UserStakeHistory(event.transaction.hash.toHexString())
-    stakeHistoryEntity.user = user.id
-    stakeHistoryEntity.action = 'Delegate'
-    stakeHistoryEntity.timestamp = event.block.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.lockedUntil = event.params.lockedUntil
-    stakeHistoryEntity.save()
+    let stakeHistoryItem = new StakeHistoryItem(event.transaction.hash.toHexString())
+    stakeHistoryItem.user = event.params.delegator.toHexString()
+    stakeHistoryItem.action = 'Delegate'
+    stakeHistoryItem.timestamp = event.block.timestamp
+    stakeHistoryItem.transaction = transaction.id
+    stakeHistoryItem.lockedUntil = event.params.lockedUntil
+    stakeHistoryItem.save()
   }
 }
 
@@ -44,13 +44,13 @@ export function handleDelegateStakeChanged(event: DelegateStakeChangedEvent): vo
 
 export function handleExtendedStakingDuration(event: ExtendedStakingDurationEvent): void {
   let transaction = loadTransaction(event)
-  let stakeHistoryEntity = new UserStakeHistory(event.transaction.hash.toHexString())
-  stakeHistoryEntity.user = event.params.staker.toHexString()
-  stakeHistoryEntity.action = 'Extend Stake'
-  stakeHistoryEntity.timestamp = event.block.timestamp
-  stakeHistoryEntity.transaction = transaction.id
-  stakeHistoryEntity.lockedUntil = event.params.newDate
-  stakeHistoryEntity.save()
+  let stakeHistoryItem = new StakeHistoryItem(event.params.staker.toHexString())
+  stakeHistoryItem.user = event.params.staker.toHexString()
+  stakeHistoryItem.action = 'Extend Stake'
+  stakeHistoryItem.timestamp = event.block.timestamp
+  stakeHistoryItem.transaction = transaction.id
+  stakeHistoryItem.lockedUntil = event.params.newDate
+  stakeHistoryItem.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferredEvent): void {}
@@ -87,22 +87,27 @@ export function handleTokensStaked(event: TokensStakedEvent): void {
     newVestingContract.emittedBy = event.address
     newVestingContract.createdAtTransaction = transaction.id
     newVestingContract.stakeHistory.push(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+    newVestingContract.startingBalance = event.params.amount
+    newVestingContract.currentBalance = BigInt.zero()
     newVestingContract.save()
   } else if (vestingContract == null) {
+    createAndReturnUser(event.params.staker)
+
+    let userStakeHistory = createAndReturnUserStakeHistory(event.params.staker)
+    userStakeHistory.totalStaked = userStakeHistory.totalStaked.plus(event.params.amount)
+    userStakeHistory.totalRemaining = userStakeHistory.totalRemaining.plus(event.params.amount)
+    userStakeHistory.save()
+
     entity.isUserStaked = true
-    let user = createAndReturnUser(event.params.staker)
-    entity.user = user.id
-    let stakeHistoryEntity = new UserStakeHistory(event.transaction.hash.toHexString())
-    stakeHistoryEntity.user = user.id
-    stakeHistoryEntity.action = event.params.amount < event.params.totalStaked ? 'Increase Stake' : 'Stake'
-    stakeHistoryEntity.timestamp = event.block.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.amount = event.params.amount
-    stakeHistoryEntity.lockedUntil = event.params.lockedUntil
-    stakeHistoryEntity.save()
-  } else if (vestingContract != null) {
-    vestingContract.stakeHistory.push(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-    vestingContract.save()
+    entity.user = event.params.staker.toHexString()
+    let stakeHistoryItem = new StakeHistoryItem(event.params.staker.toHexString())
+    stakeHistoryItem.user = event.params.staker.toHexString()
+    stakeHistoryItem.action = event.params.amount < event.params.totalStaked ? 'Increase Stake' : 'Stake'
+    stakeHistoryItem.timestamp = event.block.timestamp
+    stakeHistoryItem.transaction = transaction.id
+    stakeHistoryItem.amount = event.params.amount
+    stakeHistoryItem.lockedUntil = event.params.lockedUntil
+    stakeHistoryItem.save()
   }
 }
 
@@ -110,26 +115,31 @@ export function handleTokensUnlocked(event: TokensUnlockedEvent): void {}
 
 export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   let transaction = loadTransaction(event)
-  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver)
+  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver, event.params.amount)
 }
 
 /** This is a copy of handleTokensWithdrawn. The event was renamed but params remained the same. */
 export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
   let transaction = loadTransaction(event)
-  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver)
+  handleStakingOrTokensWithdrawn(transaction, event.params.staker, event.params.receiver, event.params.amount)
 }
 
-function handleStakingOrTokensWithdrawn(transaction: Transaction, staker: Address, receiver: Address): void {
-  let stakeHistoryEntity = new UserStakeHistory(transaction.id)
+function handleStakingOrTokensWithdrawn(transaction: Transaction, staker: Address, receiver: Address, amount: BigInt): void {
+  let stakeHistoryItem = new StakeHistoryItem(transaction.id)
   let user = User.load(staker.toHexString())
   let vesting = VestingContract.load(staker.toHexString())
   if (user !== null) {
-    stakeHistoryEntity.user = receiver.toHexString()
+    stakeHistoryItem.user = receiver.toHexString()
     /** In the FeeSharingProxy mapping, the handleTokensTransferred function will change this to Unstaked if a slashing event occurred */
-    stakeHistoryEntity.action = 'WithdrawStaked'
-    stakeHistoryEntity.timestamp = transaction.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.save()
+    stakeHistoryItem.action = 'WithdrawStaked'
+    stakeHistoryItem.timestamp = transaction.timestamp
+    stakeHistoryItem.transaction = transaction.id
+    stakeHistoryItem.save()
+
+    let userStakeHistory = createAndReturnUserStakeHistory(receiver)
+    userStakeHistory.totalWithdrawn = userStakeHistory.totalWithdrawn.minus(amount)
+    userStakeHistory.totalRemaining = userStakeHistory.totalRemaining.minus(amount)
+    userStakeHistory.save()
   } else if (vesting != null) {
     /** TODO: Don't hard code the addresses. They are GovernorAlpha, GovernorOwner and Multisig */
     const adminContracts = [
@@ -139,15 +149,18 @@ function handleStakingOrTokensWithdrawn(transaction: Transaction, staker: Addres
     ]
     if (adminContracts.includes(receiver.toHexString().toLowerCase()) && vesting.type == 'Team') {
       /** This happens when a team member with vesting contract leaves the project and their remaining balance is returned to the protocol */
-      stakeHistoryEntity.action = 'Revoked'
-      stakeHistoryEntity.user = vesting.user
+      stakeHistoryItem.action = 'Revoked'
+      stakeHistoryItem.user = vesting.user
     } else {
-      stakeHistoryEntity.action = 'WithdrawVested'
-      stakeHistoryEntity.user = receiver.toHexString()
+      stakeHistoryItem.action = 'WithdrawVested'
+      stakeHistoryItem.user = receiver.toHexString()
     }
-    stakeHistoryEntity.timestamp = transaction.timestamp
-    stakeHistoryEntity.transaction = transaction.id
-    stakeHistoryEntity.save()
+    stakeHistoryItem.timestamp = transaction.timestamp
+    stakeHistoryItem.transaction = transaction.id
+    stakeHistoryItem.save()
+
+    vesting.currentBalance.minus(amount)
+    vesting.save()
   }
 }
 
