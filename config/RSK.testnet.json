@@ -31,9 +31,13 @@
         "address": "0x25380305f223B32FDB844152abD2E82BC5Ad99c3",
         "startBlock": 1218686
     },
-    "abiChangeBlocks": {
+    "blockNumbers": {
         "liquidityPoolV1Converter": {
             "V2": 2393856
+        },
+        "genesisVestingBlocks": {
+            "start": 1617004,
+            "end": 1731114
         }
     },
     "VestingRegistry1": {

@@ -14,6 +14,7 @@ import { loadTransaction } from './utils/Transaction'
 import { createAndReturnUser, createAndReturnUserStakeHistory } from './utils/User'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { genesisVestingStartBlock, genesisVestingEndBlock } from './blockNumbers/blockNumbers'
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
   let user = User.load(event.params.delegator.toHexString())
@@ -76,8 +77,8 @@ export function handleTokensStaked(event: TokensStakedEvent): void {
 
   if (
     vestingContract == null &&
-    event.block.number <= BigInt.fromString('1731114') &&
-    event.block.number >= BigInt.fromString('1617004') &&
+    event.block.number <= genesisVestingEndBlock &&
+    event.block.number >= genesisVestingStartBlock &&
     event.transaction.from.toHexString() !== event.params.staker.toHexString()
   ) {
     let newVestingContract = new VestingContract(event.params.staker.toHexString())
