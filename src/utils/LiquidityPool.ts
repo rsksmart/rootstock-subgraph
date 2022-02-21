@@ -8,7 +8,7 @@ import {
   LiquidityPoolV2Converter as LiquidityPoolV2ConverterTemplate,
   LiquidityPoolV1ConverterProtocolFee as LiquidityPoolV1ConverterTemplate_V2,
 } from '../../generated/templates'
-import { version2Block } from '../blockNumbers/liquidityPoolAbiVersions'
+import { version2Block } from '../blockNumbers/blockNumbers'
 
 export class IGetLiquidityPool {
   liquidityPool: LiquidityPool

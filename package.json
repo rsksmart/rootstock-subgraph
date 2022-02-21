@@ -15,7 +15,7 @@
     "lint": "npx prettier src/",
     "lint:fix": "npx prettier -w src/",
     "scaffold": "node utils/scaffoldFromAbi.js",
-    "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml && npx mustache config/RSK.testnet.json src/contracts/contracts.template.ts > src/contracts/contracts.ts && npx mustache config/RSK.testnet.json src/blockNumbers/liquidityPoolAbiVersions.template.ts > src/blockNumbers/liquidityPoolAbiVersions.ts && node utils/backwardsCompatibility/scaffoldChangeBlocks.js",
+    "prepare:RSK:testnet": "npx mustache config/RSK.testnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.testnet.json docker-compose.template.yml > docker-compose.yml && npx mustache config/RSK.testnet.json src/contracts/contracts.template.ts > src/contracts/contracts.ts && npx mustache config/RSK.testnet.json src/blockNumbers/blockNumbers.template.ts > src/blockNumbers/blockNumbers.ts && node utils/backwardsCompatibility/scaffoldChangeBlocks.js",
     "prepare:RSK:mainnet": "npx mustache config/RSK.mainnet.json subgraph.template.yaml > subgraph.yaml && npx mustache config/RSK.mainnet.json docker-compose.template.yml > docker-compose.yml",
     "test-start-block": "node -r esm utils/startFromLaterBlock.js",
     "build-tests": "sudo docker build -t matchstick .",
