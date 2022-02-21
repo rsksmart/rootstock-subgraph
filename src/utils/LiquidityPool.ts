@@ -27,7 +27,7 @@ export function createAndReturnLiquidityPool(
     liquidityPool = new LiquidityPool(converterAddress.toHex())
     const type = getPoolType(converterAddress)
     liquidityPool.activated = false
-    if (type === 1 && createdAtBlockNumber <= BigInt.fromString(version2Block)) {
+    if (type === 1 && createdAtBlockNumber <= version2Block) {
       LiquidityPoolV1ConverterTemplate.create(converterAddress)
       liquidityPool.type = 1
       let converterContract = LiquidityPoolV1ConverterContract.bind(converterAddress)
@@ -39,7 +39,7 @@ export function createAndReturnLiquidityPool(
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
-    } else if (type === 1 && createdAtBlockNumber > BigInt.fromString(version2Block)) {
+    } else if (type === 1 && createdAtBlockNumber > version2Block) {
       LiquidityPoolV1ConverterTemplate_V2.create(converterAddress)
       liquidityPool.type = 1
       let converterContract = LiquidityPoolV1ConverterContract_V2.bind(converterAddress)
