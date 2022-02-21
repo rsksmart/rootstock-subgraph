@@ -1,5 +1,5 @@
 import config from '../config/RSK.testnet.json'
-import backupConfig from './RSK.testnetBackup.json'
+// import backupConfig from './RSK.testnetBackup.json'
 const fs = require('fs-extra')
 const { Command } = require('commander');
 const program = new Command();
@@ -30,9 +30,18 @@ function setStartBlockForTesting(newStartBlock) {
 }
 
 function resetStartBlocks() {
-    console.log('Resetting original start blocks')
-    fs.writeFile('./config/RSK.testnet.json', JSON.stringify(backupConfig))
-    console.log("Finished resetting config file")
+    const filePath = './utils/RSK.testnetBackup.json'
+    fs.stat(filePath, function (err, stat) {
+        if (err == null) {
+            const backupConfig = require('./RSK.testnetBackup.json')
+            console.log(backupConfig)
+            console.log('Resetting original start blocks')
+            fs.writeFile(filePath, JSON.stringify(backupConfig))
+            console.log("Finished resetting config file")
+        } else {
+            console.error(err)
+        }
+    })
 }
 
 const run = async () => {
@@ -41,7 +50,6 @@ const run = async () => {
         .option('-b , --blockNumber <blockNumber>', 'contract deployment block number')
     program.parse()
     const options = program.opts()
-    console.log(options)
     const { reset, blockNumber } = options
     if (reset) {
         await resetStartBlocks()
