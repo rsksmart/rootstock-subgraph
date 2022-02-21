@@ -1,5 +1,0 @@
-export const WRBTCAddress = '0x69FE5cEC81D5eF92600c1A0dB1F11986AB3758Ab'
-export const USDTAddress = '0x4D5a316D23eBE168d8f887b4447bf8DbFA4901CC'
-export const vestingRegistry1 = '0x80ec7ADd6CC1003BBEa89527ce93722e1DaD5c2a'
-export const vestingRegistry2 = '0x310006E356b0818C3Eaf86a9B2f13013d4691a1c'
-export const vestingRegistry3 = '0x52E4419b9D33C6e0ceb2e7c01D3aA1a04b21668C'

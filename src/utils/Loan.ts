@@ -2,10 +2,8 @@
  * This file is a work in progress - the goal is to have all PnL calculations and ot
  */
 
-import { BigInt, Bytes, Address } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
-import { createAndReturnUser } from './User'
-import { Token } from '../../generated/schema'
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
@@ -14,21 +12,9 @@ export class LoanStartState {
   loanToken: Bytes
   collateralToken: Bytes
   borrowedAmount: BigInt
-  collateralAmount: BigInt
+  positionSize: BigInt
   startRate: BigInt
 }
-
-// export class ChangePositionSizeState {
-//   loanId: Bytes
-//   collateralToAdd: BigInt = BigZero
-//   collateralToRemove: BigInt = BigZero
-//   positionSizeToAdd: BigInt = BigZero
-//   positionSizeToRemove: BigInt = BigZero
-//   collateralToLoanRate: BigInt
-//   isLoanClose: boolean = false
-// }
-
-const BigZero = BigInt.fromString('0')
 
 export function createAndReturnLoan(startParams: LoanStartState): Loan {
   let loanEntity = Loan.load(startParams.loanId.toHexString())
@@ -37,18 +23,12 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.type = startParams.type
     loanEntity.isOpen = true
     loanEntity.startTimestamp = startParams.startTimestamp
-    let userEntity = createAndReturnUser(Address.fromString(startParams.user.toHexString()))
-    loanEntity.user = userEntity.id
-    let collateralToken = Token.load(startParams.collateralToken.toHexString())
-    if (collateralToken != null) {
-      loanEntity.collateralToken = collateralToken.id
-    }
-    let loanToken = Token.load(startParams.loanToken.toHexString())
-    if (loanToken != null) {
-      loanEntity.loanToken = loanToken.id
-    }
+    loanEntity.user = startParams.user.toHexString()
+    loanEntity.collateralToken = startParams.collateralToken.toHexString()
+    loanEntity.loanToken = startParams.loanToken.toHexString()
     loanEntity.borrowedAmount = startParams.borrowedAmount
-    loanEntity.collateralAmount = startParams.collateralAmount
+    loanEntity.positionSize = startParams.positionSize
+    loanEntity.realizedPnL = BigInt.zero()
     loanEntity.save()
   }
   return loanEntity

@@ -1,4 +1,4 @@
-/** Change blocks for wrapper proxy contract */
+/** Contracts to be used by thte scaffoldChangeBlocks script for when a contract has been redployed */
 
 const wrapperProxyContractsTestnet = {
     originalName: "rbtcWrapperProxyTokenConverted",

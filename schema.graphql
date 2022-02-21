@@ -274,25 +274,42 @@ type Loan @entity {
   collateralToken: Token!
   type: LoanType!
   startTimestamp: BigInt!
-  endTimestamp: BigInt!
+  endTimestamp: BigInt
+  """
+  The amount borrowed in loan tokens
+  """
   borrowedAmount: BigInt!
+  """
+  The user-provided collateral in collateral tokens (this may not be the same token as what the user actually provided as collateral)
+  """
   collateralAmount: BigInt!
+  """
+  Total of collateralAmount and borrowedAmount in collateral tokens
+  """
+  positionSize: BigInt!
+  """
+  The start rate of the loan in loan tokens (eg if it is a long USD/BTC margin trade, this is the BTC price in USD)
+  """
   startRate: BigInt!
   isOpen: Boolean!
   user: User
-  trade: Trade
-  borrow: Borrow
-  closeWithSwaps: [CloseWithSwap!]
-  closewithDeposits: [CloseWithDeposit!]
-  liquidates: [Liquidate!]
-  depositCollateral: [DepositCollateral!]
+  closeWithSwaps: [CloseWithSwap!] @derivedFrom(field: "loanId")
+  closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
+  liquidates: [Liquidate!] @derivedFrom(field: "loanId")
+  depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
   realizedPnL: BigInt
 }
 
 # Lending
 
+# TODO: implement this entity
 type LendingPool @entity {
-  id: ID! # ID is lending pool address
+  id: ID! # ID is the pool token
+  underlyingAsset: Token!
+  totalPoolTokenMinted: BigInt!
+  totalPoolTokenBurned: BigInt!
+  totalAssetLent: BigInt!
+  totalAssetUnLent: BigInt!
 }
 
 

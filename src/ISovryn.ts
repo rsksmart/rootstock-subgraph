@@ -50,9 +50,10 @@ export function handleBorrow(event: BorrowEvent): void {
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
     borrowedAmount: event.params.newPrincipal,
-    collateralAmount: event.params.newCollateral,
+    positionSize: event.params.newCollateral,
     startRate: event.params.collateralToLoanRate,
   }
+  createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
@@ -296,9 +297,10 @@ export function handleTrade(event: TradeEvent): void {
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
     borrowedAmount: event.params.borrowedAmount,
-    collateralAmount: getCollateralAmountFromTrade(event.params.positionSize, event.params.currentLeverage),
+    positionSize: event.params.positionSize,
     startRate: event.params.entryPrice,
   }
+  createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
