@@ -2,8 +2,9 @@
  * This file is a work in progress - the goal is to have all PnL calculations and ot
  */
 
-import { BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
+import { integer } from '@protofire/subgraph-toolkit'
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
@@ -11,9 +12,19 @@ export class LoanStartState {
   startTimestamp: BigInt
   loanToken: Bytes
   collateralToken: Bytes
+  /** For Borrow, this is newPrincipal. For Trade this is borrowedAmount */
   borrowedAmount: BigInt
+  /** For Borrow, this is newCollateral. For Trade, this is positionSize */
   positionSize: BigInt
   startRate: BigInt
+}
+export class ChangeLoanState {
+  loanId: string
+  positionSizeChange: BigInt
+  borrowedAmountChange: BigInt
+  isOpen: boolean
+  type: string | null // Buy or Sell
+  rate: BigInt
 }
 
 export function createAndReturnLoan(startParams: LoanStartState): Loan {
@@ -28,36 +39,59 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.loanToken = startParams.loanToken.toHexString()
     loanEntity.borrowedAmount = startParams.borrowedAmount
     loanEntity.positionSize = startParams.positionSize
+    loanEntity.totalBought = startParams.positionSize
+    loanEntity.totalSold = BigInt.zero()
+    loanEntity.averageBuyPrice = startParams.startRate
+    loanEntity.averageSellPrice = BigInt.zero()
     loanEntity.realizedPnL = BigInt.zero()
     loanEntity.save()
+    /**
+     * TODO: Add Max Position Size for calculating PnL percentage
+     */
   }
   return loanEntity
 }
 
-export function closeLoanWithSwap(loanId: Bytes): void {}
+export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
+  let loanEntity = Loan.load(params.loanId)
+  let eventPnL = BigInt.zero()
+  if (loanEntity != null) {
+    loanEntity.positionSize = loanEntity.positionSize.plus(params.positionSizeChange)
+    loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
+    loanEntity.isOpen = params.isOpen
 
-export function closeLoanWithDeposit(loanId: Bytes): void {}
+    if (params.type == 'Buy') {
+      let oldWeightedPrice = loanEntity.totalBought.times(loanEntity.averageBuyPrice)
+      let newWeightedPrice = params.positionSizeChange.times(params.rate)
+      const newTotalBought = loanEntity.totalBought.plus(params.positionSizeChange)
+      loanEntity.totalBought = newTotalBought
+      loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
+    } else if (params.type == 'Sell') {
+      log.debug('SELL RATE: {}', [params.rate.toString()])
+      log.debug('LOAN ID: {}', [params.loanId.toString()])
+      const postionChangeAbs = BigInt.zero().minus(params.positionSizeChange)
 
-// export function changePositionSize(changeParams: ChangePositionSizeState): void {
-//   let loanEntity = Loan.load(changeParams.loanId.toHexString())
-//   if (loanEntity != null) {
-//     let newPositionSize = loanEntity.positionSize.plus(changeParams.positionSizeToAdd).minus(changeParams.positionSizeToRemove)
-//     let newCollateralSize = loanEntity.collateralAmount.plus(changeParams.collateralToAdd).minus(changeParams.collateralToRemove)
-//     loanEntity.positionSize = newPositionSize
-//     loanEntity.collateralAmount = newCollateralSize
-//   }
-//   if (changeParams.collateralToRemove != BigZero) {
-//     let collateralAmountInNewRate = changeParams.collateralToRemove.times(changeParams.collateralToLoanRate)
-//     let collateralAmountInStartRate = changeParams.collateralToRemove.times(loanEntity.startRate)
-//     let realisedPnL = collateralAmountInNewRate.minus(collateralAmountInStartRate)
-//     loanEntity.realizedPnL = loanEntity.realizedPnL.plus(realisedPnL)
-//   }
-//   if (changeParams.isLoanClose) {
-//     loanEntity.isOpen = false
-//   }
-//   loanEntity.save()
-// }
+      let oldWeightedPrice = loanEntity.totalSold.times(loanEntity.averageSellPrice) // If first time, this is 0
+      let newWeightedPrice = postionChangeAbs.times(params.rate)
+      const newTotalSold = loanEntity.totalSold.plus(postionChangeAbs)
+      loanEntity.totalSold = newTotalSold
+      /** TODO: Fix this */
 
-export function getCollateralAmountFromTrade(positionSize: BigInt, currentLeverage: BigInt): BigInt {
-  return positionSize.div(currentLeverage.plus(BigInt.fromString('1000000000000000000')))
+      loanEntity.averageSellPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalSold)
+
+      /** Calculate PnL */
+      let priceDiff = params.rate.minus(loanEntity.averageBuyPrice)
+      log.debug('PRICE DIFF: {}', [priceDiff.toString()])
+      let newPnL = priceDiff.times(postionChangeAbs).div(integer.WEI_PER_ETHER)
+      log.debug('NEW PNL: {}', [newPnL.toString()])
+      eventPnL = newPnL
+      loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL)
+    } else if (params.type == null) {
+      /**
+       * TODO: How does DepositCollateral affect PnL?
+       */
+    }
+    loanEntity.save()
+  }
+  return eventPnL
 }

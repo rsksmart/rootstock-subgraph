@@ -15,6 +15,7 @@ import {
   SetWrbtcToken as SetWrbtcTokenEvent,
   Trade as TradeEvent, // User event
 } from '../generated/ISovryn/ISovryn'
+import { DepositCollateral as DepositCollateralLegacyEvent } from '../generated/DepositCollateralLegacy/DepositCollateralLegacy'
 import {
   Borrow,
   CloseWithDeposit,
@@ -36,9 +37,10 @@ import {
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
-import { createAndReturnLoan, LoanStartState, getCollateralAmountFromTrade } from './utils/Loan'
-import { DataSourceContext } from '@graphprotocol/graph-ts'
+import { createAndReturnLoan, LoanStartState, updateLoanReturnPnL, ChangeLoanState } from './utils/Loan'
+import { BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
 import { createAndReturnUser } from './utils/User'
+import { integer } from '@protofire/subgraph-toolkit'
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -93,6 +95,16 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigInt.zero().minus(event.params.repayAmount),
+    positionSizeChange: BigInt.zero().minus(event.params.collateralWithdrawAmount),
+    isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
+    rate: event.params.collateralToLoanRate,
+    type: 'Sell',
+  }
+  updateLoanReturnPnL(changeParams)
 }
 
 /** Close from Trade Event */
@@ -115,6 +127,16 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigInt.zero().minus(event.params.loanCloseAmount),
+    positionSizeChange: BigInt.zero().minus(event.params.positionCloseSize),
+    isOpen: event.params.currentLeverage.gt(BigInt.zero()) ? true : false,
+    rate: event.params.exitPrice,
+    type: 'Sell',
+  }
+  updateLoanReturnPnL(changeParams)
 }
 
 export function handleDepositCollateral(event: DepositCollateralEvent): void {
@@ -127,6 +149,37 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigInt.zero(),
+    positionSizeChange: event.params.depositAmount,
+    isOpen: true,
+    rate: event.params.rate,
+    type: null,
+  }
+  updateLoanReturnPnL(changeParams)
+}
+
+export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEvent): void {
+  let entity = new DepositCollateral(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity.loanId = event.params.loanId.toHexString()
+  entity.depositAmount = event.params.depositAmount
+  let transaction = loadTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigInt.zero(),
+    positionSizeChange: event.params.depositAmount,
+    isOpen: true,
+    rate: integer.ONE,
+    type: null,
+  }
+  updateLoanReturnPnL(changeParams)
 }
 
 export function handleEarnReward(event: EarnRewardEvent): void {
@@ -194,6 +247,16 @@ export function handleLiquidate(event: LiquidateEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigInt.zero().minus(event.params.repayAmount),
+    positionSizeChange: BigInt.zero().minus(event.params.collateralWithdrawAmount),
+    isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
+    rate: integer.WEI_PER_ETHER.div(event.params.collateralToLoanRate).times(integer.WEI_PER_ETHER),
+    type: 'Sell',
+  }
+  updateLoanReturnPnL(changeParams)
 }
 
 export function handleLoanSwap(event: LoanSwapEvent): void {

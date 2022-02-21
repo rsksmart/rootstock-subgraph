@@ -279,12 +279,9 @@ type Loan @entity {
   The amount borrowed in loan tokens
   """
   borrowedAmount: BigInt!
+
   """
-  The user-provided collateral in collateral tokens (this may not be the same token as what the user actually provided as collateral)
-  """
-  collateralAmount: BigInt!
-  """
-  Total of collateralAmount and borrowedAmount in collateral tokens
+  Total of collateral (user collateral in a Borrow, and user collateral + borrowed amount in a Trade) in collateral tokens
   """
   positionSize: BigInt!
   """
@@ -293,11 +290,17 @@ type Loan @entity {
   startRate: BigInt!
   isOpen: Boolean!
   user: User
+  trade: [Trade!] @derivedFrom(field: "loanId")
+  borrow: [Borrow!] @derivedFrom(field: "loanId")
   closeWithSwaps: [CloseWithSwap!] @derivedFrom(field: "loanId")
   closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
   liquidates: [Liquidate!] @derivedFrom(field: "loanId")
   depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
-  realizedPnL: BigInt
+  totalBought: BigInt!
+  totalSold: BigInt!
+  averageBuyPrice: BigInt!
+  averageSellPrice: BigInt!
+  realizedPnL: BigInt!
 }
 
 # Lending
@@ -528,7 +531,7 @@ type DepositCollateral @entity {
   id: ID!
   loanId: Loan! # bytes32
   depositAmount: BigInt! # uint256
-  rate: BigInt! # uint256
+  rate: BigInt # uint256
   timestamp: BigInt!
   emittedBy: Bytes! #address
   transaction: Transaction!

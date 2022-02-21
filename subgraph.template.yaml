@@ -162,6 +162,28 @@ dataSources:
         - event: Trade(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTrade
       file: ./src/ISovryn.ts
+  
+  - kind: ethereum/contract
+    name: DepositCollateralLegacy
+    network: {{network}}
+    source: 
+      address: '{{ISovryn.address}}'
+      abi: DepositCollateralLegacy
+      startBlock: {{ISovryn.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DepositCollateral
+      abis: 
+        - name: DepositCollateralLegacy
+          file: ./abis/DepositCollateralLegacy.json
+      eventHandlers:
+        - event: DepositCollateral(bytes32,uint256)
+          handler: handleDepositCollateralLegacy
+      file: ./src/ISovryn.ts
+
 
   # 3 Vesting Registries (same abi). We need to add FISH here
   - kind: ethereum/contract
