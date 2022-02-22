@@ -279,11 +279,15 @@ type Loan @entity {
   The amount borrowed in loan tokens
   """
   borrowedAmount: BigInt!
+  startBorrowedAmount: BigInt!
+  maxBorrowedAmount: BigInt!
 
   """
   Total of collateral (user collateral in a Borrow, and user collateral + borrowed amount in a Trade) in collateral tokens
   """
   positionSize: BigInt!
+  startPositionSize: BigInt!
+  maximumPositionSize: BigInt!
   """
   The start rate of the loan in loan tokens (eg if it is a long USD/BTC margin trade, this is the BTC price in USD)
   """
@@ -300,7 +304,11 @@ type Loan @entity {
   totalSold: BigInt!
   averageBuyPrice: BigInt!
   averageSellPrice: BigInt!
+  """
+  The realised PnL is quoted in the collateral currency
+  """
   realizedPnL: BigInt!
+  realizedPnLPercent: BigDecimal!
 }
 
 # Lending

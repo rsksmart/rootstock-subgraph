@@ -33,7 +33,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.toToken = event.toToken.toHexString()
     swapEntity.fromAmount = event.fromAmount
     swapEntity.toAmount = event.toAmount
-    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
+    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal()).truncate(8)
     if (userEntity != null) {
       swapEntity.user = userEntity.id
       userEntity.numSwaps += 1
@@ -47,7 +47,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.numConversions += 1
     swapEntity.toToken = event.toToken.toHexString()
     swapEntity.toAmount = event.toAmount
-    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
+    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal()).truncate(8)
   }
   swapEntity.save()
 
@@ -79,19 +79,19 @@ function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
 
     if (token != null) {
       const oldPriceBtc = token.lastPriceBtc
-      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal())
-      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals)
+      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal()).truncate(18)
+      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).truncate(18)
 
       const oldPriceUsd = token.lastPriceUsd
-      const newPriceUsd = newPriceBtc.times(token.lastPriceUsd)
-      const usdVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).times(btcPrice)
+      const newPriceUsd = newPriceBtc.times(token.lastPriceUsd).truncate(2)
+      const usdVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).times(btcPrice).truncate(2)
 
       token.lastPriceBtc = newPriceBtc
       token.lastPriceUsd = newPriceUsd
 
       token.btcVolume = token.btcVolume.plus(btcVolume)
       token.usdVolume = token.usdVolume.plus(usdVolume)
-      token.tokenVolume = token.tokenVolume.plus(decimal.fromBigInt(tokenAmount, token.decimals))
+      token.tokenVolume = token.tokenVolume.plus(decimal.fromBigInt(tokenAmount, token.decimals)).truncate(18)
 
       BTCToken.btcVolume = BTCToken.btcVolume.plus(btcVolume)
       BTCToken.usdVolume = BTCToken.usdVolume.plus(usdVolume)

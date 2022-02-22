@@ -18,7 +18,7 @@ export function updateLastPriceUsdAll(newBtcPrice: BigDecimal, timestamp: BigInt
     let tokenEntity = Token.load(token)
     if (tokenEntity !== null) {
       if (tokenEntity.id.toLowerCase() == USDTAddress.toLowerCase()) {
-        tokenEntity.lastPriceUsd = BigDecimal.fromString('1')
+        tokenEntity.lastPriceUsd = BigDecimal.fromString('1').truncate(2)
         tokenEntity.save()
       } else {
         const oldUsdPrice = tokenEntity.lastPriceUsd

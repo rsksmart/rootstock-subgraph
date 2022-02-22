@@ -2,7 +2,7 @@
  * This file is a work in progress - the goal is to have all PnL calculations and ot
  */
 
-import { BigInt, Bytes, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
 import { integer } from '@protofire/subgraph-toolkit'
 export class LoanStartState {
@@ -38,12 +38,17 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.collateralToken = startParams.collateralToken.toHexString()
     loanEntity.loanToken = startParams.loanToken.toHexString()
     loanEntity.borrowedAmount = startParams.borrowedAmount
+    loanEntity.startBorrowedAmount = startParams.borrowedAmount
+    loanEntity.maxBorrowedAmount = startParams.borrowedAmount
     loanEntity.positionSize = startParams.positionSize
+    loanEntity.startPositionSize = startParams.positionSize
+    loanEntity.maximumPositionSize = startParams.positionSize
     loanEntity.totalBought = startParams.positionSize
     loanEntity.totalSold = BigInt.zero()
     loanEntity.averageBuyPrice = startParams.startRate
     loanEntity.averageSellPrice = BigInt.zero()
     loanEntity.realizedPnL = BigInt.zero()
+    loanEntity.realizedPnLPercent = BigDecimal.zero()
     loanEntity.save()
     /**
      * TODO: Add Max Position Size for calculating PnL percentage
@@ -59,6 +64,12 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
     loanEntity.positionSize = loanEntity.positionSize.plus(params.positionSizeChange)
     loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
     loanEntity.isOpen = params.isOpen
+    if (loanEntity.positionSize.gt(loanEntity.maximumPositionSize)) {
+      loanEntity.maximumPositionSize = loanEntity.positionSize
+    }
+    if (loanEntity.borrowedAmount.gt(loanEntity.maxBorrowedAmount)) {
+      loanEntity.maxBorrowedAmount = loanEntity.borrowedAmount
+    }
 
     if (params.type == 'Buy') {
       let oldWeightedPrice = loanEntity.totalBought.times(loanEntity.averageBuyPrice)
@@ -67,25 +78,28 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
       loanEntity.totalBought = newTotalBought
       loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
     } else if (params.type == 'Sell') {
-      log.debug('SELL RATE: {}', [params.rate.toString()])
-      log.debug('LOAN ID: {}', [params.loanId.toString()])
-      const postionChangeAbs = BigInt.zero().minus(params.positionSizeChange)
+      const amountSold = BigInt.zero().minus(params.positionSizeChange)
+      const priceSoldAt = params.rate
+      const differenceFromBuyPrice = loanEntity.averageBuyPrice.minus(priceSoldAt)
+      const newPnL = differenceFromBuyPrice.times(amountSold).div(BigInt.fromString('1000000000000000000'))
+
+      log.debug('DEBUGGING PNL: \nSELL RATE: {} \nLOAN ID: {} \nAMOUNT SOLD: {} \nDIFFERENCE FROM BUY PRICE: {} \nNEW PNL: {}', [
+        params.rate.toString(),
+        params.loanId.toString(),
+        amountSold.toString(),
+        differenceFromBuyPrice.toString(),
+        newPnL.toString(),
+      ])
 
       let oldWeightedPrice = loanEntity.totalSold.times(loanEntity.averageSellPrice) // If first time, this is 0
-      let newWeightedPrice = postionChangeAbs.times(params.rate)
-      const newTotalSold = loanEntity.totalSold.plus(postionChangeAbs)
+      let newWeightedPrice = amountSold.times(params.rate)
+      const newTotalSold = loanEntity.totalSold.plus(amountSold)
       loanEntity.totalSold = newTotalSold
-      /** TODO: Fix this */
-
-      loanEntity.averageSellPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalSold)
-
-      /** Calculate PnL */
-      let priceDiff = params.rate.minus(loanEntity.averageBuyPrice)
-      log.debug('PRICE DIFF: {}', [priceDiff.toString()])
-      let newPnL = priceDiff.times(postionChangeAbs).div(integer.WEI_PER_ETHER)
-      log.debug('NEW PNL: {}', [newPnL.toString()])
+      const totalWeightedPrice = oldWeightedPrice.plus(newWeightedPrice)
+      loanEntity.averageSellPrice = totalWeightedPrice.div(newTotalSold)
       eventPnL = newPnL
       loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL)
+      loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(BigInt.fromI32(100)).divDecimal(loanEntity.maximumPositionSize.toBigDecimal()).truncate(8)
     } else if (params.type == null) {
       /**
        * TODO: How does DepositCollateral affect PnL?
