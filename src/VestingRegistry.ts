@@ -13,7 +13,7 @@ import { SOVTransferred, VestingContract } from '../generated/schema'
 import { VestingLogic as VestingContractTemplate } from '../generated/templates'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
-import { vestingRegistry1, vestingRegistry2, vestingRegistry3 } from './contracts/contracts'
+import { vestingRegistry1, vestingRegistry2, vestingRegistry3, vestingRegistryFish } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
 import { log } from '@graphprotocol/graph-ts'
 
@@ -47,6 +47,7 @@ const vestingContractTypes = new Map<string, string>()
 vestingContractTypes.set(vestingRegistry1.toLowerCase(), 'Origins')
 vestingContractTypes.set(vestingRegistry2.toLowerCase(), 'Origins')
 vestingContractTypes.set(vestingRegistry3.toLowerCase(), 'Rewards')
+vestingContractTypes.set(vestingRegistryFish.toLowerCase(), 'Fish')
 
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
@@ -61,7 +62,7 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp
   entity.emittedBy = event.address
-  entity.type = 'Team'
+  entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase()) == 'Fish' ? 'Fish Team' : 'Team'
   entity.stakeHistory = []
   entity.save()
   VestingContractTemplate.create(event.params.vesting)
