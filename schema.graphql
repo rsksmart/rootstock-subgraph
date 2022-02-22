@@ -287,20 +287,20 @@ type Loan @entity {
   """
   The amount borrowed in loan tokens
   """
-  borrowedAmount: BigInt!
-  startBorrowedAmount: BigInt!
-  maxBorrowedAmount: BigInt!
+  borrowedAmount: BigDecimal!
+  startBorrowedAmount: BigDecimal!
+  maxBorrowedAmount: BigDecimal!
 
   """
   Total of collateral (user collateral in a Borrow, and user collateral + borrowed amount in a Trade) in collateral tokens
   """
-  positionSize: BigInt!
-  startPositionSize: BigInt!
-  maximumPositionSize: BigInt!
+  positionSize: BigDecimal!
+  startPositionSize: BigDecimal!
+  maximumPositionSize: BigDecimal!
   """
   The start rate of the loan in loan tokens (eg if it is a long USD/BTC margin trade, this is the BTC price in USD)
   """
-  startRate: BigInt!
+  startRate: BigDecimal!
   isOpen: Boolean!
   user: User
   trade: [Trade!] @derivedFrom(field: "loanId")
@@ -309,14 +309,14 @@ type Loan @entity {
   closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
   liquidates: [Liquidate!] @derivedFrom(field: "loanId")
   depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
-  totalBought: BigInt!
-  totalSold: BigInt!
-  averageBuyPrice: BigInt!
-  averageSellPrice: BigInt!
+  totalBought: BigDecimal!
+  totalSold: BigDecimal!
+  averageBuyPrice: BigDecimal!
+  averageSellPrice: BigDecimal!
   """
   The realised PnL is quoted in the collateral currency
   """
-  realizedPnL: BigInt!
+  realizedPnL: BigDecimal!
   realizedPnLPercent: BigDecimal!
 }
 

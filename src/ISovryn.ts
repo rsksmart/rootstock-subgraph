@@ -38,9 +38,9 @@ import {
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnLoan, LoanStartState, updateLoanReturnPnL, ChangeLoanState } from './utils/Loan'
-import { BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
 import { createAndReturnUser } from './utils/User'
-import { integer } from '@protofire/subgraph-toolkit'
+import { integer, decimal } from '@protofire/subgraph-toolkit'
 
 export function handleBorrow(event: BorrowEvent): void {
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -51,9 +51,9 @@ export function handleBorrow(event: BorrowEvent): void {
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
-    borrowedAmount: event.params.newPrincipal,
-    positionSize: event.params.newCollateral,
-    startRate: event.params.collateralToLoanRate,
+    borrowedAmount: decimal.fromBigInt(event.params.newPrincipal, 18),
+    positionSize: decimal.fromBigInt(event.params.newCollateral, 18),
+    startRate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
   }
   createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)
@@ -98,10 +98,10 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigInt.zero().minus(event.params.repayAmount),
-    positionSizeChange: BigInt.zero().minus(event.params.collateralWithdrawAmount),
+    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.repayAmount, 18)),
+    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.collateralWithdrawAmount, 18)),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: event.params.collateralToLoanRate,
+    rate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
     type: 'Sell',
   }
   updateLoanReturnPnL(changeParams)
@@ -130,10 +130,10 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigInt.zero().minus(event.params.loanCloseAmount),
-    positionSizeChange: BigInt.zero().minus(event.params.positionCloseSize),
+    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.loanCloseAmount, 18)),
+    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.positionCloseSize, 18)),
     isOpen: event.params.currentLeverage.gt(BigInt.zero()) ? true : false,
-    rate: event.params.exitPrice,
+    rate: decimal.fromBigInt(event.params.exitPrice, 18),
     type: 'Sell',
   }
   updateLoanReturnPnL(changeParams)
@@ -152,10 +152,10 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigInt.zero(),
-    positionSizeChange: event.params.depositAmount,
+    borrowedAmountChange: BigDecimal.zero(),
+    positionSizeChange: decimal.fromBigInt(event.params.depositAmount, 18),
     isOpen: true,
-    rate: event.params.rate,
+    rate: decimal.fromBigInt(event.params.rate, 18),
     type: null,
   }
   updateLoanReturnPnL(changeParams)
@@ -173,10 +173,10 @@ export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEven
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigInt.zero(),
-    positionSizeChange: event.params.depositAmount,
+    borrowedAmountChange: BigDecimal.zero(),
+    positionSizeChange: decimal.fromBigInt(event.params.depositAmount),
     isOpen: true,
-    rate: integer.ONE,
+    rate: decimal.ONE, //This is a placeholder, this value is not used for DepositCollateral events
     type: null,
   }
   updateLoanReturnPnL(changeParams)
@@ -250,10 +250,10 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigInt.zero().minus(event.params.repayAmount),
-    positionSizeChange: BigInt.zero().minus(event.params.collateralWithdrawAmount),
+    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.repayAmount, 18)),
+    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.collateralWithdrawAmount)),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: integer.WEI_PER_ETHER.div(event.params.collateralToLoanRate).times(integer.WEI_PER_ETHER),
+    rate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
     type: 'Sell',
   }
   updateLoanReturnPnL(changeParams)
@@ -359,9 +359,9 @@ export function handleTrade(event: TradeEvent): void {
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
-    borrowedAmount: event.params.borrowedAmount,
-    positionSize: event.params.positionSize,
-    startRate: event.params.entryPrice,
+    borrowedAmount: decimal.fromBigInt(event.params.borrowedAmount, 18),
+    positionSize: decimal.fromBigInt(event.params.positionSize, 18),
+    startRate: decimal.fromBigInt(event.params.entryPrice, 18),
   }
   createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)

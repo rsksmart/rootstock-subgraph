@@ -4,7 +4,7 @@
 
 import { BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
-import { integer } from '@protofire/subgraph-toolkit'
+import { integer, decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
@@ -13,20 +13,21 @@ export class LoanStartState {
   loanToken: Bytes
   collateralToken: Bytes
   /** For Borrow, this is newPrincipal. For Trade this is borrowedAmount */
-  borrowedAmount: BigInt
+  borrowedAmount: BigDecimal
   /** For Borrow, this is newCollateral. For Trade, this is positionSize */
-  positionSize: BigInt
-  startRate: BigInt
+  positionSize: BigDecimal
+  startRate: BigDecimal
 }
 export class ChangeLoanState {
   loanId: string
-  positionSizeChange: BigInt
-  borrowedAmountChange: BigInt
+  positionSizeChange: BigDecimal
+  borrowedAmountChange: BigDecimal
   isOpen: boolean
   type: string | null // Buy or Sell
-  rate: BigInt
+  rate: BigDecimal
 }
 
+/** This is currently very buggy. Convert everything to BigDecimal normal numbers to help with debugging? */
 export function createAndReturnLoan(startParams: LoanStartState): Loan {
   let loanEntity = Loan.load(startParams.loanId.toHexString())
   if (loanEntity == null) {
@@ -44,10 +45,10 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.startPositionSize = startParams.positionSize
     loanEntity.maximumPositionSize = startParams.positionSize
     loanEntity.totalBought = startParams.positionSize
-    loanEntity.totalSold = BigInt.zero()
+    loanEntity.totalSold = BigDecimal.zero()
     loanEntity.averageBuyPrice = startParams.startRate
-    loanEntity.averageSellPrice = BigInt.zero()
-    loanEntity.realizedPnL = BigInt.zero()
+    loanEntity.averageSellPrice = BigDecimal.zero()
+    loanEntity.realizedPnL = BigDecimal.zero()
     loanEntity.realizedPnLPercent = BigDecimal.zero()
     loanEntity.save()
     /**
@@ -57,9 +58,9 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
   return loanEntity
 }
 
-export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
+export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
   let loanEntity = Loan.load(params.loanId)
-  let eventPnL = BigInt.zero()
+  let eventPnL = BigDecimal.zero()
   if (loanEntity != null) {
     loanEntity.positionSize = loanEntity.positionSize.plus(params.positionSizeChange)
     loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
@@ -78,18 +79,17 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
       loanEntity.totalBought = newTotalBought
       loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
     } else if (params.type == 'Sell') {
-      const amountSold = BigInt.zero().minus(params.positionSizeChange)
+      const amountSold = BigDecimal.zero().minus(params.positionSizeChange)
       const priceSoldAt = params.rate
       const differenceFromBuyPrice = loanEntity.averageBuyPrice.minus(priceSoldAt)
-      const newPnL = differenceFromBuyPrice.times(amountSold).div(BigInt.fromString('1000000000000000000'))
 
-      log.debug('DEBUGGING PNL: \nSELL RATE: {} \nLOAN ID: {} \nAMOUNT SOLD: {} \nDIFFERENCE FROM BUY PRICE: {} \nNEW PNL: {}', [
-        params.rate.toString(),
-        params.loanId.toString(),
-        amountSold.toString(),
-        differenceFromBuyPrice.toString(),
-        newPnL.toString(),
-      ])
+      // log.debug('DEBUGGING PNL: \nSELL RATE: {} \nLOAN ID: {} \nAMOUNT SOLD: {} \nDIFFERENCE FROM BUY PRICE: {} \nNEW PNL: {}', [
+      //   params.rate.toString(),
+      //   params.loanId.toString(),
+      //   amountSold.toString(),
+      //   differenceFromBuyPrice.toString(),
+      //   newPnL.toString(),
+      // ])
 
       let oldWeightedPrice = loanEntity.totalSold.times(loanEntity.averageSellPrice) // If first time, this is 0
       let newWeightedPrice = amountSold.times(params.rate)
@@ -97,9 +97,10 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigInt {
       loanEntity.totalSold = newTotalSold
       const totalWeightedPrice = oldWeightedPrice.plus(newWeightedPrice)
       loanEntity.averageSellPrice = totalWeightedPrice.div(newTotalSold)
+      const newPnL = amountSold.div(loanEntity.averageSellPrice.div(differenceFromBuyPrice))
       eventPnL = newPnL
-      loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL)
-      loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(BigInt.fromI32(100)).divDecimal(loanEntity.maximumPositionSize.toBigDecimal()).truncate(8)
+      loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL).truncate(18)
+      loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(decimal.fromNumber(100)).div(loanEntity.maximumPositionSize).truncate(8)
     } else if (params.type == null) {
       /**
        * TODO: How does DepositCollateral affect PnL?
