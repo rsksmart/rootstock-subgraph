@@ -22,7 +22,7 @@ export function updateLastPriceUsdAll(newBtcPrice: BigDecimal, timestamp: BigInt
         tokenEntity.save()
       } else {
         const oldUsdPrice = tokenEntity.lastPriceUsd
-        tokenEntity.lastPriceUsd = tokenEntity.lastPriceBtc.times(newBtcPrice)
+        tokenEntity.lastPriceUsd = tokenEntity.lastPriceBtc.times(newBtcPrice).truncate(2)
         const newUsdPrice = tokenEntity.lastPriceUsd
         tokenEntity.save()
 

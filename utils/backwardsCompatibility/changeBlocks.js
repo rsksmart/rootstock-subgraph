@@ -1,4 +1,4 @@
-/** Contracts to be used by thte scaffoldChangeBlocks script for when a contract has been redployed */
+/** Contracts to be used by the scaffoldChangeBlocks script for when a contract has been redeployed */
 
 const wrapperProxyContractsTestnet = {
     originalName: "rbtcWrapperProxyTokenConverted",
@@ -37,6 +37,22 @@ const feeSharingProxyContractsTestnet = {
     ]
 }
 
+const governorContractsTestnet = {
+    originalName: "GovernorAlphaEvents",
+    changeBlocks: [
+        {
+            name: "GovernorAlphaEvents1606451",
+            address: "0x1528f0341a1Ea546780caD690F54b4FBE1834ED4",
+            startBlock: 1606451
+        },
+        {
+            name: "GovernorAlphaEvents1606443",
+            address: "0x058FD3F6a40b92b311B49E5e3E064300600021D7",
+            startBlock: 1606443
+        }
+    ]
+}
+
 const wrapperProxyContractsMainnet = {
 
 }
@@ -46,6 +62,7 @@ module.exports = {
         wrapperProxyContractsMainnet,
     ] : [
         wrapperProxyContractsTestnet,
-        feeSharingProxyContractsTestnet
+        feeSharingProxyContractsTestnet,
+        governorContractsTestnet
     ]
 }

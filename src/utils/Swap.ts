@@ -79,23 +79,23 @@ function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
 
     if (token != null) {
       const oldPriceBtc = token.lastPriceBtc
-      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal()).truncate(18)
-      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).truncate(18)
+      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal()).truncate(8)
+      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).truncate(8)
 
-      const oldPriceUsd = token.lastPriceUsd
+      const oldPriceUsd = token.lastPriceUsd.truncate(2)
       const newPriceUsd = newPriceBtc.times(token.lastPriceUsd).truncate(2)
       const usdVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).times(btcPrice).truncate(2)
 
       token.lastPriceBtc = newPriceBtc
       token.lastPriceUsd = newPriceUsd
 
-      token.btcVolume = token.btcVolume.plus(btcVolume)
-      token.usdVolume = token.usdVolume.plus(usdVolume)
+      token.btcVolume = token.btcVolume.plus(btcVolume).truncate(8)
+      token.usdVolume = token.usdVolume.plus(usdVolume).truncate(2)
       token.tokenVolume = token.tokenVolume.plus(decimal.fromBigInt(tokenAmount, token.decimals)).truncate(18)
 
-      BTCToken.btcVolume = BTCToken.btcVolume.plus(btcVolume)
-      BTCToken.usdVolume = BTCToken.usdVolume.plus(usdVolume)
-      BTCToken.tokenVolume = BTCToken.btcVolume.plus(btcVolume)
+      BTCToken.btcVolume = BTCToken.btcVolume.plus(btcVolume).truncate(8)
+      BTCToken.usdVolume = BTCToken.usdVolume.plus(usdVolume).truncate(2)
+      BTCToken.tokenVolume = BTCToken.btcVolume.plus(btcVolume).truncate(18)
 
       token.save()
 
@@ -126,7 +126,7 @@ function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
     if (event.fromToken.toHexString() == USDTAddress.toLowerCase() && event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
       if (BTCToken != null) {
         usdBtcPrice = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
-        BTCToken.lastPriceUsd = usdBtcPrice
+        BTCToken.lastPriceUsd = usdBtcPrice.truncate(2)
         BTCToken.lastPriceBtc = BigDecimal.fromString('1')
         updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
       }
@@ -134,7 +134,7 @@ function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
       let usdBtcPrice: BigDecimal
       if (BTCToken != null) {
         usdBtcPrice = event.toAmount.divDecimal(event.fromAmount.toBigDecimal())
-        BTCToken.lastPriceUsd = usdBtcPrice
+        BTCToken.lastPriceUsd = usdBtcPrice.truncate(2)
         BTCToken.lastPriceBtc = BigDecimal.fromString('1')
         updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
       }

@@ -15,6 +15,14 @@ type ProtocolStats @entity {
   Total number of users of the protocol. This number is incremented each time a user is created
   """
   totalUsers: BigInt!
+
+  # TODO: Implement these data points
+  totalMarginTradeVolumeUsd: BigInt
+  totalAmmVolumeUsd: BigInt
+  totalLendVolumeUsd: BigInt
+  totalBorrowVolumeUsd: BigInt
+  totalVoluntarilyStaked: BigInt
+  totalStakedByVesting: BigInt
 }
 
 type SmartToken @entity {
@@ -151,6 +159,7 @@ type User @entity {
   Vesting contracts owned by this user
   """
   vestingContracts: [VestingContract!] @derivedFrom(field:"user")
+  votes: [VoteCast!] @derivedFrom(field: "voter")
 }
 
 type UserLendingHistory @entity {
@@ -1087,4 +1096,82 @@ type CandleSticksFifteenMinute @entity {
   txCount: BigInt! # number of transactions during period
   totalVolume: BigDecimal! # total volume in quote currency
   periodStartUnix: Int! # unix timestamp for start of candle
+}
+
+
+# Governor Contracts
+type Proposal @entity {
+  id: ID! # contract address + id
+  created: Transaction!
+  canceled: Transaction
+  executed: Transaction
+  queued: Transaction
+  votesFor: BigInt!
+  votesAgainst: BigInt!
+  countVotersFor: BigInt!
+  countVotersAgainst: BigInt!
+  votes: [VoteCast!] @derivedFrom(field: "proposal")
+  proposalId: BigInt!
+  proposer: Bytes! # address
+  targets: [String!]! # address[]
+  values: [BigInt!]! # uint256[]
+  signatures: [String!]! # string[]
+  startBlock: BigInt! # uint256
+  endBlock: BigInt! # uint256
+  description: String! # string
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+}
+
+type ProposalCanceled @entity {
+  id: ID!
+  proposalId: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type ProposalCreated @entity {
+  id: ID!
+  proposalId: BigInt! # uint256
+  proposer: Bytes! # address
+  targets: [String!]! # address[]
+  values: [BigInt!]! # uint256[]
+  signatures: [String!]! # string[]
+  # calldatas: [String!]! # bytes[]
+  startBlock: BigInt! # uint256
+  endBlock: BigInt! # uint256
+  description: String! # string
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type ProposalExecuted @entity {
+  id: ID!
+  proposalId: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type ProposalQueued @entity {
+  id: ID!
+  proposalId: BigInt! # uint256
+  eta: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+type VoteCast @entity {
+  id: ID!
+  voter: User! # address
+  proposalId: BigInt! # uint256
+  proposal: Proposal!
+  support: Boolean! # bool
+  votes: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }

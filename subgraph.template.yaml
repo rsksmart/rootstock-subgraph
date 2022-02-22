@@ -184,6 +184,38 @@ dataSources:
           handler: handleDepositCollateralLegacy
       file: ./src/ISovryn.ts
 
+  - kind: ethereum/contract
+    name: GovernorAlphaEvents
+    network: {{network}}
+    source:
+      address: '{{GovernorAlphaEvents.address}}'
+      abi: GovernorAlphaEvents
+      startBlock: {{GovernorAlphaEvents.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ProposalCanceled
+        - ProposalCreated
+        - ProposalExecuted
+        - ProposalQueued
+        - VoteCast
+      abis:
+        - name: GovernorAlphaEvents
+          file: ./abis/GovernorAlphaEvents.json
+      eventHandlers:
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: ProposalQueued(uint256,uint256)
+          handler: handleProposalQueued
+        - event: VoteCast(address,uint256,bool,uint256)
+          handler: handleVoteCast
+      file: ./src/GovernorEvents.ts
 
   # 3 Vesting Registries (same abi). We need to add FISH here
   - kind: ethereum/contract
@@ -871,3 +903,4 @@ templates:
         - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
           handler: handleTokenConverted
       file: ./src/rbtcWrapperProxyTokenConverted.ts
+
