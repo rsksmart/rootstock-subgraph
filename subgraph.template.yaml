@@ -4,6 +4,7 @@ repository: https://github.com/DistributedCollective/Sovryn-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
+  # Converter Factory
   - kind: ethereum/contract
     name: ConverterFactory
     network: {{network}}
@@ -26,16 +27,18 @@ dataSources:
           file: ./abis/LiquidityPoolV1Converter.json
         - name: LiquidityPoolV2Converter
           file: ./abis/LiquidityPoolV2Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        
         - event: NewConverter(indexed uint16,indexed address,indexed address)
           handler: handleNewConverter
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/ConverterFactory.ts
 
+  #Converter Registry
   - kind: ethereum/contract
     name: ConverterRegistry
     network: {{network}}
@@ -68,6 +71,8 @@ dataSources:
           file: ./abis/LiquidityPoolV1Converter.json
         - name: LiquidityPoolV2Converter
           file: ./abis/LiquidityPoolV2Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
@@ -92,7 +97,517 @@ dataSources:
           handler: handleOwnerUpdate
       file: ./src/ConverterRegistry.ts
 
+  # ISovryn
+  - kind: ethereum/contract
+    name: ISovryn
+    network: {{network}}
+    source:
+      address: '{{ISovryn.address}}'
+      abi: ISovryn
+      startBlock: {{ISovryn.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Borrow
+        - CloseWithDeposit
+        - CloseWithSwap
+        - DepositCollateral
+        - EarnReward
+        - ExternalSwap
+        - Liquidate
+        - LoanSwap
+        - PayBorrowingFee
+        - PayLendingFee
+        - PayTradingFee
+        - SetWrbtcToken
+        - SetLoanPool
+        - Trade
+        # - WithdrawFees # this needs to be changed due to naming clash
+      abis:
+        - name: ISovryn
+          file: ./abis/ISovryn.json
+        - name: LoanTokenLogicStandard
+          file: ./abis/LoanTokenLogicStandard.json
+      eventHandlers:
+        - event: Borrow(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleBorrow
+        - event: CloseWithDeposit(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleCloseWithDeposit
+        - event: CloseWithSwap(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleCloseWithSwap
+        - event: DepositCollateral(bytes32,uint256,uint256)
+          handler: handleDepositCollateral
+        - event: EarnReward(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256)
+          handler: handleEarnReward
+        - event: ExternalSwap(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleExternalSwap
+        - event: Liquidate(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
+          handler: handleLiquidate
+        - event: LoanSwap(indexed bytes32,indexed address,indexed address,address,uint256,uint256)
+          handler: handleLoanSwap
+        - event: PayBorrowingFee(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handlePayBorrowingFee
+        - event: PayLendingFee(indexed address,indexed address,uint256)
+          handler: handlePayLendingFee
+        - event: PayInterestTransfer(indexed address,indexed address,uint256)
+          handler: handlePayInterestTransfer
+        - event: PayTradingFee(indexed address,indexed address,indexed bytes32,uint256)
+          handler: handlePayTradingFee
+        - event: SetLoanPool(indexed address,indexed address,indexed address)
+          handler: handleSetLoanPool
+        - event: SetWrbtcToken(indexed address,indexed address,indexed address)
+          handler: handleSetWrbtcToken
+        - event: Trade(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleTrade
+      file: ./src/ISovryn.ts
+  
+  - kind: ethereum/contract
+    name: DepositCollateralLegacy
+    network: {{network}}
+    source: 
+      address: '{{ISovryn.address}}'
+      abi: DepositCollateralLegacy
+      startBlock: {{ISovryn.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DepositCollateral
+      abis: 
+        - name: DepositCollateralLegacy
+          file: ./abis/DepositCollateralLegacy.json
+      eventHandlers:
+        - event: DepositCollateral(bytes32,uint256)
+          handler: handleDepositCollateralLegacy
+      file: ./src/ISovryn.ts
+
+  - kind: ethereum/contract
+    name: GovernorAlphaEvents
+    network: {{network}}
+    source:
+      address: '{{GovernorAlphaEvents.address}}'
+      abi: GovernorAlphaEvents
+      startBlock: {{GovernorAlphaEvents.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ProposalCanceled
+        - ProposalCreated
+        - ProposalExecuted
+        - ProposalQueued
+        - VoteCast
+      abis:
+        - name: GovernorAlphaEvents
+          file: ./abis/GovernorAlphaEvents.json
+      eventHandlers:
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+        - event: ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)
+          handler: handleProposalCreated
+        - event: ProposalExecuted(uint256)
+          handler: handleProposalExecuted
+        - event: ProposalQueued(uint256,uint256)
+          handler: handleProposalQueued
+        - event: VoteCast(address,uint256,bool,uint256)
+          handler: handleVoteCast
+      file: ./src/GovernorEvents.ts
+
+  # 3 Vesting Registries (same abi). We need to add FISH here
+  - kind: ethereum/contract
+    name: VestingRegistry1
+    network: {{network}}
+    source:
+      address: '{{VestingRegistry1.address}}'
+      abi: VestingRegistry
+      startBlock: {{VestingRegistry1.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AdminAdded
+        - AdminRemoved
+        - CSOVReImburse
+        - CSOVTokensExchanged
+        - OwnershipTransferred
+        - SOVTransferred
+        - TeamVestingCreated
+        - TokensStaked
+        - VestingCreated
+      abis:
+        - name: VestingRegistry
+          file: ./abis/VestingRegistry.json
+      eventHandlers:
+        - event: AdminAdded(address)
+          handler: handleAdminAdded
+        - event: AdminRemoved(address)
+          handler: handleAdminRemoved
+        - event: CSOVReImburse(address,uint256,uint256)
+          handler: handleCSOVReImburse
+        - event: CSOVTokensExchanged(indexed address,uint256)
+          handler: handleCSOVTokensExchanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SOVTransferred(indexed address,uint256)
+          handler: handleSOVTransferred
+        - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleTeamVestingCreated
+        - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleVestingCreated
+      file: ./src/VestingRegistry.ts
+
+  - kind: ethereum/contract
+    name: VestingRegistry2
+    network: {{network}}
+    source:
+      address: '{{VestingRegistry2.address}}'
+      abi: VestingRegistry
+      startBlock: {{VestingRegistry2.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AdminAdded
+        - AdminRemoved
+        - CSOVReImburse
+        - CSOVTokensExchanged
+        - OwnershipTransferred
+        - SOVTransferred
+        - TeamVestingCreated
+        - TokensStaked
+        - VestingCreated
+      abis:
+        - name: VestingRegistry
+          file: ./abis/VestingRegistry.json
+      eventHandlers:
+        
+        - event: AdminAdded(address)
+          handler: handleAdminAdded
+        - event: AdminRemoved(address)
+          handler: handleAdminRemoved
+        - event: CSOVReImburse(address,uint256,uint256)
+          handler: handleCSOVReImburse
+        - event: CSOVTokensExchanged(indexed address,uint256)
+          handler: handleCSOVTokensExchanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SOVTransferred(indexed address,uint256)
+          handler: handleSOVTransferred
+        - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleTeamVestingCreated
+        - event: TokensStaked(indexed address,uint256)
+          handler: handleTokensStaked
+        - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleVestingCreated
+      file: ./src/VestingRegistry.ts
+
+  - kind: ethereum/contract
+    name: VestingRegistry3
+    network: {{network}}
+    source:
+      address: '{{VestingRegistry3.address}}'
+      abi: VestingRegistry
+      startBlock: {{VestingRegistry3.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AdminAdded
+        - AdminRemoved
+        - CSOVReImburse
+        - CSOVTokensExchanged
+        - OwnershipTransferred
+        - SOVTransferred
+        - TeamVestingCreated
+        - TokensStaked
+        - VestingCreated
+      abis:
+        - name: VestingRegistry
+          file: ./abis/VestingRegistry.json
+      eventHandlers:
+        
+        - event: AdminAdded(address)
+          handler: handleAdminAdded
+        - event: AdminRemoved(address)
+          handler: handleAdminRemoved
+        - event: CSOVReImburse(address,uint256,uint256)
+          handler: handleCSOVReImburse
+        - event: CSOVTokensExchanged(indexed address,uint256)
+          handler: handleCSOVTokensExchanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SOVTransferred(indexed address,uint256)
+          handler: handleSOVTransferred
+        - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleTeamVestingCreated
+        - event: TokensStaked(indexed address,uint256)
+          handler: handleTokensStaked
+        - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleVestingCreated
+      file: ./src/VestingRegistry.ts
+
+  - kind: ethereum/contract
+    name: VestingRegistryFish
+    network: {{network}}
+    source:
+      address: '{{VestingRegistryFish.address}}'
+      abi: VestingRegistry
+      startBlock: {{VestingRegistryFish.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - AdminAdded
+        - AdminRemoved
+        - CSOVReImburse
+        - CSOVTokensExchanged
+        - OwnershipTransferred
+        - SOVTransferred
+        - TeamVestingCreated
+        - TokensStaked
+        - VestingCreated
+      abis:
+        - name: VestingRegistry
+          file: ./abis/VestingRegistry.json
+      eventHandlers:
+        
+        - event: AdminAdded(address)
+          handler: handleAdminAdded
+        - event: AdminRemoved(address)
+          handler: handleAdminRemoved
+        - event: CSOVReImburse(address,uint256,uint256)
+          handler: handleCSOVReImburse
+        - event: CSOVTokensExchanged(indexed address,uint256)
+          handler: handleCSOVTokensExchanged
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SOVTransferred(indexed address,uint256)
+          handler: handleSOVTransferred
+        - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleTeamVestingCreated
+        - event: TokensStaked(indexed address,uint256)
+          handler: handleTokensStaked
+        - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
+          handler: handleVestingCreated
+      file: ./src/VestingRegistry.ts
+
+  # Staking
+  - kind: ethereum/contract
+    name: Staking
+    network: {{network}}
+    source:
+      address: '{{Staking.address}}'
+      abi: Staking
+      startBlock: {{Staking.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DelegateChanged
+        - DelegateStakeChanged
+        - ExtendedStakingDuration
+        - OwnershipTransferred
+        - TokensStaked
+        - TokensUnlocked
+        - TokensWithdrawn
+        - VestingTokensWithdrawn
+        - StakingWithdrawn
+      abis:
+        - name: Staking
+          file: ./abis/Staking.json
+      eventHandlers:
+        
+        - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
+          handler: handleDelegateChanged
+        - event: DelegateStakeChanged(indexed address,uint256,uint256,uint256)
+          handler: handleDelegateStakeChanged
+        - event: ExtendedStakingDuration(indexed address,uint256,uint256)
+          handler: handleExtendedStakingDuration
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensStaked(indexed address,uint256,uint256,uint256)
+          handler: handleTokensStaked
+        - event: TokensUnlocked(uint256)
+          handler: handleTokensUnlocked
+        - event: TokensWithdrawn(indexed address,address,uint256)
+          handler: handleTokensWithdrawn
+        - event: VestingTokensWithdrawn(address,address)
+          handler: handleVestingTokensWithdrawn
+        - event: StakingWithdrawn(indexed address,address,uint256,uint256,bool)
+          handler: handleStakingWithdrawn
+      file: ./src/Staking.ts
+
+  - kind: ethereum/contract
+    name: StakingFish
+    network: {{network}}
+    source:
+      address: '{{StakingFish.address}}'
+      abi: Staking
+      startBlock: {{StakingFish.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokensWithdrawn
+        - StakingWithdrawn
+      abis:
+        - name: Staking
+          file: ./abis/Staking.json
+      eventHandlers:
+        - event: TokensWithdrawn(indexed address,address,uint256)
+          handler: handleTokensWithdrawn
+        - event: StakingWithdrawn(indexed address,address,uint256,uint256,bool)
+          handler: handleStakingWithdrawn
+      file: ./src/Staking.ts
+   
+  #  FeeSharingProxy contract
+  - kind: ethereum/contract
+    name: FeeSharingProxy
+    network: {{network}}
+    source:
+      address: '{{FeeSharingProxy.address}}'
+      abi: FeeSharingProxy
+      startBlock: {{FeeSharingProxy.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - CheckpointAdded
+        - FeeAMMWithdrawn
+        - FeeWithdrawn
+        - OwnershipTransferred
+        - TokensTransferred
+        - UnwhitelistedConverter
+        - UserFeeWithdrawn
+        - WhitelistedConverter
+      abis:
+        - name: FeeSharingProxy
+          file: ./abis/FeeSharingProxy.json
+      eventHandlers:
+        - event: CheckpointAdded(indexed address,indexed address,uint256)
+          handler: handleCheckpointAdded
+        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeAMMWithdrawn
+        - event: FeeWithdrawn(indexed address,indexed address,uint256)
+          handler: handleFeeWithdrawn
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensTransferred(indexed address,indexed address,uint256)
+          handler: handleTokensTransferred
+        - event: UnwhitelistedConverter(indexed address,address)
+          handler: handleUnwhitelistedConverter
+        - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
+          handler: handleUserFeeWithdrawn
+        - event: WhitelistedConverter(indexed address,address)
+          handler: handleWhitelistedConverter
+      file: ./src/FeeSharingProxy.ts
+
+  # LockedSov
+  - kind: ethereum/contract
+    name: LockedSov
+    network: {{network}}
+    source:
+      address: '{{LockedSov.address}}'
+      abi: LockedSov
+      startBlock: {{LockedSov.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Deposited
+      abis:
+        - name: LockedSov
+          file: ./abis/LockedSov.json
+      eventHandlers:
+        - event: Deposited(indexed address,indexed address,uint256,uint256)
+          handler: handleDeposited
+        - event: TokenStaked(indexed address,indexed address,uint256)
+          handler: handleTokenStaked
+      file: ./src/LockedSov.ts
+
+  # Mining Proxy
+  - kind: ethereum/contract
+    name: MiningProxy
+    network: {{network}}
+    source:
+      address: '{{MiningProxy.address}}'
+      abi: MiningProxy
+      startBlock: {{MiningProxy.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - RewardClaimed
+      abis:
+        - name: MiningProxy
+          file: ./abis/MiningProxy.json
+      eventHandlers:
+        - event: RewardClaimed(indexed address,indexed address,uint256)
+          handler: handleRewardClaimed
+      file: ./src/MiningProxy.ts
+
+  # Staking Reward
+  - kind: ethereum/contract
+    name: StakingReward
+    network: {{network}}
+    source:
+      address: '{{StakingReward.address}}'
+      abi: StakingReward
+      startBlock: {{StakingReward.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - RewardWithdrawn
+      abis:
+        - name: StakingReward
+          file: ./abis/StakingReward.json
+      eventHandlers:
+        - event: RewardWithdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+      file: ./src/StakingReward.ts
+
+  # rBTCWrapperProxy
+  - kind: ethereum/contract
+    name: rbtcWrapperProxyTokenConverted
+    network: {{network}}
+    source:
+      address: '{{rbtcWrapperProxyTokenConverted.address}}'
+      abi: rbtcWrapperProxyTokenConverted
+      startBlock: {{rbtcWrapperProxyTokenConverted.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenConverted
+      abis:
+        - name: rbtcWrapperProxyTokenConverted
+          file: ./abis/rbtcWrapperProxyTokenConverted.json
+      eventHandlers:
+        - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
+          handler: handleTokenConverted
+      # blockHandlers:
+      #   - handler: handleBlock
+      file: ./src/rbtcWrapperProxyTokenConverted.ts
+
 templates:
+  # LiquidityPoolV1Converter
   - kind: ethereum/contract
     name: LiquidityPoolV1Converter
     network: {{network}}
@@ -120,6 +635,8 @@ templates:
       abis:
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: SmartToken
@@ -146,6 +663,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
+  # LiquidityPoolV2Converter
   - kind: ethereum/contract
     name: LiquidityPoolV2Converter
     network: {{network}}
@@ -196,6 +714,7 @@ templates:
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
 
+  # SmartToken
   - kind: ethereum/contract
     name: SmartToken
     network: {{network}}
@@ -214,10 +733,6 @@ templates:
       abis:
         - name: SmartToken
           file: ./abis/SmartToken.json
-        - name: LiquidityPoolV1Converter
-          file: ./abis/LiquidityPoolV1Converter.json
-        - name: ERC20
-          file: ./abis/ERC20.json
       eventHandlers:
         # - event: Issuance(uint256)
         #   handler: handleIssuance
@@ -230,7 +745,8 @@ templates:
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/SmartToken.ts
-  
+
+  # ERC20
   - kind: ethereum/contract
     name: ERC20
     network: {{network}}
@@ -253,33 +769,70 @@ templates:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
       file: ./src/ERC20.ts
-
+  
+  # LoanTokenLogicStandard
   - kind: ethereum/contract
-    name: LiquidityPoolV1Converter_V2
+    name: LoanTokenLogicStandard
     network: {{network}}
     source:
-      abi: LiquidityPoolV1Converter_V2
+      # address: '{{LoanTokenLogicStandard.address}}'
+      abi: LoanTokenLogicStandard
+      # startBlock: {{LoanTokenLogicStandard.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities: 
+        - Burn
+        - FlashBorrow
+        - Mint
+      abis:
+        - name: LoanTokenLogicStandard
+          file: ./abis/LoanTokenLogicStandard.json
+      eventHandlers:
+        - event: Burn(indexed address,uint256,uint256,uint256)
+          handler: handleBurn
+        - event: FlashBorrow(address,address,address,uint256)
+          handler: handleFlashBorrow
+        - event: Mint(indexed address,uint256,uint256,uint256)
+          handler: handleMint
+      file: ./src/LoanTokenLogicStandard.ts
+
+  # LiquidityPoolV1ConverterProtocolFee
+  - kind: ethereum/contract
+    name: LiquidityPoolV1ConverterProtocolFee
+    network: {{network}}
+    source:
+      # address: '{{LiquidityPoolV2Converter.address}}'
+      abi: LiquidityPoolV1ConverterProtocolFee
+      # startBlock: {{LiquidityPoolV2Converter.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - PriceDataUpdate
+        - DynamicFeeFactorUpdate
         - LiquidityAdded
         - LiquidityRemoved
         - Activation
         - Conversion
         - TokenRateUpdate
         - ConversionFeeUpdate
-        - WithdrawFees
         - OwnerUpdate
+        - Token
+        - SmartToken
+        - PoolToken
       abis:
-        - name: LiquidityPoolV1Converter_V2
-          file: ./abis/LiquidityPoolV1Converter_V2.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: SmartToken
+          file: ./abis/SmartToken.json
       eventHandlers:
         
-        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
-        #   handler: handlePriceDataUpdate
+        # - event: DynamicFeeFactorUpdate(uint256,uint256)
+        #   handler: handleDynamicFeeFactorUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
@@ -292,8 +845,62 @@ templates:
           handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
-        #   handler: handleWithdrawFees
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
+
+  # Vesting Logic
+  - kind: ethereum/contract
+    name: VestingLogic
+    network: {{network}}
+    source:
+      abi: VestingLogic
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DividendsCollected
+        - MigratedToNewStakingContract
+        - OwnershipTransferred
+        - TokensStaked
+        - TokensWithdrawn
+        - VotesDelegated
+      abis:
+        - name: VestingLogic
+          file: ./abis/VestingLogic.json
+      eventHandlers:
+        - event: DividendsCollected(indexed address,address,address,uint32)
+          handler: handleDividendsCollected
+        - event: MigratedToNewStakingContract(indexed address,address)
+          handler: handleMigratedToNewStakingContract
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TokensStaked(indexed address,uint256)
+          handler: handleTokensStaked
+        - event: TokensWithdrawn(indexed address,address)
+          handler: handleTokensWithdrawn
+        - event: VotesDelegated(indexed address,address)
+          handler: handleVotesDelegated
+      file: ./src/VestingLogic.ts
+
+ # rBTCWrapperProxy template
+  - kind: ethereum/contract
+    name: rbtcWrapperProxyTokenConverted
+    network: {{network}}
+    source:
+      abi: rbtcWrapperProxyTokenConverted
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenConverted
+      abis:
+        - name: rbtcWrapperProxyTokenConverted
+          file: ./abis/rbtcWrapperProxyTokenConverted.json
+      eventHandlers:
+        - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
+          handler: handleTokenConverted
+      file: ./src/rbtcWrapperProxyTokenConverted.ts
+

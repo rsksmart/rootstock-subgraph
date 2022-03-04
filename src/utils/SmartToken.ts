@@ -16,8 +16,9 @@ export function createAndReturnSmartToken(smartTokenAddress: Address): IGetSmart
 
     isNew = true
 
-    SmartTokenTemplate.create(smartTokenAddress)
-    log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
+    /** This is commented out to speed up the subgraph syncing */
+    // SmartTokenTemplate.create(smartTokenAddress)
+    // log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
 
     let smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
     let smartTokenNameResult = smartTokenContract.try_name()

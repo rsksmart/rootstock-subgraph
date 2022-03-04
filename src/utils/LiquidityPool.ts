@@ -1,14 +1,14 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { LiquidityPool } from '../../generated/schema'
 import { LiquidityPoolV1Converter as LiquidityPoolV1ConverterContract } from '../../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import { LiquidityPoolV2Converter as LiquidityPoolV2ConverterContract } from '../../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
-import { LiquidityPoolV1Converter_V2 as LiquidityPoolV1ConverterContract_V2 } from '../../generated/templates/LiquidityPoolV1Converter_V2/LiquidityPoolV1Converter_V2'
+import { LiquidityPoolV1ConverterProtocolFee as LiquidityPoolV1ConverterContract_V2 } from '../../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
 import {
   LiquidityPoolV1Converter as LiquidityPoolV1ConverterTemplate,
   LiquidityPoolV2Converter as LiquidityPoolV2ConverterTemplate,
-  LiquidityPoolV1Converter_V2 as LiquidityPoolV1ConverterTemplate_V2,
+  LiquidityPoolV1ConverterProtocolFee as LiquidityPoolV1ConverterTemplate_V2,
 } from '../../generated/templates'
-import { version2Block } from '../backwardsCompatibilityBlocks/liquidityPoolAbiVersions'
+import { version2Block } from '../blockNumbers/blockNumbers'
 
 export class IGetLiquidityPool {
   liquidityPool: LiquidityPool
@@ -19,7 +19,7 @@ export function createAndReturnLiquidityPool(
   converterAddress: Address,
   createdAtTimestamp: BigInt,
   createdAtBlockNumber: BigInt,
-  createdAtTransaction: string,
+  createdAtTransaction: string
 ): IGetLiquidityPool {
   let isNew = false
   let liquidityPool = LiquidityPool.load(converterAddress.toHex())
@@ -27,7 +27,7 @@ export function createAndReturnLiquidityPool(
     liquidityPool = new LiquidityPool(converterAddress.toHex())
     const type = getPoolType(converterAddress)
     liquidityPool.activated = false
-    if (type === 1 && createdAtBlockNumber <= BigInt.fromString(version2Block)) {
+    if (type === 1 && createdAtBlockNumber <= version2Block) {
       LiquidityPoolV1ConverterTemplate.create(converterAddress)
       liquidityPool.type = 1
       let converterContract = LiquidityPoolV1ConverterContract.bind(converterAddress)
@@ -39,7 +39,7 @@ export function createAndReturnLiquidityPool(
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
-    } else if (type == 1 && createdAtBlockNumber > BigInt.fromString(version2Block)) {
+    } else if (type === 1 && createdAtBlockNumber > version2Block) {
       LiquidityPoolV1ConverterTemplate_V2.create(converterAddress)
       liquidityPool.type = 1
       let converterContract = LiquidityPoolV1ConverterContract_V2.bind(converterAddress)

@@ -18,8 +18,8 @@ const addTransactionMappingString = (str) => {
 
 const addTransactionToSchema = (str) => {
     const transactionSchemaString = `  timestamp: BigInt!
-    emittedBy: Bytes! #address
-    transaction: Transaction!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
 }`
 
     return str.replace(/\}/g, transactionSchemaString)
