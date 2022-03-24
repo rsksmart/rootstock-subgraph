@@ -137,7 +137,7 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
     transaction,
     event.params.staker,
     event.params.receiver,
-    event.params.amount
+    event.params.amount,
   )
 }
 
@@ -149,7 +149,7 @@ export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
     transaction,
     event.params.staker,
     event.params.receiver,
-    event.params.amount
+    event.params.amount,
   )
 }
 

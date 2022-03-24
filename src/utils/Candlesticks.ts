@@ -106,7 +106,7 @@ function updateAllIntervals(
   newPrice: BigDecimal,
   volume: BigDecimal,
   txCount: i32,
-  blockTimestamp: BigInt
+  blockTimestamp: BigInt,
 ): void {
   if (baseToken !== null && quoteToken !== null) {
     if (oldPrice.gt(BigDecimal.zero()) && newPrice.gt(BigDecimal.zero())) {
@@ -120,7 +120,7 @@ function updateAllIntervals(
         txCount,
         blockTimestamp,
         Interval.FifteenMintuesInterval,
-        IntervalStr.FifteenMintuesInterval
+        IntervalStr.FifteenMintuesInterval,
       )
       updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.HourInterval, IntervalStr.HourInterval)
       updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.FourHourInterval, IntervalStr.FourHourInterval)
@@ -140,7 +140,7 @@ function updateCandlestick(
   txCount: i32,
   blockTimestamp: BigInt,
   interval: Interval,
-  intervalStr: string
+  intervalStr: string,
 ): void {
   let candleStickTimestamp = blockTimestamp.toI32() - (blockTimestamp.toI32() % interval)
   log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 80 ~  candleStickTimestamp: {}', [candleStickTimestamp.toString()])

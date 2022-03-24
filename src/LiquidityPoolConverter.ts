@@ -94,7 +94,7 @@ function updateUserLiquidityHistory(
   userLiquidityHistory: UserLiquidityHistory,
   token: string,
   amountAdded: BigInt,
-  amountRemoved: BigInt
+  amountRemoved: BigInt,
 ): void {
   /** This would be more efficient with another if/else statement for type, but less readable? */
   if (liquidityPool.token0 == token) {

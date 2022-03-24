@@ -19,7 +19,7 @@ export function createAndReturnLiquidityPool(
   converterAddress: Address,
   createdAtTimestamp: BigInt,
   createdAtBlockNumber: BigInt,
-  createdAtTransaction: string
+  createdAtTransaction: string,
 ): IGetLiquidityPool {
   let isNew = false
   let liquidityPool = LiquidityPool.load(converterAddress.toHex())

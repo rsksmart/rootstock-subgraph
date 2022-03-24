@@ -11,7 +11,8 @@ module.exports = {
         "useTabs": false,
         "semi": false,
         "printWidth": 160,
-        "singleQuote": true
+        "singleQuote": true,
+        "trailingComma": false
       },
     },
   ],
