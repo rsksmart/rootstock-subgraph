@@ -2,6 +2,9 @@ import { TokenConverted as TokenConvertedEvent } from '../generated/rbtcWrapperP
 import { Swap, TokenConverted } from '../generated/schema'
 import { loadTransaction } from './utils/Transaction'
 
+/**
+ * This event sometimes includes the user address when a Swap occurs. This is useful for updating the Swap entity with the correct user address
+ */
 export function handleTokenConverted(event: TokenConvertedEvent): void {
   let entity = new TokenConverted(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let transaction = loadTransaction(event)

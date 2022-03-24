@@ -60,8 +60,13 @@ typings/
 # next.js build output
 .next
 
+# IDE - VSCode
+.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*.code-snippets
+
 generated/
-.vscode/
 build/
 data/
 bin/

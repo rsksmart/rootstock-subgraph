@@ -25,6 +25,7 @@ export class ChangeLoanState {
   isOpen: boolean
   type: string | null // Buy or Sell
   rate: BigDecimal
+  timestamp: BigInt
 }
 
 /** This is currently very buggy. Convert everything to BigDecimal normal numbers to help with debugging? */
@@ -51,9 +52,6 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.realizedPnL = BigDecimal.zero()
     loanEntity.realizedPnLPercent = BigDecimal.zero()
     loanEntity.save()
-    /**
-     * TODO: Add Max Position Size for calculating PnL percentage
-     */
   }
   return loanEntity
 }
@@ -65,6 +63,9 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
     loanEntity.positionSize = loanEntity.positionSize.plus(params.positionSizeChange)
     loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
     loanEntity.isOpen = params.isOpen
+    if (params.isOpen == false) {
+      loanEntity.endTimestamp = params.timestamp
+    }
     if (loanEntity.positionSize.gt(loanEntity.maximumPositionSize)) {
       loanEntity.maximumPositionSize = loanEntity.positionSize
     }
@@ -77,7 +78,9 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
       let newWeightedPrice = params.positionSizeChange.times(params.rate)
       const newTotalBought = loanEntity.totalBought.plus(params.positionSizeChange)
       loanEntity.totalBought = newTotalBought
-      loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
+      if (newWeightedPrice.gt(decimal.ZERO) && newTotalBought.gt(decimal.ZERO)) {
+        loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
+      }
     } else if (params.type == 'Sell') {
       const amountSold = BigDecimal.zero().minus(params.positionSizeChange)
       const priceSoldAt = params.rate
@@ -96,11 +99,17 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
       const newTotalSold = loanEntity.totalSold.plus(amountSold)
       loanEntity.totalSold = newTotalSold
       const totalWeightedPrice = oldWeightedPrice.plus(newWeightedPrice)
-      loanEntity.averageSellPrice = totalWeightedPrice.div(newTotalSold)
-      const newPnL = amountSold.div(loanEntity.averageSellPrice.div(differenceFromBuyPrice))
-      eventPnL = newPnL
-      loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL).truncate(18)
-      loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(decimal.fromNumber(100)).div(loanEntity.maximumPositionSize).truncate(8)
+      if (totalWeightedPrice.gt(decimal.ZERO) && newTotalSold.gt(decimal.ZERO)) {
+        loanEntity.averageSellPrice = totalWeightedPrice.div(newTotalSold)
+      }
+
+      if (differenceFromBuyPrice != decimal.ZERO && amountSold != decimal.ZERO && loanEntity.averageSellPrice != decimal.ZERO) {
+        const newPnL = amountSold.div(loanEntity.averageSellPrice.div(differenceFromBuyPrice))
+
+        eventPnL = newPnL
+        loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL).truncate(18)
+        loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(decimal.fromNumber(100)).div(loanEntity.maximumPositionSize).truncate(8)
+      }
     } else if (params.type == null) {
       /**
        * TODO: How does DepositCollateral affect PnL?

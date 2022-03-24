@@ -1,3 +1,4 @@
+require('dotenv').config()
 /** Contracts to be used by the scaffoldChangeBlocks script for when a contract has been redeployed */
 
 const wrapperProxyContractsTestnet = {
@@ -53,13 +54,42 @@ const governorContractsTestnet = {
     ]
 }
 
-const wrapperProxyContractsMainnet = {
+const governorContractsMainnet = {
+    originalName: "GovernorAlphaEvents",
+    changeBlocks: [
+        {
+            name: "GovernorAlphaEvents3100270",
+            address: "0x6496DF39D000478a7A7352C01E0E713835051CcD",
+            startBlock: 3100270
+        },
+        {
+            name: "GovernorAlphaEvents3100277",
+            address: "0xfF25f66b7D7F385503D70574AE0170b6B1622dAd",
+            startBlock: 3100277
+        }
+    ]
+}
 
+const wrapperProxyContractsMainnet = {
+    originalName: "rbtcWrapperProxyTokenConverted",
+    changeBlocks: [
+        {
+            name: "rbtcWrapperProxyTokenConverted3261258",
+            address: '0xA3B6E18B9A4ECAE44C7355458Ae7Db8874018C22',
+            startBlock: 3261258
+        },
+        {
+            name: "rbtcWrapperProxyTokenConverted3368577",
+            address: '0xa917BF723433d020a15629eba71f6C2a6B38e52d',
+            startBlock: 3368577
+        }
+    ]
 }
 
 module.exports = {
     newDataSources: process.env.NETWORK === 'mainnet' ? [
         wrapperProxyContractsMainnet,
+        governorContractsMainnet
     ] : [
         wrapperProxyContractsTestnet,
         feeSharingProxyContractsTestnet,

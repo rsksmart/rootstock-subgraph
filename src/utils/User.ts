@@ -7,7 +7,6 @@ export function createAndReturnUser(address: Address): User {
 
   if (userEntity == null) {
     userEntity = new User(address.toHex())
-    userEntity.numSwaps = 0
     let protocolStats = createAndReturnProtocolStats()
     protocolStats.totalUsers = protocolStats.totalUsers.plus(BigInt.fromI32(1))
     protocolStats.save()

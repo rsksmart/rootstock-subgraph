@@ -2,7 +2,9 @@ import { Burn as BurnEvent, FlashBorrow as FlashBorrowEvent, Mint as MintEvent }
 import { Burn, FlashBorrow, Mint, UserLendingHistory, LendingHistoryItem } from '../generated/schema'
 import { loadTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
-import { BigInt, dataSource } from '@graphprotocol/graph-ts'
+import { Address, BigInt, dataSource } from '@graphprotocol/graph-ts'
+import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
+import { convertToUsd } from './utils/Prices'
 
 export function handleBurn(event: BurnEvent): void {
   let context = dataSource.context()
@@ -27,7 +29,7 @@ export function handleBurn(event: BurnEvent): void {
     userHistoryEntity.save()
   }
 
-  let lendingHistoryItem = new LendingHistoryItem(event.transaction.hash.toHexString())
+  let lendingHistoryItem = new LendingHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   lendingHistoryItem.userLendingHistory = userAddress + dataSource.address().toHexString()
   lendingHistoryItem.lender = userAddress
   lendingHistoryItem.type = 'UnLend'
@@ -35,11 +37,19 @@ export function handleBurn(event: BurnEvent): void {
   lendingHistoryItem.emittedBy = dataSource.address().toHexString()
   lendingHistoryItem.lendingPool = dataSource.address().toHexString()
   if (underlyingAsset != null) {
-    lendingHistoryItem.asset = underlyingAsset.toString()
+    lendingHistoryItem.asset = underlyingAsset
   }
   lendingHistoryItem.amount = entity.assetAmount
   lendingHistoryItem.loanTokenAmount = entity.tokenAmount
   lendingHistoryItem.save()
+
+  let protocolStatsEntity = createAndReturnProtocolStats()
+  let userTotalsEntity = createAndReturnUserTotals(event.params.burner)
+  let usdVolume = convertToUsd(Address.fromString(underlyingAsset), event.params.assetAmount)
+  protocolStatsEntity.totalUnlendVolumeUsd = protocolStatsEntity.totalUnlendVolumeUsd.plus(usdVolume)
+  userTotalsEntity.totalUnlendVolumeUsd = userTotalsEntity.totalUnlendVolumeUsd.plus(usdVolume)
+  protocolStatsEntity.save()
+  userTotalsEntity.save()
 }
 
 export function handleFlashBorrow(event: FlashBorrowEvent): void {
@@ -60,7 +70,7 @@ export function handleFlashBorrow(event: FlashBorrowEvent): void {
 
 export function handleMint(event: MintEvent): void {
   let context = dataSource.context()
-  let underlyingAsset = context.get('underlyingAsset')
+  let underlyingAsset = context.getString('underlyingAsset')
   let entity = new Mint(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   createAndReturnUser(event.params.minter)
   const userAddress = event.params.minter.toHexString()
@@ -88,7 +98,7 @@ export function handleMint(event: MintEvent): void {
     userHistoryEntity.save()
   }
 
-  let lendingHistoryItem = new LendingHistoryItem(event.transaction.hash.toHexString())
+  let lendingHistoryItem = new LendingHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   lendingHistoryItem.userLendingHistory = userAddress + dataSource.address().toHexString()
   lendingHistoryItem.lender = userAddress
   lendingHistoryItem.type = 'Lend'
@@ -96,9 +106,17 @@ export function handleMint(event: MintEvent): void {
   lendingHistoryItem.emittedBy = dataSource.address().toHexString()
   lendingHistoryItem.lendingPool = dataSource.address().toHexString()
   if (underlyingAsset != null) {
-    lendingHistoryItem.asset = underlyingAsset.toString()
+    lendingHistoryItem.asset = underlyingAsset
   }
   lendingHistoryItem.amount = entity.assetAmount
   lendingHistoryItem.loanTokenAmount = entity.tokenAmount
   lendingHistoryItem.save()
+
+  let protocolStatsEntity = createAndReturnProtocolStats()
+  let userTotalsEntity = createAndReturnUserTotals(event.params.minter)
+  let usdVolume = convertToUsd(Address.fromString(underlyingAsset), event.params.assetAmount)
+  protocolStatsEntity.totalLendVolumeUsd = protocolStatsEntity.totalLendVolumeUsd.plus(usdVolume)
+  userTotalsEntity.totalLendVolumeUsd = userTotalsEntity.totalLendVolumeUsd.plus(usdVolume)
+  protocolStatsEntity.save()
+  userTotalsEntity.save()
 }

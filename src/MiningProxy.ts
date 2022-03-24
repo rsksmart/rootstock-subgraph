@@ -31,7 +31,7 @@ export function handleRewardClaimed(event: RewardClaimedEvent): void {
     userRewardsEarnedHistory.save()
   }
 
-  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHexString())
+  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsEarnedHistoryItem.action = 'RewardClaimed'
   rewardsEarnedHistoryItem.user = event.params.user.toHexString()
   rewardsEarnedHistoryItem.amount = event.params.amount

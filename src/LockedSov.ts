@@ -31,7 +31,7 @@ export function handleDeposited(event: DepositedEvent): void {
     userRewardsEarnedHistory.save()
   }
 
-  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHexString())
+  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsEarnedHistoryItem.action = 'RewardSovDeposited'
   rewardsEarnedHistoryItem.user = event.params._userAddress.toHexString()
   rewardsEarnedHistoryItem.amount = event.params._sovAmount
@@ -55,7 +55,7 @@ export function handleTokenStaked(event: TokenStakedEvent): void {
     userRewardsEarnedHistory.save()
   }
 
-  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHexString())
+  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsEarnedHistoryItem.action = 'RewardSovStaked'
   rewardsEarnedHistoryItem.user = event.params._initiator.toHexString()
   rewardsEarnedHistoryItem.amount = event.params._amount

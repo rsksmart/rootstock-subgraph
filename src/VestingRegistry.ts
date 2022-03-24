@@ -10,7 +10,6 @@ import {
   TokensStaked as TokensStakedEvent,
 } from '../generated/VestingRegistry1/VestingRegistry'
 import { SOVTransferred, VestingContract } from '../generated/schema'
-import { VestingLogic as VestingContractTemplate } from '../generated/templates'
 import { BigInt } from '@graphprotocol/graph-ts'
 import { loadTransaction } from './utils/Transaction'
 import { vestingRegistry1, vestingRegistry2, vestingRegistry3, vestingRegistryFish } from './contracts/contracts'
@@ -65,7 +64,6 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase()) == 'Fish' ? 'Fish Team' : 'Team'
   entity.stakeHistory = []
   entity.save()
-  VestingContractTemplate.create(event.params.vesting)
 }
 
 export function handleTokensStaked(event: TokensStakedEvent): void {}
@@ -86,6 +84,4 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
   entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase())
   entity.stakeHistory = []
   entity.save()
-
-  VestingContractTemplate.create(event.params.vesting)
 }

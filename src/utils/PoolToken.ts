@@ -1,5 +1,5 @@
-import { Address } from '@graphprotocol/graph-ts'
-import { PoolToken, TokenPoolToken } from '../../generated/schema'
+import { Address, log } from '@graphprotocol/graph-ts'
+import { LiquidityPoolToken, PoolToken, TokenPoolToken } from '../../generated/schema'
 import { ERC20 } from '../../generated/templates/ERC20/ERC20'
 
 export class IGetPoolToken {
@@ -43,4 +43,17 @@ export function createAndReturnPoolToken(poolTokenAddress: Address, liquidityPoo
   }
 
   return { poolToken, isNew }
+}
+
+/** IMPORTANT: This function is only for use when needing to use a pool token id in a composite ID.
+ * The empty string returned if a pool token does not exist is not a very nice implementation, this should probably be improved
+ * */
+export function getPoolTokenFromToken(token: Address, liquidityPool: Address): string {
+  let tokenPoolTokenEntity = LiquidityPoolToken.load(liquidityPool.toHexString() + token.toHexString())
+  if (tokenPoolTokenEntity != null) {
+    return tokenPoolTokenEntity.poolToken
+  } else {
+    log.debug('src/utils/PoolToken.ts ~ PoolToken.ts ~ 56 ~  : {}', [token.toHexString(), liquidityPool.toHexString()])
+    return ''
+  }
 }

@@ -33,7 +33,7 @@ export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
     userRewardsEarnedHistory.save()
   }
 
-  let rewardsHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHexString())
+  let rewardsHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsHistoryItem.action = 'StakingRewardWithdrawn'
   rewardsHistoryItem.user = event.params.receiver.toHexString()
   rewardsHistoryItem.amount = event.params.amount

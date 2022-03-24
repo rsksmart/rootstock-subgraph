@@ -1,0 +1,105 @@
+{
+    "network": "mainnet",
+    "node": {
+        "network": "mainnet",
+        "address": "https://rsk-graph1.sovryn.app/rpc",
+        "log_level": "debug"
+    },
+    "SOV": {
+        "network": "mainnet",
+        "address": "0xEFc78fc7d48b64958315949279Ba181c2114ABBd",
+        "startBlock": 3100260
+    },
+    "ConverterFactory": {
+        "network": "mainnet",
+        "address": "0xcF46f24423B8da97E2c06B41df28163D55e80935",
+        "startBlock": 2742572
+    },
+    "ConverterRegistry": {
+        "network": "mainnet",
+        "address": "0x31A0F8400c75d52FdB413372233F28E3bdFB1c06",
+        "startBlock": 2742580
+    },
+    "WRBTCToken": {
+        "address": "0x542fDA317318eBF1d3DEAf76E0b632741A7e677d"
+    },
+    "USDTToken": {
+        "address": "0xEf213441a85DF4d7acBdAe0Cf78004E1e486BB96"
+    },
+    "ISovryn": {
+        "network": "mainnet",
+        "address": "0x5A0D867e0D70Fcc6Ade25C3F1B89d618b5B4Eaa7",
+        "startBlock": 2742418
+    },
+    "blockNumbers": {
+        "liquidityPoolV1Converter": {
+            "V2": 3921380
+        },
+        "genesisVestingBlocks": {
+            "start": 3114728,
+            "end": 3257234
+        }
+    },
+    "VestingRegistry1": {
+        "network": "mainnet",
+        "address": "0x80b036ae59b3e38b573837c01bb1db95515b7e6b",
+        "startBlock": 3100287
+    },
+    "VestingRegistry2": {
+        "network": "mainnet",
+        "address": "0x0a9bDbf5e104a30fb4c99f6812FB85B60Fd8D372",
+        "startBlock": 3159211
+    },
+    "VestingRegistry3": {
+        "network": "mainnet",
+        "address": "0x14F3FE332e21Ef3f5d244C45C8D5fbFcEF2FB5c9",
+        "startBlock": 3159211
+    },
+    "VestingRegistryFish": {
+        "network": "mainnet",
+        "address": "0x036ab2DB0a3d1574469a4a7E09887Ed76fB56C41",
+        "startBlock": 3629167
+    },
+    "Staking": {
+        "network": "mainnet",
+        "address": "0x5684a06CaB22Db16d901fEe2A5C081b4C91eA40e",
+        "startBlock": 3100263
+    },
+    "StakingFish": {
+        "network": "mainnet",
+        "address": "0xFd8ea2e5e8591fA791d44731499cDF2e81CD6a41",
+        "startBlock": 3629154
+    },
+    "FeeSharingProxy": {
+        "network": "mainnet",
+        "address": "0x115cAF168c51eD15ec535727F64684D33B7b08D1",
+        "startBlock": 3769580
+    },
+    "LockedSov": {
+        "network": "mainnet",
+        "address": "0xB4e4517cA4Edf591Dcafb702999F04f02E57D978",
+        "startBlock": 3368550
+    },
+    "MiningProxy": {
+        "network": "mainnet",
+        "address": "0xf730af26e87D9F55E46A6C447ED2235C385E55e0",
+        "startBlock": 3368554
+    },
+    "StakingReward": {
+        "network": "mainnet",
+        "address": "0x8304FB3614c728B712e94F9D4DF6719fede6517F",
+        "startBlock": 3627767
+    },
+    "rbtcWrapperProxyTokenConverted": {
+        "network": "mainnet",
+        "address": "0x78E7e79F1acc1f57a3291d5BfA8436A0771C1800",
+        "startBlock": 2838500
+    },
+    "GovernorAlphaEvents": {
+        "network": "mainnet",
+        "address": "0xCe3a21a69c05CfE638B722f53593A047bdd6E9De",
+        "startBlock": 3039571
+    },
+    "stablecoins": "[0xe700691da7b9851f2f35f8b8182c69c53ccad9db, 0xEf213441a85DF4d7acBdAe0Cf78004E1e486BB96, 0xb5999795BE0EbB5bAb23144AA5FD6A02D080299F]",
+    "adminContracts": "[0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711, 0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247, 0x51C754330c6cD04B810014E769Dab0343E31409E]"
+}

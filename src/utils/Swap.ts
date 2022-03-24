@@ -1,20 +1,22 @@
 import { Address, Bytes, BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import { Swap, Token, User } from '../../generated/schema'
 import { createAndReturnUser } from './User'
-import { USDTAddress, WRBTCAddress } from '../contracts/contracts'
+import { WRBTCAddress } from '../contracts/contracts'
 import { updateLastPriceUsdAll } from './Prices'
 import { decimal } from '@protofire/subgraph-toolkit'
-import { handleCandlesticks } from './Candlesticks'
+import { createAndReturnProtocolStats, createAndReturnUserTotals } from './ProtocolStats'
 
 export class ConversionEventForSwap {
   transactionHash: Bytes
   fromToken: Address
   toToken: Address
-  fromAmount: BigInt
-  toAmount: BigInt
+  fromAmount: BigDecimal
+  toAmount: BigDecimal
   timestamp: BigInt
   user: Address
   trader: Address
+  lpFee: BigDecimal
+  protocolFee: BigDecimal
 }
 
 export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
@@ -33,43 +35,49 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.toToken = event.toToken.toHexString()
     swapEntity.fromAmount = event.fromAmount
     swapEntity.toAmount = event.toAmount
-    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal()).truncate(8)
+    swapEntity.rate = event.fromAmount.div(event.toAmount)
     if (userEntity != null) {
       swapEntity.user = userEntity.id
-      userEntity.numSwaps += 1
       userEntity.save()
     }
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.timestamp = event.timestamp
+    swapEntity.transaction = event.transactionHash.toHexString()
   } else {
     /** Swap already exists - this means it has multiple conversion events */
     swapEntity.numConversions += 1
     swapEntity.toToken = event.toToken.toHexString()
     swapEntity.toAmount = event.toAmount
-    swapEntity.rate = event.fromAmount.divDecimal(event.toAmount.toBigDecimal()).truncate(8)
+    swapEntity.rate = swapEntity.fromAmount.div(event.toAmount)
   }
   swapEntity.save()
-
-  updatePricingAndCandlesticks(event)
 
   return swapEntity
 }
 
-function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
+export function updatePricing(event: ConversionEventForSwap): void {
+  /** This threshold is set so that the last traded price is not skewed by rounding errors */
+  const threshold = decimal.fromNumber(0.00000001)
+  if (event.fromAmount < threshold || event.toAmount < threshold) {
+    return
+  }
+  let protocolStatsEntity = createAndReturnProtocolStats()
+  const USDTAddress = protocolStatsEntity.usdStablecoin.toLowerCase()
+  let btcUsdPrice = protocolStatsEntity.btcUsdPrice
+
   let BTCToken = Token.load(WRBTCAddress.toLowerCase())
 
   if (BTCToken != null) {
-    const btcPrice = BTCToken.lastPriceUsd
     let token: Token | null
-    let tokenAmount: BigInt
-    let btcAmount: BigInt
+    let tokenAmount: BigDecimal
+    let btcAmount: BigDecimal
 
-    if (event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
+    if (event.fromToken.toHexString().toLowerCase() == WRBTCAddress.toLowerCase()) {
       token = Token.load(event.toToken.toHexString())
       tokenAmount = event.toAmount
       btcAmount = event.fromAmount
-    } else if (event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
+    } else if (event.toToken.toHexString().toLowerCase() == WRBTCAddress.toLowerCase()) {
       token = Token.load(event.fromToken.toHexString())
       tokenAmount = event.fromAmount
       btcAmount = event.toAmount
@@ -77,69 +85,52 @@ function updatePricingAndCandlesticks(event: ConversionEventForSwap): void {
       /** TODO: Handle case where neither token is rBTC for when AMM pools with non-rBTC tokens are introduced */
     }
 
-    if (token != null) {
-      const oldPriceBtc = token.lastPriceBtc
-      const newPriceBtc = btcAmount.divDecimal(tokenAmount.toBigDecimal()).truncate(8)
-      const btcVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).truncate(8)
-
-      const oldPriceUsd = token.lastPriceUsd.truncate(2)
-      const newPriceUsd = newPriceBtc.times(token.lastPriceUsd).truncate(2)
-      const usdVolume = decimal.fromBigInt(btcAmount, BTCToken.decimals).times(btcPrice).truncate(2)
-
-      token.lastPriceBtc = newPriceBtc
-      token.lastPriceUsd = newPriceUsd
-
-      token.btcVolume = token.btcVolume.plus(btcVolume).truncate(8)
-      token.usdVolume = token.usdVolume.plus(usdVolume).truncate(2)
-      token.tokenVolume = token.tokenVolume.plus(decimal.fromBigInt(tokenAmount, token.decimals)).truncate(18)
-
-      BTCToken.btcVolume = BTCToken.btcVolume.plus(btcVolume).truncate(8)
-      BTCToken.usdVolume = BTCToken.usdVolume.plus(usdVolume).truncate(2)
-      BTCToken.tokenVolume = BTCToken.btcVolume.plus(btcVolume).truncate(18)
-
-      token.save()
-
-      /** Update BTC Candlesticks for token */
-      handleCandlesticks({
-        tradingPair: token.id.toLowerCase() + '_' + WRBTCAddress.toLowerCase(),
-        blockTimestamp: event.timestamp,
-        oldPrice: oldPriceBtc,
-        newPrice: newPriceBtc,
-        volume: btcVolume,
-      })
-
-      if (token.id.toLowerCase() != USDTAddress.toLowerCase()) {
-        /** Update USD Candlesticks for token */
-        handleCandlesticks({
-          tradingPair: token.id.toLowerCase() + '_' + USDTAddress.toLowerCase(),
-          blockTimestamp: event.timestamp,
-          oldPrice: oldPriceUsd,
-          newPrice: newPriceUsd,
-          volume: usdVolume,
-        })
-      }
-    }
-
     /** IF SWAP IS BTC/USDT: Update lastPriceUsd on BTC */
 
-    let usdBtcPrice: BigDecimal
-    if (event.fromToken.toHexString() == USDTAddress.toLowerCase() && event.toToken.toHexString() == WRBTCAddress.toLowerCase()) {
-      if (BTCToken != null) {
-        usdBtcPrice = event.fromAmount.divDecimal(event.toAmount.toBigDecimal())
-        BTCToken.lastPriceUsd = usdBtcPrice.truncate(2)
-        BTCToken.lastPriceBtc = BigDecimal.fromString('1')
-        updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
-      }
-    } else if (event.toToken.toHexString() == USDTAddress.toLowerCase() && event.fromToken.toHexString() == WRBTCAddress.toLowerCase()) {
-      let usdBtcPrice: BigDecimal
-      if (BTCToken != null) {
-        usdBtcPrice = event.toAmount.divDecimal(event.fromAmount.toBigDecimal())
-        BTCToken.lastPriceUsd = usdBtcPrice.truncate(2)
-        BTCToken.lastPriceBtc = BigDecimal.fromString('1')
-        updateLastPriceUsdAll(usdBtcPrice, event.timestamp, BigDecimal.zero())
-      }
+    if (event.fromToken.toHexString().toLowerCase() == USDTAddress.toLowerCase() || event.toToken.toHexString().toLowerCase() == USDTAddress.toLowerCase()) {
+      btcUsdPrice = tokenAmount.div(btcAmount)
+      protocolStatsEntity.btcUsdPrice = btcUsdPrice
+      protocolStatsEntity.save()
+      BTCToken.prevPriceUsd = BTCToken.lastPriceUsd
+      BTCToken.lastPriceUsd = btcUsdPrice
+      BTCToken.prevPriceBtc = decimal.ONE
+      BTCToken.lastPriceBtc = decimal.ONE
+
+      updateLastPriceUsdAll(event.timestamp)
     }
 
-    BTCToken.save()
+    if (token != null) {
+      const newPriceBtc = btcAmount.div(tokenAmount)
+      const newPriceUsd = newPriceBtc.times(btcUsdPrice)
+
+      if (token.lastPriceUsd.gt(BigDecimal.zero())) {
+        token.lastPriceUsd = newPriceUsd
+      }
+
+      token.prevPriceBtc = token.lastPriceBtc
+      token.lastPriceBtc = newPriceBtc
+      let lpFeeUsd = newPriceUsd.times(event.lpFee)
+      let stakerFeeUsd = newPriceUsd.times(event.protocolFee)
+
+      if (token.id.toLowerCase() != USDTAddress.toLowerCase()) {
+        // TODO: handle this case
+      } else {
+        token.lastPriceUsd = decimal.ONE
+      }
+
+      protocolStatsEntity.totalAmmLpFeesUsd = protocolStatsEntity.totalAmmLpFeesUsd.plus(lpFeeUsd)
+      protocolStatsEntity.totalAmmStakerFeesUsd = protocolStatsEntity.totalAmmStakerFeesUsd.plus(stakerFeeUsd)
+      protocolStatsEntity.save()
+
+      token.save()
+      BTCToken.save()
+
+      if (event.user.toHexString() == event.trader.toHexString()) {
+        let userTotalsEntity = createAndReturnUserTotals(event.user)
+        userTotalsEntity.totalAmmStakerFeesUsd = userTotalsEntity.totalAmmStakerFeesUsd.plus(stakerFeeUsd)
+        userTotalsEntity.totalAmmLpFeesUsd = userTotalsEntity.totalAmmLpFeesUsd.plus(lpFeeUsd)
+        userTotalsEntity.save()
+      }
+    }
   }
 }

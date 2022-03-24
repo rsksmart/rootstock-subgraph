@@ -39,6 +39,10 @@ export function createAndReturnLiquidityPool(
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
+      let conversionFee = converterContract.try_conversionFee()
+      if (!conversionFee.reverted) {
+        liquidityPool.conversionFee = conversionFee.value
+      }
     } else if (type === 1 && createdAtBlockNumber > version2Block) {
       LiquidityPoolV1ConverterTemplate_V2.create(converterAddress)
       liquidityPool.type = 1
@@ -51,6 +55,10 @@ export function createAndReturnLiquidityPool(
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
       }
+      let conversionFee = converterContract.try_conversionFee()
+      if (!conversionFee.reverted) {
+        liquidityPool.conversionFee = conversionFee.value
+      }
     } else if (type === 2) {
       LiquidityPoolV2ConverterTemplate.create(converterAddress)
       liquidityPool.type = 2
@@ -62,6 +70,10 @@ export function createAndReturnLiquidityPool(
       let converterMaxConversionFeeResult = converterContract.try_maxConversionFee()
       if (!converterMaxConversionFeeResult.reverted) {
         liquidityPool.maxConversionFee = converterMaxConversionFeeResult.value
+      }
+      let conversionFee = converterContract.try_conversionFee()
+      if (!conversionFee.reverted) {
+        liquidityPool.conversionFee = conversionFee.value
       }
     }
     liquidityPool.createdAtBlockNumber = createdAtBlockNumber
