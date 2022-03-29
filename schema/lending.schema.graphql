@@ -1,0 +1,64 @@
+"""
+A Lending Pool (iToken), where Users can lend assets to earn interest, and Users can borrow assets to Margin Trade or just as a regular loan.
+"""
+type LendingPool @entity {
+  """
+  ID is the contract address of the iToken
+  """
+  id: ID! 
+  """
+  The actual asset being lent and borrowed in this pool
+  """
+  underlyingAsset: Token!
+  poolTokenBalance: BigInt!
+  assetBalance: BigInt!
+  """
+  Total asset volume lent over all time
+  """
+  totalAssetLent: BigInt!
+}
+
+"""
+This entity contains the lending and unlending history of one User
+"""
+type UserLendingHistory @entity {
+  """
+  ID is userAddress + lendingPoolAddress (lendingPool in this case is the lending pool token)
+  """
+  id: ID!
+  user: User!
+  lendingPool: LendingPool!
+  """
+  Granular Lend/UnLend events. Derived from Mint/Burn events on the contracts
+  """
+  lendingHistory: [LendingHistoryItem!] @derivedFrom(field: "userLendingHistory")
+  """
+  Total volume this User has lent to this pool over all time (in the underlying asset currency, ie rBTC for the rBTC lending pool)
+  """
+  totalLendVolume: BigInt!
+  """
+  Total volume this User has withdrawn from this pool over all time
+  """
+  totalUnlendVolume: BigInt!
+}
+
+enum LendingHistoryType {
+  Lend
+  UnLend
+}
+
+type LendingHistoryItem @entity {
+  id: ID! # tx hash
+  lender: User!
+  type: LendingHistoryType!
+  lendingPool: LendingPool!
+  """
+  The underlying asset for this pool (eg USDT for the iUSDT pool)
+  """
+  asset: Token 
+  amount: BigInt! #TODO: Change to BigDecimal
+  loanTokenAmount: BigInt!
+  transaction: Transaction!
+  emittedBy: String!
+  userLendingHistory: UserLendingHistory!
+}

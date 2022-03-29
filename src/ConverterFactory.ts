@@ -1,7 +1,7 @@
 import { NewConverter as NewConverterEvent, OwnerUpdate as OwnerUpdateEvent } from '../generated/ConverterFactory/ConverterFactory'
 import { NewConverter } from '../generated/schema'
 
-import { loadTransaction } from './utils/Transaction'
+import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
 
 export function handleNewConverter(event: NewConverterEvent): void {
@@ -9,7 +9,7 @@ export function handleNewConverter(event: NewConverterEvent): void {
   entity._type = event.params._type
   entity._converter = event.params._converter
   entity._owner = event.params._owner
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
 

@@ -1,0 +1,53 @@
+type TokensStaked @entity {
+  id: ID!
+  user: User
+  staker: Bytes! # address
+  amount: BigInt! # uint256
+  lockedUntil: BigInt! # uint256
+  totalStaked: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+  isUserStaked: Boolean!
+}
+
+# This maps to existing stakeHistory api
+
+type UserStakeHistory @entity {
+  id: ID! # id is user
+  user: User!
+  stakeHistory: [StakeHistoryItem!] @derivedFrom(field: "user")
+  totalStaked: BigInt!
+  totalWithdrawn: BigInt!
+  totalRemaining: BigInt!
+}
+
+enum StakeHistoryAction {
+  Stake
+  IncreaseStake
+  ExtendStake
+  Delegate
+  Unstake
+  WithdrawStaked
+  FeeWithdrawn
+}
+
+type StakeHistoryItem @entity {
+  id: ID! # transaction hash
+  user: UserStakeHistory!
+  action: StakeHistoryAction!
+  timestamp: BigInt!
+  transaction: Transaction!
+  amount: BigInt
+  lockedUntil: BigInt
+}
+
+# This event is emitted when tokens are transferred to the Protocol contract as fees
+# It is needed because this is a flag for if staked tokens were unstaked early
+
+type FeeSharingTokensTransferred @entity {
+  id: ID! # ID is tx hash - it can't be tx hash + log index because we need to load on tx hash
+  sender: Bytes!
+  token: Bytes!
+  amount: BigInt!
+}

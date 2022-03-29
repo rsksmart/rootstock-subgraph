@@ -1,5 +1,5 @@
 import { BigDecimal, BigInt, Address } from '@graphprotocol/graph-ts'
-import { ProtocolStats, UserTotals } from '../../generated/schema'
+import { ProtocolStats, UserTotal } from '../../generated/schema'
 import { USDTAddress } from '../contracts/contracts'
 import { stablecoins } from '../contracts/contracts'
 
@@ -26,17 +26,17 @@ export function createAndReturnProtocolStats(): ProtocolStats {
     protocolStatsEntity.totalStakedByVestingSov = BigInt.zero()
     protocolStatsEntity.btcUsdPrice = BigDecimal.zero()
     // TODO: this is hardcoded mainnet value, should be dynamic for testnet/mainnet somehow
-    protocolStatsEntity.usdStablecoin = '0xe700691da7b9851f2f35f8b8182c69c53ccad9db'
+    protocolStatsEntity.usdStablecoin = stablecoins[0]
     protocolStatsEntity.tokens = []
     protocolStatsEntity.save()
   }
   return protocolStatsEntity
 }
 
-export function createAndReturnUserTotals(user: Address): UserTotals {
-  let userTotals = UserTotals.load(user.toHexString())
+export function createAndReturnUserTotals(user: Address): UserTotal {
+  let userTotals = UserTotal.load(user.toHexString())
   if (userTotals == null) {
-    userTotals = new UserTotals(user.toHexString())
+    userTotals = new UserTotal(user.toHexString())
     userTotals.user = user.toHexString()
     userTotals.totalMarginTradeVolumeUsd = BigDecimal.zero()
     userTotals.totalCloseWithSwapVolumeUsd = BigDecimal.zero()

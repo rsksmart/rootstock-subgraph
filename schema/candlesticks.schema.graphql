@@ -1,0 +1,24 @@
+
+# Candlesticks
+
+type CandleStick @entity {
+  id: ID! # fromToken + toToken + timestamp + interval
+  baseToken: Token
+  quoteToken: Token
+  interval: CandleSticksInterval
+  open: BigDecimal # opening price
+  high: BigDecimal! # high price
+  low: BigDecimal! # low price
+  close: BigDecimal! # close price
+  txCount: Int! # number of transactions during period
+  totalVolume: BigDecimal! # total volume in quote currency
+  periodStartUnix: Int! # unix timestamp for start of candle
+}
+
+enum CandleSticksInterval {
+  MinuteInterval
+  FifteenMintuesInterval
+  HourInterval
+  FourHourInterval
+  DayInterval
+}

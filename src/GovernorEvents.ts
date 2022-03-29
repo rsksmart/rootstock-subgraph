@@ -8,10 +8,10 @@ import {
 } from '../generated/GovernorAlphaEvents/GovernorAlphaEvents'
 import { VoteCast, Proposal } from '../generated/schema'
 
-import { loadTransaction } from './utils/Transaction'
+import { createAndReturnTransaction } from './utils/Transaction'
 
 export function handleProposalCanceled(event: ProposalCanceledEvent): void {
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
   if (proposalEntity != null) {
     proposalEntity.canceled = transaction.id
@@ -20,7 +20,7 @@ export function handleProposalCanceled(event: ProposalCanceledEvent): void {
 }
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   /** Create Proposal event */
   let proposalEntity = new Proposal(dataSource.address().toHexString() + '-' + event.params.id.toString())
   proposalEntity.created = event.transaction.hash.toHex()
@@ -42,7 +42,7 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 }
 
 export function handleProposalExecuted(event: ProposalExecutedEvent): void {
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
 
   /** Load and update proposal event */
   let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
@@ -53,7 +53,7 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
 }
 
 export function handleProposalQueued(event: ProposalQueuedEvent): void {
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
 
   /** Load and update proposal event */
   let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
@@ -68,9 +68,10 @@ export function handleVoteCast(event: VoteCastEvent): void {
 
   entity.voter = event.params.voter.toHexString()
   entity.proposalId = event.params.proposalId
+  entity.proposal = event.address.toHexString() + '-' + event.params.proposalId.toHexString()
   entity.support = event.params.support
   entity.votes = event.params.votes
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address

@@ -1,0 +1,42 @@
+# Vesting Resistry
+
+enum VestingContractType {
+  Origins
+  Genesis
+  Fish
+  FishTeam
+  Team
+  Rewards
+}
+
+type VestingContract @entity {
+  id: ID! # vesting contract id
+  user: User!
+  createdAtTimestamp: BigInt!
+  cliff: BigInt # uint256
+  duration: BigInt # uint256
+  startingBalance: BigInt! # uint256
+  currentBalance: BigInt!
+  type: VestingContractType!
+  emittedBy: Bytes!
+  createdAtTransaction: Transaction!
+  stakeHistory: [VestingHistoryItem!] @derivedFrom(field: "staker")
+}
+
+enum VestingHistoryItemAction {
+  TokensStaked,
+  TeamTokensRevoked,
+  TokensWithdrawn
+}
+
+type VestingHistoryItem @entity {
+  id: ID!
+  action: VestingHistoryItemAction!
+  staker: VestingContract!
+  amount: BigInt! # uint256
+  lockedUntil: BigInt! # uint256
+  totalStaked: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}

@@ -1,6 +1,6 @@
 import { Address, log } from '@graphprotocol/graph-ts'
 import { LiquidityPoolToken, PoolToken, TokenPoolToken } from '../../generated/schema'
-import { ERC20 } from '../../generated/templates/ERC20/ERC20'
+import { ERC20 } from '../../generated/templates/LiquidityPoolV1Converter/ERC20'
 
 export class IGetPoolToken {
   poolToken: PoolToken

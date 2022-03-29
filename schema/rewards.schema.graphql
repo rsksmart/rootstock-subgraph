@@ -1,0 +1,38 @@
+
+"""
+This entity contains the history, fees and totals regarding one users' SOV rewards
+"""
+type UserRewardsEarnedHistory @entity {
+  id: ID! # user
+  user: User!
+  """
+  This is the total of all EarnReward and RewardClaimed events
+  """
+  totalFeesAndRewardsEarned: BigInt!
+  """
+  This is incremented by EarnReward events, and set to 0 by TokensStaked events on the LockedSOV contract
+  """
+  availableTradingRewards: BigInt!
+  """
+  This is incremented by EarnReward and RewardClaimed events, and set to 0 by RewardWithdrawn events
+  """
+  availableRewardSov: BigInt!
+  rewardsEarnedHistory: [RewardsEarnedHistoryItem!] @derivedFrom(field: "user")
+}
+
+enum RewardsEarnedAction {
+  StakingRewardWithdrawn
+  EarnReward
+  RewardClaimed
+  RewardSovStaked
+}
+
+type RewardsEarnedHistoryItem @entity {
+  id: ID! # transaction hash
+  action: RewardsEarnedAction!
+  user: UserRewardsEarnedHistory!
+  token: Token
+  amount: BigInt!
+  timestamp: BigInt!
+  transaction: Transaction!
+}

@@ -332,7 +332,6 @@ dataSources:
         - name: VestingRegistry
           file: ./abis/VestingRegistry.json
       eventHandlers:
-        
         - event: AdminAdded(address)
           handler: handleAdminAdded
         - event: AdminRemoved(address)
@@ -464,6 +463,8 @@ dataSources:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
+        - event: TokensStaked(indexed address,uint256,uint256,uint256)
+          handler: handleTokensStaked
         - event: TokensWithdrawn(indexed address,address,uint256)
           handler: handleTokensWithdrawn
         - event: StakingWithdrawn(indexed address,address,uint256,uint256,bool)
@@ -483,34 +484,19 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - CheckpointAdded
-        - FeeAMMWithdrawn
-        - FeeWithdrawn
-        - OwnershipTransferred
-        - TokensTransferred
-        - UnwhitelistedConverter
-        - UserFeeWithdrawn
-        - WhitelistedConverter
+        - StakeHistoryItem
       abis:
         - name: FeeSharingProxy
           file: ./abis/FeeSharingProxy.json
       eventHandlers:
-        - event: CheckpointAdded(indexed address,indexed address,uint256)
-          handler: handleCheckpointAdded
         - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
           handler: handleFeeAMMWithdrawn
         - event: FeeWithdrawn(indexed address,indexed address,uint256)
           handler: handleFeeWithdrawn
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: TokensTransferred(indexed address,indexed address,uint256)
           handler: handleTokensTransferred
-        - event: UnwhitelistedConverter(indexed address,address)
-          handler: handleUnwhitelistedConverter
         - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
           handler: handleUserFeeWithdrawn
-        - event: WhitelistedConverter(indexed address,address)
-          handler: handleWhitelistedConverter
       file: ./src/FeeSharingProxy.ts
 
   # LockedSov
@@ -526,13 +512,12 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Deposited
+        - UserRewardEarnedHistory
+        - RewardsEarnedHistoryItem
       abis:
         - name: LockedSov
           file: ./abis/LockedSov.json
       eventHandlers:
-        - event: Deposited(indexed address,indexed address,uint256,uint256)
-          handler: handleDeposited
         - event: TokenStaked(indexed address,indexed address,uint256)
           handler: handleTokenStaked
       file: ./src/LockedSov.ts
@@ -620,14 +605,9 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - PriceDataUpdate
-        - LiquidityAdded
-        - LiquidityRemoved
         - Activation
         - Conversion
         - TokenRateUpdate
-        - ConversionFeeUpdate
-        - WithdrawFees
         - OwnerUpdate
         - Token
         - SmartToken
@@ -642,9 +622,6 @@ templates:
         - name: SmartToken
           file: ./abis/SmartToken.json
       eventHandlers:
-        
-        # - event: PriceDataUpdate(indexed address,uint256,uint256,uint32)
-        #   handler: handlePriceDataUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
@@ -653,12 +630,8 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV1
-        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
-          handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        # - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
-        #   handler: handleWithdrawFees
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
@@ -676,13 +649,8 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - DynamicFeeFactorUpdate
-        - LiquidityAdded
-        - LiquidityRemoved
         - Activation
         - Conversion
-        - TokenRateUpdate
-        - ConversionFeeUpdate
         - OwnerUpdate
         - Token
         - SmartToken
@@ -695,9 +663,6 @@ templates:
         - name: SmartToken
           file: ./abis/SmartToken.json
       eventHandlers:
-        
-        # - event: DynamicFeeFactorUpdate(uint256,uint256)
-        #   handler: handleDynamicFeeFactorUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)
@@ -724,52 +689,19 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
+      # TODO: Do there need to be entities here?
       entities:
-        - Issuance
-        - Destruction
-        - Transfer
-        - Approval
         - OwnerUpdate
       abis:
         - name: SmartToken
           file: ./abis/SmartToken.json
       eventHandlers:
-        # - event: Issuance(uint256)
-        #   handler: handleIssuance
-        # - event: Destruction(uint256)
-        #   handler: handleDestruction
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-        # - event: Approval(indexed address,indexed address,uint256)
-        #   handler: handleApproval
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/SmartToken.ts
 
-  # ERC20
-  - kind: ethereum/contract
-    name: ERC20
-    network: {{network}}
-    source:
-      abi: ERC20
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - Approval
-        - Transfer
-      abis:
-        - name: ERC20
-          file: ./abis/ERC20.json
-      eventHandlers:
-        
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-      file: ./src/ERC20.ts
-  
   # LoanTokenLogicStandard
   - kind: ethereum/contract
     name: LoanTokenLogicStandard
@@ -811,13 +743,7 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - DynamicFeeFactorUpdate
-        - LiquidityAdded
-        - LiquidityRemoved
-        - Activation
         - Conversion
-        - TokenRateUpdate
-        - ConversionFeeUpdate
         - OwnerUpdate
         - Token
         - SmartToken
@@ -830,9 +756,6 @@ templates:
         - name: SmartToken
           file: ./abis/SmartToken.json
       eventHandlers:
-        
-        # - event: DynamicFeeFactorUpdate(uint256,uint256)
-        #   handler: handleDynamicFeeFactorUpdate
         - event: LiquidityAdded(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleLiquidityAdded
         - event: LiquidityRemoved(indexed address,indexed address,uint256,uint256,uint256)

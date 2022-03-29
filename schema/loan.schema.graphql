@@ -1,0 +1,230 @@
+# Loans
+enum LoanType {
+  Trade
+  Borrow
+}
+
+"""
+A Loan can be initialized by either a Margin Trade event or a Borrow event
+"""
+type Loan @entity {
+  id: ID! # ID is LoanId
+  loanToken: Token!
+  collateralToken: Token!
+  """
+  LoanType is either Trade (for Margin Trades) or Borrow (for Borrows)
+  """
+  type: LoanType!
+  startTimestamp: BigInt!
+  endTimestamp: BigInt
+  """
+  The amount borrowed in loan tokens
+  """
+  borrowedAmount: BigDecimal!
+  startBorrowedAmount: BigDecimal!
+  maxBorrowedAmount: BigDecimal!
+
+  """
+  Total of collateral (user collateral in a Borrow, and user collateral + borrowed amount in a Trade) in collateral tokens
+  """
+  positionSize: BigDecimal!
+  """
+  Initial size of the position
+  """
+  startPositionSize: BigDecimal!
+  """
+  The maximum this position size was - mainly for debugging purposes
+  """
+  maximumPositionSize: BigDecimal!
+  """
+  The start rate of the loan in loan tokens (eg if it is a long USD/BTC margin trade, this is the BTC price in USD)
+  """
+  startRate: BigDecimal!
+  """
+  If a Liquidate, CloseWithSwap or CloseWithDeposit event occurs with 0 margin or 0 leverage, this property changes to false
+  """
+  isOpen: Boolean!
+  user: User!
+  trade: [Trade!] @derivedFrom(field: "loanId")
+  borrow: [Borrow!] @derivedFrom(field: "loanId")
+  closeWithSwaps: [CloseWithSwap!] @derivedFrom(field: "loanId")
+  closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
+  liquidates: [Liquidate!] @derivedFrom(field: "loanId")
+  depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
+  """
+  Sum of position volume from Trade, Borrow and DepositCollateral events in this loan, in collateral token
+  """
+  totalBought: BigDecimal!
+  """
+  Sum of position change volume from CloseWithSwap, CloseWithDeposit and Liquidate events in this loan, in collateral token
+  """
+  totalSold: BigDecimal!
+  """
+  Average price per token from all loan open events
+  """
+  averageBuyPrice: BigDecimal!
+  """
+  Average price per token from all loan close events
+  """
+  averageSellPrice: BigDecimal!
+  """
+  The realized PnL is quoted in the collateral currency
+  """
+  realizedPnL: BigDecimal!
+  realizedPnLPercent: BigDecimal!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user Borrows (takes out a loan)
+"""
+type Borrow @entity {
+  id: ID!
+  user: User! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  newPrincipal: BigInt! # uint256
+  newCollateral: BigInt! # uint256
+  interestRate: BigInt! # uint256
+  interestDuration: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user closes a loan initiated by a Borrow event
+"""
+type CloseWithDeposit @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  closer: Bytes! # address
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  repayAmount: BigInt! # uint256
+  collateralWithdrawAmount: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user closes a loan initiated by a Margin Trade
+"""
+type CloseWithSwap @entity {
+  id: ID!
+  user: Bytes! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  collateralToken: Bytes! # address
+  loanToken: Bytes! # address
+  closer: Bytes! # address
+  positionCloseSize: BigInt! # uint256
+  loanCloseAmount: BigInt! # uint256
+  exitPrice: BigInt! # uint256
+  currentLeverage: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user closes adds collateral to a Margin Trade or Borrow
+"""
+type DepositCollateral @entity {
+  id: ID!
+  loanId: Loan! # bytes32
+  depositAmount: BigInt! # uint256
+  rate: BigInt # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a loan is fully or partially liquidated
+"""
+type Liquidate @entity {
+  id: ID!
+  user: User! # address
+  liquidator: Bytes! # address
+  loanId: Loan! # bytes32
+  lender: Bytes! # address
+  loanToken: Bytes! # address
+  collateralToken: Bytes! # address
+  repayAmount: BigInt! # uint256
+  collateralWithdrawAmount: BigInt! # uint256
+  collateralToLoanRate: BigInt! # uint256
+  currentMargin: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user Borrows and when a loan is rolled over
+"""
+type PayBorrowingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  loanId: Loan! # bytes32
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user Lends or Unlends and when a loan is rolled over
+"""
+type PayLendingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+"""
+Granular event data for the Loan entity. Emitted when a user Margin Trades and when a loan is rolled over
+"""
+type PayTradingFee @entity {
+  id: ID!
+  payer: Bytes! # address
+  token: Bytes! # address
+  loanId: Loan! # bytes32
+  amount: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+
+type Trade @entity {
+  id: ID!
+  user: User! # address
+  lender: Bytes! # address
+  loanId: Loan! # bytes32
+  collateralToken: Bytes! # address
+  loanToken: Bytes! # address
+  positionSize: BigInt! # uint256
+  borrowedAmount: BigInt! # uint256
+  interestRate: BigInt! # uint256
+  settlementDate: BigInt! # uint256
+  entryPrice: BigInt! # uint256
+  entryLeverage: BigInt! # uint256
+  currentLeverage: BigInt! # uint256
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}

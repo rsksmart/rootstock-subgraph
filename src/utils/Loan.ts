@@ -23,9 +23,15 @@ export class ChangeLoanState {
   positionSizeChange: BigDecimal
   borrowedAmountChange: BigDecimal
   isOpen: boolean
-  type: string | null // Buy or Sell
+  type: LoanActionType // Buy or Sell
   rate: BigDecimal
   timestamp: BigInt
+}
+
+export enum LoanActionType {
+  BUY,
+  SELL,
+  NEUTRAL,
 }
 
 /** This is currently very buggy. Convert everything to BigDecimal normal numbers to help with debugging? */
@@ -73,7 +79,7 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
       loanEntity.maxBorrowedAmount = loanEntity.borrowedAmount
     }
 
-    if (params.type == 'Buy') {
+    if (params.type == LoanActionType.BUY) {
       let oldWeightedPrice = loanEntity.totalBought.times(loanEntity.averageBuyPrice)
       let newWeightedPrice = params.positionSizeChange.times(params.rate)
       const newTotalBought = loanEntity.totalBought.plus(params.positionSizeChange)
@@ -81,7 +87,7 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
       if (newWeightedPrice.gt(decimal.ZERO) && newTotalBought.gt(decimal.ZERO)) {
         loanEntity.averageBuyPrice = oldWeightedPrice.plus(newWeightedPrice).div(newTotalBought)
       }
-    } else if (params.type == 'Sell') {
+    } else if (params.type == LoanActionType.SELL) {
       const amountSold = BigDecimal.zero().minus(params.positionSizeChange)
       const priceSoldAt = params.rate
       const differenceFromBuyPrice = loanEntity.averageBuyPrice.minus(priceSoldAt)
@@ -110,7 +116,7 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
         loanEntity.realizedPnL = loanEntity.realizedPnL.plus(newPnL).truncate(18)
         loanEntity.realizedPnLPercent = loanEntity.realizedPnL.times(decimal.fromNumber(100)).div(loanEntity.maximumPositionSize).truncate(8)
       }
-    } else if (params.type == null) {
+    } else if (params.type == LoanActionType.NEUTRAL) {
       /**
        * TODO: How does DepositCollateral affect PnL?
        */

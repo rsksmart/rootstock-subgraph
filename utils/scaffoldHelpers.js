@@ -1,5 +1,5 @@
 const addImportTransactionString = (str) => {
-    const transactionString = `import { loadTransaction } from './utils/Transaction'
+    const transactionString = `import { createAndReturnTransaction } from './utils/Transaction'
 
 `
     const position = str.indexOf("export")
@@ -7,7 +7,7 @@ const addImportTransactionString = (str) => {
 }
 
 const addTransactionMappingString = (str) => {
-    const transactionMappingString = `let transaction = loadTransaction(event)
+    const transactionMappingString = `let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address

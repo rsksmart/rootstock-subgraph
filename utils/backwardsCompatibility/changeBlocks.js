@@ -32,7 +32,7 @@ const feeSharingProxyContractsTestnet = {
     changeBlocks: [
         {
             name: "FeeSharingProxy2493301",
-            address: "0x85B19DD6E3c6cCC54D40c1bAEC15058962B8245b",
+            address: "0xedD92fb7C556E4A4faf8c4f5A90f471aDCD018f4",
             startBlock: 2493301
         }
     ]

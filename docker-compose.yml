@@ -23,9 +23,7 @@ services:
       postgres_db: postgres
       ipfs: 'ipfs:5001'
       # Change next line if you want to connect to a different JSON-RPC endpoint
-      # THIS IS A TEMPORARY NODE - when graph-mainnet is up again, switch back
-      ethereum: 'mainnet:https://rsk-graph1.sovryn.app/rpc'
-      # ethereum: 'https://graph-mainnet.sovryn.app/'
+      ethereum: 'mainnet:https://testnet.sovryn.app/rpc'
       GRAPH_LOG: 'debug'
   ipfs:
     image: ipfs/go-ipfs:v0.11.0

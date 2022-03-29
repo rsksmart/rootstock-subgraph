@@ -80,3 +80,4 @@ docker-compose.yaml
 src/contracts/contracts.ts
 src/blockNumbers/blockNumbers.ts
 utils/RSK.testnetBackup.json
+schema.graphql

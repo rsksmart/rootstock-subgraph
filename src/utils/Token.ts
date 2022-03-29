@@ -1,6 +1,6 @@
 import { Address, bigDecimal, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { Token, LiquidityPoolToken, TokenSmartToken, ProtocolStats, PoolToken } from '../../generated/schema'
-import { ERC20 as ERC20TokenContract } from '../../generated/templates/ERC20/ERC20'
+import { ERC20 as ERC20TokenContract } from '../../generated/templates/LiquidityPoolV1Converter/ERC20'
 import { createAndReturnProtocolStats } from './ProtocolStats'
 import { decimal } from '@protofire/subgraph-toolkit'
 import { stablecoins } from '../contracts/contracts'

@@ -14,7 +14,7 @@ import {
 import { LiquidityPoolAdded, LiquidityPoolRemoved, SmartTokenAdded, SmartTokenRemoved, LiquidityPool, ConverterRegistry } from '../generated/schema'
 import { SmartToken as SmartTokenContract } from '../generated/ConverterRegistry/SmartToken'
 import { log } from '@graphprotocol/graph-ts'
-import { loadTransaction } from './utils/Transaction'
+import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnToken } from './utils/Token'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { createAndReturnLiquidityPool } from './utils/LiquidityPool'
@@ -26,7 +26,7 @@ export function handleConverterAnchorRemoved(event: ConverterAnchorRemovedEvent)
 export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   let entity = new LiquidityPoolAdded(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._liquidityPool = event.params._liquidityPool
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
@@ -54,7 +54,7 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
 export function handleLiquidityPoolRemoved(event: LiquidityPoolRemovedEvent): void {
   let entity = new LiquidityPoolRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._liquidityPool = event.params._liquidityPool
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
@@ -110,7 +110,7 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
 export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {
   let entity = new SmartTokenRemoved(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity._smartToken = event.params._smartToken
-  let transaction = loadTransaction(event)
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address

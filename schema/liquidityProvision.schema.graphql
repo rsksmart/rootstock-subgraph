@@ -1,0 +1,37 @@
+"""
+This entity stores one Users history of adding and removing liquidity from one AMM pool
+"""
+type UserLiquidityHistory @entity {
+  id: ID! # user + '-' + smartToken
+  user: User!
+  poolToken: PoolToken!
+  totalAsset0LiquidityAdded: BigInt!
+  totalAsset0LiquidityRemoved: BigInt!
+  totalAsset1LiquidityAdded: BigInt!
+  totalAsset1LiquidityRemoved: BigInt!
+  liquidityHistory: [LiquidityHistoryItem!] @derivedFrom(field: "userLiquidityHistory")
+}
+
+enum LiquidityHistoryType {
+  Added
+  Removed
+}
+
+type LiquidityHistoryItem @entity {
+  """
+  ID is transaction hash + log index
+  """
+  id: ID!
+  user: User!
+  userLiquidityHistory: UserLiquidityHistory!
+  type: LiquidityHistoryType! # Added or removed
+  provider: String! # address
+  reserveToken: Token! # address
+  amount: BigInt! # uint256
+  newBalance: BigInt! # uint256
+  newSupply: BigInt! # uint256
+  timestamp: BigInt!
+  liquidityPool: LiquidityPool!
+  emittedBy: String! #address
+  transaction: Transaction!
+}
