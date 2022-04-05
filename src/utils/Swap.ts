@@ -42,6 +42,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     }
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
+    swapEntity.isLimit = false
     swapEntity.timestamp = event.timestamp
     swapEntity.transaction = event.transactionHash.toHexString()
   } else {

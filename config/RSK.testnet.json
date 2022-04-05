@@ -101,5 +101,10 @@
         "startBlock": 1522384
     },
     "stablecoins": "[0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0, 0x4d5a316d23ebe168d8f887b4447bf8dbfa4901cc, 0x849D38abD3962cb40d4887E4279ad0e4E5958e34, 0x74858FE37d391f81F89472e1D8BC8Ef9CF67B3b1]",
-    "adminContracts": "[0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711, 0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247, 0x51C754330c6cD04B810014E769Dab0343E31409E]"
+    "adminContracts": "[0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711, 0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247, 0x51C754330c6cD04B810014E769Dab0343E31409E]",
+    "Settlement": {
+        "network": "mainnet",
+        "address": "0x5d1da2342a2128f56498c5267ecf1d718000a142",
+        "startBlock": 2672298
+    }
 }

@@ -391,8 +391,8 @@ export function handleTrade(event: TradeEvent): void {
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
   entity.loanId = event.params.loanId.toHexString()
-  entity.collateralToken = event.params.collateralToken
-  entity.loanToken = event.params.loanToken
+  entity.collateralToken = event.params.collateralToken.toHexString()
+  entity.loanToken = event.params.loanToken.toHexString()
   /** In Collteral tokens */
   entity.positionSize = event.params.positionSize
   /** In Loan tokens */

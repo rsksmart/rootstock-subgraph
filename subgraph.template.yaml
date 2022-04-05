@@ -4,6 +4,42 @@ repository: https://github.com/DistributedCollective/Sovryn-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
+  - kind: ethereum/contract
+    name: Settlement
+    network: {{network}}
+    source:
+      address: '{{Settlement.address}}'
+      abi: Settlement
+      startBlock: {{Settlement.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Deposit
+        - MarginOrderCanceled
+        - MarginOrderFilled
+        - OrderCanceled
+        - OrderFilled
+        - Withdrawal
+      abis:
+        - name: Settlement
+          file: ./abis/Settlement.json
+      eventHandlers:
+        - event: Deposit(address,uint256)
+          handler: handleDeposit
+        - event: MarginOrderCanceled(indexed bytes32,indexed address)
+          handler: handleMarginOrderCanceled
+        - event: MarginOrderFilled(indexed bytes32,indexed address,uint256,uint256,uint256,address,uint256,uint256,address,uint256)
+          handler: handleMarginOrderFilled
+        - event: OrderCanceled(indexed bytes32,indexed address)
+          handler: handleOrderCanceled
+        - event: OrderFilled(indexed bytes32,indexed address,uint256,uint256,address[],uint256)
+          handler: handleOrderFilled
+        - event: Withdrawal(address,uint256)
+          handler: handleWithdrawal
+      file: ./src/Settlement.ts
+
   # Converter Factory
   - kind: ethereum/contract
     name: ConverterFactory
@@ -771,4 +807,3 @@ templates:
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/LiquidityPoolConverter.ts
-
