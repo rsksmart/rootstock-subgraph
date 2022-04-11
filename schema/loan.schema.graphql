@@ -212,19 +212,19 @@ type PayTradingFee @entity {
 
 type Trade @entity {
   id: ID!
-  user: User! # address
-  lender: Bytes! # address
-  loanId: Loan! # bytes32
-  collateralToken: Bytes! # address
-  loanToken: Bytes! # address
-  positionSize: BigInt! # uint256
-  borrowedAmount: BigInt! # uint256
-  interestRate: BigInt! # uint256
-  settlementDate: BigInt! # uint256
-  entryPrice: BigInt! # uint256
-  entryLeverage: BigInt! # uint256
-  currentLeverage: BigInt! # uint256
+  user: User! 
+  lender: Bytes! 
+  loanId: Loan! 
+  collateralToken: Token! 
+  loanToken: Token! 
+  positionSize: BigInt! 
+  borrowedAmount: BigInt! 
+  interestRate: BigInt! 
+  settlementDate: BigInt! 
+  entryPrice: BigInt! 
+  entryLeverage: BigInt! 
+  currentLeverage: BigInt! 
   timestamp: BigInt!
-  emittedBy: Bytes! #address
+  emittedBy: Bytes!
   transaction: Transaction!
 }

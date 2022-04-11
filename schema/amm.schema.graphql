@@ -113,8 +113,15 @@ type Swap @entity {
   If this swap was initiated by a contract (for example as part of a Margin Trade), User will be null
   """
   user: User
+  """
+  Was this swap part of a margin trade?
+  """
   isMarginTrade: Boolean!
   isBorrow: Boolean!
+  """
+  Was this swap a limit order?
+  """
+  isLimit: Boolean!
   timestamp: BigInt!
   transaction: Transaction!
 }

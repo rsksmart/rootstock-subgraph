@@ -162,7 +162,7 @@ const startScaffoldAll = async () => {
       fs.writeFile(`./src/${contractName}.ts`, tsCode)
       console.log(`adding ${contractName} entities to schema.graphsql`)
       const schema = scaffoldWithIndexEvents.generateSchema()
-      fs.appendFile('schema.graphql', schema);
+      fs.writeFile(`./schema/${contractName}.graphql`, schema);
       return dataSource
     } catch (error) {
       console.log('error', error)
@@ -240,7 +240,7 @@ const startScaffoldAbi = async (filepath, address, blockNumber, isGenerateMappin
   const schemaWithTx = isGenerateSchema ? addTransactionToSchema(schema) : schema
   /** TODO: Add Transaction to schema */
   console.log("Schema code", schemaWithTx)
-  fs.appendFile('schema.graphql', schemaWithTx);
+  fs.writeFile(`./schema/${contractName}.graphql`, schemaWithTx);
   console.log(`adding datasource to manifest for subgraph`)
   fs.appendFile(path.join(__dirname, '../subgraph.template.yaml'), dataSource);
 }
