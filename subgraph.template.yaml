@@ -477,7 +477,7 @@ dataSources:
           handler: handleTokensWithdrawn
         - event: VestingTokensWithdrawn(address,address)
           handler: handleVestingTokensWithdrawn
-        - event: StakingWithdrawn(indexed address,address,uint256,uint256,bool)
+        - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
 
@@ -503,7 +503,7 @@ dataSources:
           handler: handleTokensStaked
         - event: TokensWithdrawn(indexed address,address,uint256)
           handler: handleTokensWithdrawn
-        - event: StakingWithdrawn(indexed address,address,uint256,uint256,bool)
+        - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
    
