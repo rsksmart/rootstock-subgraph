@@ -389,6 +389,33 @@ dataSources:
       file: ./src/VestingRegistry.ts
 
   - kind: ethereum/contract
+    name: VestingRegistryProxy
+    network: {{network}}
+    source:
+      address: '{{VestingRegistryProxy.address}}'
+      abi: VestingProxy
+      startBlock: {{VestingRegistryProxy.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TeamVestingCreated
+        - TokensStaked
+        - VestingCreated
+      abis:
+        - name: VestingProxy
+          file: ./abis/VestingProxy.json
+      eventHandlers:
+        - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256,uint256)
+          handler: handleTeamVestingCreatedProxy
+        - event: TokensStaked(indexed address,uint256)
+          handler: handleTokensStaked
+        - event: VestingCreated(indexed address,address,uint256,uint256,uint256,uint256)
+          handler: handleVestingCreatedProxy
+      file: ./src/VestingRegistry.ts
+
+  - kind: ethereum/contract
     name: VestingRegistryFish
     network: {{network}}
     source:
