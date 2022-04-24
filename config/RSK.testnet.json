@@ -55,6 +55,11 @@
         "address": "0x52E4419b9D33C6e0ceb2e7c01D3aA1a04b21668C",
         "startBlock": 1802584
     },
+    "VestingRegistryProxy": {
+        "network": "mainnet",
+        "address": "0x09e8659B6d204C6b1bED2BFF8E3F43F834A5Bbc4",
+        "startBlock": 2197944
+    },
     "VestingRegistryFish": {
         "network": "mainnet",
         "address": "0xFd8ea2e5e8591fA791d44731499cDF2e81CD6a41",

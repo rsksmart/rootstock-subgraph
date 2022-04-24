@@ -185,12 +185,6 @@
             },
             {
                 "indexed": false,
-                "internalType": "address",
-                "name": "receiver",
-                "type": "address"
-            },
-            {
-                "indexed": false,
                 "internalType": "uint256",
                 "name": "amount",
                 "type": "uint256"
@@ -202,8 +196,14 @@
                 "type": "uint256"
             },
             {
+                "indexed": true,
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+            },
+            {
                 "indexed": false,
-                "internalType": "uint256",
+                "internalType": "bool",
                 "name": "isGovernance",
                 "type": "bool"
             }
