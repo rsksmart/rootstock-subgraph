@@ -1,18 +1,17 @@
 import { Burn as BurnEvent, FlashBorrow as FlashBorrowEvent, Mint as MintEvent } from '../generated/templates/LoanTokenLogicStandard/LoanTokenLogicStandard'
 import { UserLendingHistory, LendingHistoryItem, LendingPool } from '../generated/schema'
 import { createAndReturnTransaction } from './utils/Transaction'
-import { createAndReturnUser } from './utils/User'
 import { Address, BigInt, dataSource } from '@graphprotocol/graph-ts'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
 import { convertToUsd } from './utils/Prices'
 import { LendingHistoryType } from './utils/types'
 
 export function handleBurn(event: BurnEvent): void {
+  createAndReturnTransaction(event)
+
   let context = dataSource.context()
   let underlyingAsset = context.getString('underlyingAsset')
-  createAndReturnUser(event.params.burner)
   const userAddress = event.params.burner.toHexString()
-  createAndReturnTransaction(event)
 
   let userHistoryEntity = UserLendingHistory.load(userAddress + dataSource.address().toHexString())
   if (userHistoryEntity != null) {
@@ -53,11 +52,11 @@ export function handleBurn(event: BurnEvent): void {
 export function handleFlashBorrow(event: FlashBorrowEvent): void {}
 
 export function handleMint(event: MintEvent): void {
+  createAndReturnTransaction(event)
+
   let context = dataSource.context()
   let underlyingAsset = context.getString('underlyingAsset')
-  createAndReturnUser(event.params.minter)
   const userAddress = event.params.minter.toHexString()
-  createAndReturnTransaction(event)
 
   let userHistoryEntity = UserLendingHistory.load(userAddress + dataSource.address().toHexString())
   if (userHistoryEntity != null) {

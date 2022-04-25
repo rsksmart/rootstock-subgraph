@@ -42,6 +42,8 @@ import { createAndReturnLendingPool } from './utils/LendingPool'
 import { RewardsEarnedAction } from './utils/types'
 
 export function handleBorrow(event: BorrowEvent): void {
+  let transaction = createAndReturnTransaction(event)
+
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
@@ -54,7 +56,6 @@ export function handleBorrow(event: BorrowEvent): void {
     positionSize: decimal.fromBigInt(event.params.newCollateral, 18),
     startRate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
   }
-  createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
   entity.lender = event.params.lender
@@ -67,7 +68,7 @@ export function handleBorrow(event: BorrowEvent): void {
   entity.interestDuration = event.params.interestDuration
   entity.collateralToLoanRate = event.params.collateralToLoanRate
   entity.currentMargin = event.params.currentMargin
-  let transaction = createAndReturnTransaction(event)
+
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
@@ -215,8 +216,6 @@ export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEven
 
 export function handleEarnReward(event: EarnRewardEvent): void {
   createAndReturnTransaction(event)
-
-  createAndReturnUser(event.params.receiver)
   let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.receiver.toHexString())
   if (userRewardsEarnedHistory != null) {
     userRewardsEarnedHistory.availableRewardSov = userRewardsEarnedHistory.availableRewardSov.plus(event.params.amount)
@@ -244,8 +243,8 @@ export function handleEarnReward(event: EarnRewardEvent): void {
 export function handleExternalSwap(event: ExternalSwapEvent): void {
   let swapEntity = Swap.load(event.transaction.hash.toHexString())
   if (swapEntity != null) {
-    let user = createAndReturnUser(event.transaction.from)
-    swapEntity.user = user.id
+    createAndReturnTransaction(event)
+    swapEntity.user = event.transaction.from.toHexString()
     swapEntity.save()
   }
 }
@@ -368,6 +367,8 @@ export function handleSetLoanPool(event: SetLoanPoolEvent): void {
 export function handleSetWrbtcToken(event: SetWrbtcTokenEvent): void {}
 
 export function handleTrade(event: TradeEvent): void {
+  let transaction = createAndReturnTransaction(event)
+
   let entity = new Trade(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
@@ -380,7 +381,6 @@ export function handleTrade(event: TradeEvent): void {
     positionSize: decimal.fromBigInt(event.params.positionSize, 18),
     startRate: decimal.fromBigInt(event.params.entryPrice, 18),
   }
-  createAndReturnUser(event.params.user)
   createAndReturnLoan(loanParams)
   let swapEntity = Swap.load(event.transaction.hash.toHexString())
   if (swapEntity != null) {
@@ -402,7 +402,7 @@ export function handleTrade(event: TradeEvent): void {
   entity.entryPrice = event.params.entryPrice
   entity.entryLeverage = event.params.entryLeverage
   entity.currentLeverage = event.params.currentLeverage
-  let transaction = createAndReturnTransaction(event)
+
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address

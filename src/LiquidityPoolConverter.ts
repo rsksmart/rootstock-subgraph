@@ -25,7 +25,6 @@ import { createAndReturnTransaction } from './utils/Transaction'
 import { BigInt, BigDecimal, dataSource, log, store } from '@graphprotocol/graph-ts'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { createAndReturnPoolToken } from './utils/PoolToken'
-import { createAndReturnUser } from './utils/User'
 import { updateVolumes } from './utils/Volumes'
 import { decimal } from '@protofire/subgraph-toolkit'
 import { liquidityPoolV1ChangeBlock } from './contracts/contracts'
@@ -86,7 +85,7 @@ function updateUserLiquidityHistory(
 }
 
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
-  createAndReturnUser(event.transaction.from)
+  createAndReturnTransaction(event)
   let liquidityPool = LiquidityPool.load(event.address.toHexString())
   let liquidityPoolToken = LiquidityPoolToken.load(event.address.toHexString() + event.params._reserveToken.toHexString())
   let userLiquidityHistoryId = ''
@@ -107,8 +106,6 @@ export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
       updateUserLiquidityHistory(liquidityPool, userLiquidityHistory, event.params._reserveToken.toHexString(), event.params._amount, BigInt.zero())
     }
   }
-
-  createAndReturnTransaction(event)
   createLiquidityHistoryItem({
     id: event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
     user: event.transaction.from.toHexString(),
@@ -127,7 +124,7 @@ export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
 }
 
 export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
-  createAndReturnUser(event.transaction.from)
+  createAndReturnTransaction(event)
   let liquidityPool = LiquidityPool.load(event.address.toHexString())
   let liquidityPoolToken = LiquidityPoolToken.load(event.address.toHexString() + event.params._reserveToken.toHexString())
   let userLiquidityHistoryId = ''
@@ -141,7 +138,6 @@ export function handleLiquidityRemoved(event: LiquidityRemovedEvent): void {
     }
   }
 
-  createAndReturnTransaction(event)
   createLiquidityHistoryItem({
     id: event.transaction.hash.toHex() + '-' + event.logIndex.toString(),
     user: event.transaction.from.toHexString(),

@@ -2,11 +2,12 @@ import { Address, BigInt } from '@graphprotocol/graph-ts'
 import { User, UserStakeHistory } from '../../generated/schema'
 import { createAndReturnProtocolStats } from './ProtocolStats'
 
-export function createAndReturnUser(address: Address): User {
+export function createAndReturnUser(address: Address, timestamp: BigInt): User {
   let userEntity = User.load(address.toHex())
 
   if (userEntity == null) {
     userEntity = new User(address.toHex())
+    userEntity.createdAtTimestamp = timestamp
     let protocolStats = createAndReturnProtocolStats()
     protocolStats.totalUsers = protocolStats.totalUsers.plus(BigInt.fromI32(1))
     protocolStats.save()

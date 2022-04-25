@@ -9,6 +9,10 @@ type User @entity {
   """
   id: ID!
   """
+  Timestamp of User's first interaction with the protocol (first transaction)
+  """
+  createdAtTimestamp: BigInt!
+  """
   Swaps here refers to only user-triggered swaps. For example, a swap that is part of a margin trade would not be included.
   Swaps involving multiple amm pools are stored as a single swap, comprised of multiple Conversion events
   """
@@ -58,6 +62,10 @@ type User @entity {
   See UserTotals entity for full documentation
   """
   userTotals: UserTotal @derivedFrom(field: "user")
+  """
+  Transactions initiated by this user
+  """
+  transactions: [Transaction!] @derivedFrom(field: "from")
 }
 
 """
