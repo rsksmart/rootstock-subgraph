@@ -43,7 +43,7 @@ vestingContractTypes.set(vestingRegistryFish.toLowerCase(), VestingContractType.
 
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner)
+  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration
@@ -60,7 +60,7 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
 
 export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedEvent): void {
   let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner)
+  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration
@@ -80,7 +80,7 @@ export function handleTokensStaked(event: TokensStakedEvent): void {}
 export function handleVestingCreated(event: VestingCreatedEvent): void {
   log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
   let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner)
+  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration
@@ -97,7 +97,7 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
 export function handleVestingCreatedProxy(event: VestingCreatedProxyEvent): void {
   log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
   let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner)
+  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
   entity.user = user.id
   entity.cliff = event.params.cliff
   entity.duration = event.params.duration

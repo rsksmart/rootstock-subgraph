@@ -73,7 +73,7 @@ export function handleTokensStaked(event: TokensStakedEvent): void {
     event.transaction.from.toHexString() != event.params.staker.toHexString()
   ) {
     let newVestingContract = new VestingContract(event.params.staker.toHexString())
-    let user = createAndReturnUser(event.transaction.from)
+    let user = createAndReturnUser(event.transaction.from, event.block.timestamp)
     newVestingContract.user = user.id
     newVestingContract.type = VestingContractType.Genesis
     newVestingContract.createdAtTimestamp = event.block.timestamp
@@ -89,7 +89,7 @@ export function handleTokensStaked(event: TokensStakedEvent): void {
      * We do not need to check for this on the vesting contracts, as these are already segmented by SOV/FISH
      */
     if (event.address.toHexString() != stakingFish.toLowerCase()) {
-      createAndReturnUser(event.params.staker)
+      createAndReturnUser(event.params.staker, event.block.timestamp)
 
       let userStakeHistory = createAndReturnUserStakeHistory(event.params.staker)
       userStakeHistory.totalStaked = userStakeHistory.totalStaked.plus(event.params.amount)

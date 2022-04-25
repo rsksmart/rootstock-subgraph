@@ -8,7 +8,7 @@ import { RewardsEarnedAction } from './utils/types'
 
 export function handleRewardClaimed(event: RewardClaimedEvent): void {
   createAndReturnTransaction(event)
-  createAndReturnUser(event.params.user)
+  createAndReturnUser(event.params.user, event.block.timestamp)
 
   let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.user.toHexString())
   if (userRewardsEarnedHistory != null) {

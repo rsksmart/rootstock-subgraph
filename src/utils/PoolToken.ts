@@ -1,5 +1,5 @@
 import { Address, log } from '@graphprotocol/graph-ts'
-import { LiquidityPoolToken, PoolToken, TokenPoolToken } from '../../generated/schema'
+import { LiquidityPoolToken, PoolToken } from '../../generated/schema'
 import { ERC20 } from '../../generated/templates/LiquidityPoolV1Converter/ERC20'
 
 export class IGetPoolToken {
@@ -29,17 +29,14 @@ export function createAndReturnPoolToken(poolTokenAddress: Address, liquidityPoo
       poolToken.decimals = smartTokenDecimalsResult.value
     }
 
+    poolToken.liquidityPool = liquidityPoolAddress.toHexString()
+    poolToken.underlyingAssets = [tokenAddress.toHexString()]
+
     poolToken.save()
+  } else {
+    poolToken.underlyingAssets = poolToken.underlyingAssets.concat([tokenAddress.toHexString()])
 
-    let tokenPoolToken = TokenPoolToken.load(tokenAddress.toHex() + poolTokenAddress.toHex())
-    if (tokenPoolToken === null) {
-      tokenPoolToken = new TokenPoolToken(tokenAddress.toHex() + poolTokenAddress.toHex())
-    }
-
-    tokenPoolToken.token = tokenAddress.toHex()
-    tokenPoolToken.poolToken = poolTokenAddress.toHex()
-    tokenPoolToken.liquidityPool = liquidityPoolAddress.toHex()
-    tokenPoolToken.save()
+    poolToken.save()
   }
 
   return { poolToken, isNew }
@@ -49,9 +46,9 @@ export function createAndReturnPoolToken(poolTokenAddress: Address, liquidityPoo
  * The empty string returned if a pool token does not exist is not a very nice implementation, this should probably be improved
  * */
 export function getPoolTokenFromToken(token: Address, liquidityPool: Address): string {
-  let tokenPoolTokenEntity = LiquidityPoolToken.load(liquidityPool.toHexString() + token.toHexString())
-  if (tokenPoolTokenEntity != null) {
-    return tokenPoolTokenEntity.poolToken
+  let liquidityPoolTokenEntity = LiquidityPoolToken.load(liquidityPool.toHexString() + token.toHexString())
+  if (liquidityPoolTokenEntity != null) {
+    return liquidityPoolTokenEntity.poolToken
   } else {
     log.debug('src/utils/PoolToken.ts ~ PoolToken.ts ~ 56 ~  : {}', [token.toHexString(), liquidityPool.toHexString()])
     return ''

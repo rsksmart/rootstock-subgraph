@@ -111,7 +111,7 @@ type Transaction @entity {
   """
   The account that initiated this transaction. This must be an Account and not a Contract.
   """
-  from: Bytes! # TODO: Change to User entity
+  from: User!
   to: Bytes
   value: BigInt!
   gasLimit: BigInt!

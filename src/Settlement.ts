@@ -36,7 +36,7 @@ export function handleMarginOrderCanceled(event: MarginOrderCanceledEvent): void
 export function handleMarginOrderFilled(event: MarginOrderFilledEvent): void {
   let entity = new MarginOrderFilled(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.hash = event.params.hash
-  createAndReturnUser(event.params.trader)
+  createAndReturnUser(event.params.trader, event.block.timestamp)
   entity.trader = event.params.trader.toHexString()
   entity.principal = event.params.principal
   entity.collateral = event.params.collateral
@@ -69,7 +69,7 @@ export function handleOrderCanceled(event: OrderCanceledEvent): void {
 export function handleOrderFilled(event: OrderFilledEvent): void {
   let entity = new OrderFilled(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.hash = event.params.hash
-  createAndReturnUser(event.params.maker)
+  createAndReturnUser(event.params.maker, event.block.timestamp)
   entity.maker = event.params.maker.toHexString()
   entity.amountIn = event.params.amountIn
   entity.amountOut = event.params.amountOut
