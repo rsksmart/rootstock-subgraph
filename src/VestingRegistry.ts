@@ -53,8 +53,11 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp
   entity.emittedBy = event.address
-  entity.type =
+  const contractType =
     vestingContractTypes.get(event.address.toHexString().toLowerCase()) == VestingContractType.Fish ? VestingContractType.FishTeam : VestingContractType.Team
+  if (contractType != null) {
+    entity.type = contractType
+  }
   entity.save()
 }
 
@@ -70,8 +73,7 @@ export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedEvent): v
   entity.createdAtTransaction = transaction.id
   entity.createdAtTimestamp = transaction.timestamp
   entity.emittedBy = event.address
-  entity.type =
-    vestingContractTypes.get(event.address.toHexString().toLowerCase()) == VestingContractType.Fish ? VestingContractType.FishTeam : VestingContractType.Team
+  entity.type = VestingContractType.Team
   entity.save()
 }
 

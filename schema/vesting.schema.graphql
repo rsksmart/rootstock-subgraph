@@ -17,7 +17,7 @@ type VestingContract @entity {
   duration: BigInt # uint256
   startingBalance: BigInt! # uint256
   currentBalance: BigInt!
-  type: VestingContractType!
+  type: VestingContractType
   emittedBy: Bytes!
   createdAtTransaction: Transaction!
   stakeHistory: [VestingHistoryItem!] @derivedFrom(field: "staker")
