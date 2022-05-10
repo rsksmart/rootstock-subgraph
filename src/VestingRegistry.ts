@@ -15,7 +15,6 @@ import { BigInt } from '@graphprotocol/graph-ts'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { vestingRegistry1, vestingRegistry2, vestingRegistry3, vestingRegistryFish } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
-import { log } from '@graphprotocol/graph-ts'
 import { VestingContractType } from './utils/types'
 
 export function handleAdminAdded(event: AdminAddedEvent): void {}
@@ -42,73 +41,84 @@ vestingContractTypes.set(vestingRegistry3.toLowerCase(), VestingContractType.Rew
 vestingContractTypes.set(vestingRegistryFish.toLowerCase(), VestingContractType.Fish)
 
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
-  let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
-  entity.user = user.id
-  entity.cliff = event.params.cliff
-  entity.duration = event.params.duration
-  entity.startingBalance = event.params.amount
-  entity.currentBalance = BigInt.zero()
-  let transaction = createAndReturnTransaction(event)
-  entity.createdAtTransaction = transaction.id
-  entity.createdAtTimestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  const contractType =
-    vestingContractTypes.get(event.address.toHexString().toLowerCase()) == VestingContractType.Fish ? VestingContractType.FishTeam : VestingContractType.Team
-  if (contractType != null) {
-    entity.type = contractType
+  /** Some contracts are created twice. So, we need to first check if the contract already exists */
+  let existingContract = VestingContract.load(event.params.vesting.toHexString())
+  if (existingContract == null) {
+    let entity = new VestingContract(event.params.vesting.toHexString())
+    let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
+    entity.user = user.id
+    entity.cliff = event.params.cliff
+    entity.duration = event.params.duration
+    entity.startingBalance = event.params.amount
+    entity.currentBalance = BigInt.zero()
+    let transaction = createAndReturnTransaction(event)
+    entity.createdAtTransaction = transaction.id
+    entity.createdAtTimestamp = transaction.timestamp
+    entity.emittedBy = event.address
+    const contractType =
+      vestingContractTypes.get(event.address.toHexString().toLowerCase()) == VestingContractType.Fish ? VestingContractType.FishTeam : VestingContractType.Team
+    if (contractType != null) {
+      entity.type = contractType
+    }
+    entity.save()
   }
-  entity.save()
 }
 
-export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedEvent): void {
-  let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
-  entity.user = user.id
-  entity.cliff = event.params.cliff
-  entity.duration = event.params.duration
-  entity.startingBalance = event.params.amount
-  entity.currentBalance = BigInt.zero()
-  let transaction = createAndReturnTransaction(event)
-  entity.createdAtTransaction = transaction.id
-  entity.createdAtTimestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.type = VestingContractType.Team
-  entity.save()
+export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedProxyEvent): void {
+  let existingContract = VestingContract.load(event.params.vesting.toHexString())
+  if (existingContract == null) {
+    let entity = new VestingContract(event.params.vesting.toHexString())
+    let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
+    entity.user = user.id
+    entity.cliff = event.params.cliff
+    entity.duration = event.params.duration
+    entity.startingBalance = event.params.amount
+    entity.currentBalance = BigInt.zero()
+    let transaction = createAndReturnTransaction(event)
+    entity.createdAtTransaction = transaction.id
+    entity.createdAtTimestamp = transaction.timestamp
+    entity.emittedBy = event.address
+    entity.type = VestingContractType.Team
+    entity.save()
+  }
 }
 
 export function handleTokensStaked(event: TokensStakedEvent): void {}
 
 export function handleVestingCreated(event: VestingCreatedEvent): void {
-  log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
-  let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
-  entity.user = user.id
-  entity.cliff = event.params.cliff
-  entity.duration = event.params.duration
-  entity.startingBalance = event.params.amount
-  entity.currentBalance = BigInt.zero()
-  let transaction = createAndReturnTransaction(event)
-  entity.createdAtTransaction = transaction.id
-  entity.createdAtTimestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase())
-  entity.save()
+  let existingContract = VestingContract.load(event.params.vesting.toHexString())
+  if (existingContract == null) {
+    let entity = new VestingContract(event.params.vesting.toHexString())
+    let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
+    entity.user = user.id
+    entity.cliff = event.params.cliff
+    entity.duration = event.params.duration
+    entity.startingBalance = event.params.amount
+    entity.currentBalance = BigInt.zero()
+    let transaction = createAndReturnTransaction(event)
+    entity.createdAtTransaction = transaction.id
+    entity.createdAtTimestamp = transaction.timestamp
+    entity.emittedBy = event.address
+    entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase())
+    entity.save()
+  }
 }
 
 export function handleVestingCreatedProxy(event: VestingCreatedProxyEvent): void {
-  log.debug('VESTING CREATED', [event.params.vesting.toHexString()])
-  let entity = new VestingContract(event.params.vesting.toHexString())
-  let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
-  entity.user = user.id
-  entity.cliff = event.params.cliff
-  entity.duration = event.params.duration
-  entity.startingBalance = event.params.amount
-  entity.currentBalance = BigInt.zero()
-  let transaction = createAndReturnTransaction(event)
-  entity.createdAtTransaction = transaction.id
-  entity.createdAtTimestamp = transaction.timestamp
-  entity.emittedBy = event.address
-  entity.type = VestingContractType.Rewards
-  entity.save()
+  let existingContract = VestingContract.load(event.params.vesting.toHexString())
+  if (existingContract == null) {
+    let entity = new VestingContract(event.params.vesting.toHexString())
+    let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
+    entity.user = user.id
+    entity.cliff = event.params.cliff
+    entity.duration = event.params.duration
+    entity.startingBalance = event.params.amount
+    entity.currentBalance = BigInt.zero()
+    let transaction = createAndReturnTransaction(event)
+    entity.createdAtTransaction = transaction.id
+    entity.createdAtTimestamp = transaction.timestamp
+    entity.emittedBy = event.address
+    entity.type = VestingContractType.Rewards
+    entity.save()
+  }
 }
