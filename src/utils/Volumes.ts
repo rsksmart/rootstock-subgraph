@@ -11,6 +11,7 @@ export function updateVolumes(parsedEvent: ConversionEventForSwap, liquidityPool
   updatePoolVolume(parsedEvent, liquidityPoolAddress)
   updateProtocolStatsVolume(volumeUsd)
 }
+
 function updateTokensVolume(parsedEvent: ConversionEventForSwap): void {
   const fromToken = Token.load(parsedEvent.fromToken.toHex())
 
