@@ -128,8 +128,10 @@ function updateAllIntervals(
         updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.DayInterval, IntervalStr.DayInterval)
       }
     } else {
-      log.warning('Candlesticks one or both tokens returned null on load - baseToken: {}, quoteToken {}', [baseToken.id, quoteToken.id])
+      log.warning('Candlesticks baseToken and quoteToken are the same - baseToken: {}, quoteToken {}', [baseToken.id, quoteToken.id])
     }
+  } else {
+    log.warning('Candlesticks one or both tokens returned null on load - baseToken: {}, quoteToken {}', [baseToken.id, quoteToken.id])
   }
 }
 
