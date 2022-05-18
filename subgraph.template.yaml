@@ -654,6 +654,48 @@ dataSources:
       #   - handler: handleBlock
       file: ./src/rbtcWrapperProxyTokenConverted.ts
 
+  - kind: ethereum/contract
+    name: OrderbookTestnet
+    network: {{network}}
+    source:
+      address: '{{OrderbookTestnet.address}}'
+      abi: Orderbook
+      startBlock: {{OrderbookTestnet.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - OrderCreated
+      abis:
+        - name: Orderbook
+          file: ./abis/Orderbook.json
+      eventHandlers:
+        - event: OrderCreated(indexed bytes32,(address,address,address,uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32),uint256)
+          handler: handleOrderCreated
+      file: ./src/Orderbook.ts
+
+  - kind: ethereum/contract
+    name: OrderbookMainnet
+    network: {{network}}
+    source:
+      address: '{{OrderbookMainnet.address}}'
+      abi: Orderbook
+      startBlock: {{OrderbookMainnet.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - OrderCreated
+      abis:
+        - name: Orderbook
+          file: ./abis/Orderbook.json
+      eventHandlers:
+        - event: OrderCreated(indexed bytes32,(address,address,address,uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32),uint256)
+          handler: handleOrderCreated
+      file: ./src/Orderbook.ts
+  
 templates:
   # LiquidityPoolV1Converter
   - kind: ethereum/contract

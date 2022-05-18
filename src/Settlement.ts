@@ -6,7 +6,9 @@ import {
   OrderFilled as OrderFilledEvent,
   Withdrawal as WithdrawalEvent,
 } from '../generated/Settlement/Settlement'
-import { Deposit, MarginOrderCanceled, MarginOrderFilled, OrderCanceled, OrderFilled, Withdrawal, Trade, Swap } from '../generated/schema'
+import { MarginOrderCanceled, MarginOrderFilled, OrderCanceled, OrderFilled, Withdrawal, Swap, Deposit } from '../generated/schema'
+import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
+import { decimalize } from './utils/Token'
 
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
@@ -14,7 +16,7 @@ import { createAndReturnUser } from './utils/User'
 export function handleDeposit(event: DepositEvent): void {
   let entity = new Deposit(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.to = event.params.to
-  entity.amount = event.params.amount
+  entity.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -38,14 +40,14 @@ export function handleMarginOrderFilled(event: MarginOrderFilledEvent): void {
   entity.hash = event.params.hash
   createAndReturnUser(event.params.trader, event.block.timestamp)
   entity.trader = event.params.trader.toHexString()
-  entity.principal = event.params.principal
-  entity.collateral = event.params.collateral
-  entity.leverageAmount = event.params.leverageAmount
+  entity.principal = decimal.fromBigInt(event.params.principal, DEFAULT_DECIMALS)
+  entity.collateral = decimal.fromBigInt(event.params.collateral, DEFAULT_DECIMALS)
+  entity.leverageAmount = decimal.fromBigInt(event.params.leverageAmount, DEFAULT_DECIMALS)
   entity.loanTokenAddress = event.params.loanTokenAddress
-  entity.loanTokenSent = event.params.loanTokenSent
-  entity.collateralTokenSent = event.params.collateralTokenSent
+  entity.loanTokenSent = decimal.fromBigInt(event.params.loanTokenSent, DEFAULT_DECIMALS)
+  entity.collateralTokenSent = decimal.fromBigInt(event.params.collateralTokenSent, DEFAULT_DECIMALS)
   entity.collateralTokenAddress = event.params.collateralTokenAddress
-  entity.filledPrice = event.params.filledPrice
+  entity.filledPrice = decimal.fromBigInt(event.params.filledPrice, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -67,14 +69,17 @@ export function handleOrderCanceled(event: OrderCanceledEvent): void {
 }
 
 export function handleOrderFilled(event: OrderFilledEvent): void {
+  createAndReturnUser(event.params.maker, event.block.timestamp)
+  const fromToken = event.params.path[0]
+  const toToken = event.params.path[event.params.path.length - 1]
+
   let entity = new OrderFilled(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.hash = event.params.hash
-  createAndReturnUser(event.params.maker, event.block.timestamp)
   entity.maker = event.params.maker.toHexString()
-  entity.amountIn = event.params.amountIn
-  entity.amountOut = event.params.amountOut
+  entity.amountIn = decimalize(event.params.amountIn, fromToken)
+  entity.amountOut = decimalize(event.params.amountOut, toToken)
   entity.path = event.params.path.map<string>((item) => item.toHexString())
-  entity.filledPrice = event.params.filledPrice
+  entity.filledPrice = decimalize(event.params.filledPrice, toToken)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -93,7 +98,7 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
 export function handleWithdrawal(event: WithdrawalEvent): void {
   let entity = new Withdrawal(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.receiver = event.params.receiver
-  entity.amount = event.params.amount
+  entity.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp

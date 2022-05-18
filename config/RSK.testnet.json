@@ -111,5 +111,15 @@
         "network": "mainnet",
         "address": "0x5d1da2342a2128f56498c5267ecf1d718000a142",
         "startBlock": 2672298
+    },
+    "OrderbookTestnet": {
+        "network": "mainnet",
+        "address": "0xfD4D1FBFC652f5b3D98881b9346635399F1e6254",
+        "startBlock": 2672286
+    },
+    "OrderbookMainnet": {
+        "network": "mainnet",
+        "address": "0x1c910918d6D05feC83e2376D57226d1b08324028",
+        "startBlock": 2726979
     }
 }

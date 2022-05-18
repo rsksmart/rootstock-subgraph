@@ -1,0 +1,25 @@
+# This is the orderbooks for testnet and mainnet. Both orderbooks are created on testnet. This event will never be emitted on mainnet.
+# This is suboptimal, we are thinking of a better solution
+
+enum Network {
+  Mainnet
+  Testnet
+}
+
+type OrderCreated @entity {
+  id: ID!
+  hash: Bytes! # bytes32
+  network: Network!
+  order_maker: User! # address
+  order_fromToken: Bytes! # address
+  order_toToken: Bytes! # address
+  order_amountIn: BigInt! # Keep as BigInt, do not convert to BigDecimal
+  order_amountOutMin: BigInt! # Keep as BigInt, do not convert to BigDecimal
+  order_recipient: Bytes! # address
+  order_deadline: BigInt! # Keep as BigInt, do not convert to BigDecimal
+  order_created: BigInt! # Keep as BigInt, do not convert to BigDecimal
+  limitPrice: BigInt! # Keep as BigInt, do not convert to BigDecimal
+  timestamp: Int!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}

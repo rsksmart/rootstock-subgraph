@@ -19,7 +19,7 @@ type ProtocolStats @entity {
   Total number of users of the protocol. This number is incremented each time a user initiates a transaction with the Protocol.
   Currently this is incremented by specific user actions, but could be incremented on a per Transaction basis.
   """
-  totalUsers: BigInt!
+  totalUsers: Int!
   """
   Total of positionSize property in Trade event (in usd). This includes user collateral and borrowed amount
   """
@@ -79,15 +79,15 @@ type ProtocolStats @entity {
   """
   This is SOV staked by users (not vesting contracts). It is incremented when users stake tokens, and decremented when users withdraw tokens from the staking contract
   """
-  totalVoluntarilyStakedSov: BigInt!
+  currentVoluntarilyStakedSov: BigDecimal!
   """
   This is SOV staked by vesting contracts. It in incremented when the contracts stake the tokens, and decremented when users claim their unlocked tokens
   """
-  totalStakedByVestingSov: BigInt!
+  currentStakedByVestingSov: BigDecimal!
   """
   NOT YET IMPLEMENTED: This will be a total of volumes of all transaction types (AMM Swaps, Margin Trades, CloseWithSwap etc etc)
   """
-  totalTransactedVolumeUsd: BigInt! # TODO: Implement
+  totalTransactedVolumeUsd: Int! # TODO: Implement
 }
 
 """
@@ -98,16 +98,16 @@ type Transaction @entity {
   ID is transaction hash
   """
   id: ID!
-  blockNumber: BigInt!
+  blockNumber: Int!
   """
   The timestamp the transaction was confirmed
   """
-  timestamp: BigInt!
+  timestamp: Int!
   gasPrice: BigInt!
   """
   The index of this transaction within the block
   """
-  index: BigInt!
+  index: Int!
   """
   The account that initiated this transaction. This must be an Account and not a Contract.
   """
@@ -160,8 +160,6 @@ type Token @entity {
   The total volume of this token that has been traded through the protocol
   """
   tokenVolume: BigDecimal!
-  # marketCap: BigInt!
-  # circulatingSupply: BigInt!
   currentConverterRegistry: ConverterRegistry
   """
   Does this token have an AMM pool with rBTC as the other reserve asset?

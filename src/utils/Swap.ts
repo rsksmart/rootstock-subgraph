@@ -43,7 +43,7 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.isLimit = false
-    swapEntity.timestamp = event.timestamp
+    swapEntity.timestamp = event.timestamp.toI32()
     swapEntity.transaction = event.transactionHash.toHexString()
   } else {
     /** Swap already exists - this means it has multiple conversion events */

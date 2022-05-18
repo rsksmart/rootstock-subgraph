@@ -10,12 +10,12 @@ type LendingPool @entity {
   The actual asset being lent and borrowed in this pool
   """
   underlyingAsset: Token!
-  poolTokenBalance: BigInt!
-  assetBalance: BigInt!
+  poolTokenBalance: BigDecimal!
+  assetBalance: BigDecimal!
   """
   Total asset volume lent over all time
   """
-  totalAssetLent: BigInt!
+  totalAssetLent: BigDecimal!
 }
 
 """
@@ -35,11 +35,11 @@ type UserLendingHistory @entity {
   """
   Total volume this User has lent to this pool over all time (in the underlying asset currency, ie rBTC for the rBTC lending pool)
   """
-  totalLendVolume: BigInt!
+  totalLendVolume: BigDecimal!
   """
   Total volume this User has withdrawn from this pool over all time
   """
-  totalUnlendVolume: BigInt!
+  totalUnlendVolume: BigDecimal!
 }
 
 enum LendingHistoryType {
@@ -56,8 +56,8 @@ type LendingHistoryItem @entity {
   The underlying asset for this pool (eg USDT for the iUSDT pool)
   """
   asset: Token 
-  amount: BigInt! #TODO: Change to BigDecimal
-  loanTokenAmount: BigInt!
+  amount: BigDecimal!
+  loanTokenAmount: BigDecimal!
   transaction: Transaction!
   emittedBy: String!
   userLendingHistory: UserLendingHistory!

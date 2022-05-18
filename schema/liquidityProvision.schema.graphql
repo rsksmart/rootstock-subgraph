@@ -5,10 +5,10 @@ type UserLiquidityHistory @entity {
   id: ID! # user + '-' + smartToken
   user: User!
   poolToken: PoolToken!
-  totalAsset0LiquidityAdded: BigInt!
-  totalAsset0LiquidityRemoved: BigInt!
-  totalAsset1LiquidityAdded: BigInt!
-  totalAsset1LiquidityRemoved: BigInt!
+  totalAsset0LiquidityAdded: BigDecimal!
+  totalAsset0LiquidityRemoved: BigDecimal!
+  totalAsset1LiquidityAdded: BigDecimal!
+  totalAsset1LiquidityRemoved: BigDecimal!
   liquidityHistory: [LiquidityHistoryItem!] @derivedFrom(field: "userLiquidityHistory")
 }
 
@@ -27,10 +27,10 @@ type LiquidityHistoryItem @entity {
   type: LiquidityHistoryType! # Added or removed
   provider: String! # address
   reserveToken: Token! # address
-  amount: BigInt! # uint256
-  newBalance: BigInt! # uint256
-  newSupply: BigInt! # uint256
-  timestamp: BigInt!
+  amount: BigDecimal! # uint256
+  newBalance: BigDecimal! # uint256
+  newSupply: BigDecimal! # uint256
+  timestamp: Int!
   liquidityPool: LiquidityPool!
   emittedBy: String! #address
   transaction: Transaction!

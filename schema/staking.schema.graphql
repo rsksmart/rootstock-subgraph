@@ -2,10 +2,10 @@ type TokensStaked @entity {
   id: ID!
   user: User
   staker: Bytes! # address
-  amount: BigInt! # uint256
-  lockedUntil: BigInt! # uint256
-  totalStaked: BigInt! # uint256
-  timestamp: BigInt!
+  amount: BigDecimal! # uint256
+  lockedUntil: Int! # uint256
+  totalStaked: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
   isUserStaked: Boolean!
@@ -17,9 +17,9 @@ type UserStakeHistory @entity {
   id: ID! # id is user
   user: User!
   stakeHistory: [StakeHistoryItem!] @derivedFrom(field: "user")
-  totalStaked: BigInt!
-  totalWithdrawn: BigInt!
-  totalRemaining: BigInt!
+  totalStaked: BigDecimal!
+  totalWithdrawn: BigDecimal!
+  totalRemaining: BigDecimal!
 }
 
 enum StakeHistoryAction {
@@ -36,10 +36,10 @@ type StakeHistoryItem @entity {
   id: ID! # transaction hash
   user: UserStakeHistory!
   action: StakeHistoryAction!
-  timestamp: BigInt!
+  timestamp: Int!
   transaction: Transaction!
-  amount: BigInt
-  lockedUntil: BigInt
+  amount: BigDecimal
+  lockedUntil: Int
 }
 
 # This event is emitted when tokens are transferred to the Protocol contract as fees
@@ -49,5 +49,5 @@ type FeeSharingTokensTransferred @entity {
   id: ID! # ID is tx hash - it can't be tx hash + log index because we need to load on tx hash
   sender: Bytes!
   token: Bytes!
-  amount: BigInt!
+  amount: BigDecimal!
 }

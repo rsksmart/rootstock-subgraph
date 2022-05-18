@@ -5,31 +5,37 @@ type Proposal @entity {
   canceled: Transaction
   executed: Transaction
   queued: Transaction
-  votesFor: BigInt!
+  votesFor: BigInt! # No need to decimalize
   votesAgainst: BigInt!
-  countVotersFor: BigInt!
-  countVotersAgainst: BigInt!
+  """
+  Number of unique wallets that voted for this proposal
+  """
+  countVotersFor: Int!
+    """
+  Number of unique wallets that voted against this proposal
+  """
+  countVotersAgainst: Int!
   votes: [VoteCast!] @derivedFrom(field: "proposal")
-  proposalId: BigInt!
+  proposalId: Int!
   proposer: Bytes! # address
   targets: [String!]! # address[]
-  values: [BigInt!]! # uint256[]
+  values: [BigInt!]! # uint256[] TODO: Remo
   signatures: [String!]! # string[]
-  startBlock: BigInt! # uint256
-  endBlock: BigInt! # uint256
+  startBlock: Int! # uint256
+  endBlock: Int! # uint256
   description: String! # string
-  timestamp: BigInt!
+  timestamp: Int!
   emittedBy: Bytes! #address
 }
 
 type VoteCast @entity {
   id: ID!
   voter: User! # address
-  proposalId: BigInt! # uint256
+  proposalId: Int! # uint256
   proposal: Proposal!
   support: Boolean! # bool
   votes: BigInt! # uint256
-  timestamp: BigInt!
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }

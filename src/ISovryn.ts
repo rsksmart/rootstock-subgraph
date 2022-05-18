@@ -34,17 +34,22 @@ import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templa
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnLoan, LoanStartState, updateLoanReturnPnL, ChangeLoanState, LoanActionType } from './utils/Loan'
 import { BigDecimal, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
-import { createAndReturnUser } from './utils/User'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
 import { convertToUsd } from './utils/Prices'
-import { decimal } from '@protofire/subgraph-toolkit'
+import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 import { createAndReturnLendingPool } from './utils/LendingPool'
 import { RewardsEarnedAction } from './utils/types'
 
 export function handleBorrow(event: BorrowEvent): void {
-  let transaction = createAndReturnTransaction(event)
-
+  createAndReturnTransaction(event)
   let entity = new Borrow(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  const newPrincipal = decimal.fromBigInt(event.params.newPrincipal, DEFAULT_DECIMALS)
+  const newCollateral = decimal.fromBigInt(event.params.newCollateral, DEFAULT_DECIMALS)
+  const interestRate = decimal.fromBigInt(event.params.interestRate, DEFAULT_DECIMALS)
+  const interestDuration = decimal.fromBigInt(event.params.interestDuration, DEFAULT_DECIMALS)
+  const collateralToLoanRate = decimal.fromBigInt(event.params.collateralToLoanRate, DEFAULT_DECIMALS)
+  const currentMargin = decimal.fromBigInt(event.params.currentMargin, DEFAULT_DECIMALS)
+
   let loanParams: LoanStartState = {
     loanId: event.params.loanId,
     type: 'Borrow',
@@ -52,9 +57,9 @@ export function handleBorrow(event: BorrowEvent): void {
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
-    borrowedAmount: decimal.fromBigInt(event.params.newPrincipal, 18),
-    positionSize: decimal.fromBigInt(event.params.newCollateral, 18),
-    startRate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
+    borrowedAmount: newPrincipal,
+    positionSize: newCollateral,
+    startRate: collateralToLoanRate,
   }
   createAndReturnLoan(loanParams)
   entity.user = event.params.user.toHexString()
@@ -62,13 +67,13 @@ export function handleBorrow(event: BorrowEvent): void {
   entity.loanId = event.params.loanId.toHexString()
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
-  entity.newPrincipal = event.params.newPrincipal
-  entity.newCollateral = event.params.newCollateral
-  entity.interestRate = event.params.interestRate
-  entity.interestDuration = event.params.interestDuration
-  entity.collateralToLoanRate = event.params.collateralToLoanRate
-  entity.currentMargin = event.params.currentMargin
-
+  entity.newPrincipal = newPrincipal
+  entity.newCollateral = newCollateral
+  entity.interestRate = interestRate
+  entity.interestDuration = interestDuration
+  entity.collateralToLoanRate = collateralToLoanRate
+  entity.currentMargin = currentMargin
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
@@ -85,6 +90,12 @@ export function handleBorrow(event: BorrowEvent): void {
 
 /** Close from a Borrow Event */
 export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
+  const repayAmount = decimal.fromBigInt(event.params.repayAmount, DEFAULT_DECIMALS)
+  /** Collateral withdraw amount is in collateral tokens. Reduces Collateral amount */
+  const collateralWithdrawAmount = decimal.fromBigInt(event.params.collateralWithdrawAmount, DEFAULT_DECIMALS)
+  const collateralToLoanRate = decimal.fromBigInt(event.params.collateralToLoanRate, DEFAULT_DECIMALS)
+  const currentMargin = decimal.fromBigInt(event.params.currentMargin, DEFAULT_DECIMALS)
+
   let entity = new CloseWithDeposit(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.user = event.params.user
   entity.lender = event.params.lender
@@ -93,11 +104,11 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
   /** Repay amount is in loan tokens. Reduces Borrowed amount */
-  entity.repayAmount = event.params.repayAmount
+  entity.repayAmount = repayAmount
   /** Collateral withdraw amount is in collateral tokens. Reduces Collateral amount */
-  entity.collateralWithdrawAmount = event.params.collateralWithdrawAmount
-  entity.collateralToLoanRate = event.params.collateralToLoanRate
-  entity.currentMargin = event.params.currentMargin
+  entity.collateralWithdrawAmount = collateralWithdrawAmount
+  entity.collateralToLoanRate = collateralToLoanRate
+  entity.currentMargin = currentMargin
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -106,10 +117,10 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.repayAmount, 18)),
-    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.collateralWithdrawAmount, 18)),
+    borrowedAmountChange: BigDecimal.zero().minus(repayAmount),
+    positionSizeChange: BigDecimal.zero().minus(collateralWithdrawAmount),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
+    rate: decimal.ONE.div(collateralToLoanRate),
     type: LoanActionType.SELL,
     timestamp: event.block.timestamp,
   }
@@ -126,6 +137,12 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
 
 /** Close from Trade Event */
 export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
+  const positionCloseSize = decimal.fromBigInt(event.params.positionCloseSize, DEFAULT_DECIMALS)
+  /** Loan close amount is in loan tokens */
+  const loanCloseAmount = decimal.fromBigInt(event.params.loanCloseAmount, DEFAULT_DECIMALS)
+  const exitPrice = decimal.fromBigInt(event.params.exitPrice, DEFAULT_DECIMALS)
+  const currentLeverage = decimal.fromBigInt(event.params.currentLeverage, DEFAULT_DECIMALS)
+
   let entity = new CloseWithSwap(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.user = event.params.user
   entity.lender = event.params.lender
@@ -134,11 +151,11 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
   entity.loanToken = event.params.loanToken
   entity.closer = event.params.closer
   /** Position close size is in collateral tokens */
-  entity.positionCloseSize = event.params.positionCloseSize
+  entity.positionCloseSize = positionCloseSize
   /** Loan close amount is in loan tokens */
-  entity.loanCloseAmount = event.params.loanCloseAmount
-  entity.exitPrice = event.params.exitPrice
-  entity.currentLeverage = event.params.currentLeverage
+  entity.loanCloseAmount = loanCloseAmount
+  entity.exitPrice = exitPrice
+  entity.currentLeverage = currentLeverage
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -147,10 +164,10 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.loanCloseAmount, 18)),
-    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.positionCloseSize, 18)),
+    borrowedAmountChange: BigDecimal.zero().minus(loanCloseAmount),
+    positionSizeChange: BigDecimal.zero().minus(positionCloseSize),
     isOpen: event.params.currentLeverage.gt(BigInt.zero()) ? true : false,
-    rate: decimal.fromBigInt(event.params.exitPrice, 18),
+    rate: exitPrice,
     type: LoanActionType.SELL,
     timestamp: event.block.timestamp,
   }
@@ -166,10 +183,13 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
 }
 
 export function handleDepositCollateral(event: DepositCollateralEvent): void {
+  const depositAmount = decimal.fromBigInt(event.params.depositAmount, DEFAULT_DECIMALS)
+  const rate = decimal.fromBigInt(event.params.rate, DEFAULT_DECIMALS)
+
   let entity = new DepositCollateral(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.loanId = event.params.loanId.toHexString()
-  entity.depositAmount = event.params.depositAmount
-  entity.rate = event.params.rate
+  entity.depositAmount = depositAmount
+  entity.rate = rate
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -179,9 +199,9 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
     borrowedAmountChange: BigDecimal.zero(),
-    positionSizeChange: decimal.fromBigInt(event.params.depositAmount, 18),
+    positionSizeChange: depositAmount,
     isOpen: true,
-    rate: decimal.fromBigInt(event.params.rate, 18),
+    rate: rate,
     type: LoanActionType.NEUTRAL,
     timestamp: event.block.timestamp,
   }
@@ -193,7 +213,7 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
 export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEvent): void {
   let entity = new DepositCollateral(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.loanId = event.params.loanId.toHexString()
-  entity.depositAmount = event.params.depositAmount
+  entity.depositAmount = decimal.fromBigInt(event.params.depositAmount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -203,7 +223,7 @@ export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEven
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
     borrowedAmountChange: BigDecimal.zero(),
-    positionSizeChange: decimal.fromBigInt(event.params.depositAmount),
+    positionSizeChange: decimal.fromBigInt(event.params.depositAmount, DEFAULT_DECIMALS),
     isOpen: true,
     rate: decimal.ONE, //This is a placeholder, this value is not used for DepositCollateral events
     type: LoanActionType.NEUTRAL,
@@ -215,18 +235,20 @@ export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEven
 }
 
 export function handleEarnReward(event: EarnRewardEvent): void {
+  const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+
   createAndReturnTransaction(event)
   let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.receiver.toHexString())
   if (userRewardsEarnedHistory != null) {
-    userRewardsEarnedHistory.availableRewardSov = userRewardsEarnedHistory.availableRewardSov.plus(event.params.amount)
-    userRewardsEarnedHistory.availableTradingRewards = userRewardsEarnedHistory.availableTradingRewards.plus(event.params.amount)
-    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(event.params.amount)
+    userRewardsEarnedHistory.availableRewardSov = userRewardsEarnedHistory.availableRewardSov.plus(amount)
+    userRewardsEarnedHistory.availableTradingRewards = userRewardsEarnedHistory.availableTradingRewards.plus(amount)
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(amount)
     userRewardsEarnedHistory.save()
   } else {
     userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params.receiver.toHexString())
-    userRewardsEarnedHistory.availableRewardSov = event.params.amount
-    userRewardsEarnedHistory.availableTradingRewards = event.params.amount
-    userRewardsEarnedHistory.totalFeesAndRewardsEarned = event.params.amount
+    userRewardsEarnedHistory.availableRewardSov = amount
+    userRewardsEarnedHistory.availableTradingRewards = amount
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = amount
     userRewardsEarnedHistory.user = event.params.receiver.toHexString()
     userRewardsEarnedHistory.save()
   }
@@ -234,8 +256,8 @@ export function handleEarnReward(event: EarnRewardEvent): void {
   let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsEarnedHistoryItem.action = RewardsEarnedAction.EarnReward
   rewardsEarnedHistoryItem.user = event.params.receiver.toHexString()
-  rewardsEarnedHistoryItem.amount = event.params.amount
-  rewardsEarnedHistoryItem.timestamp = event.block.timestamp
+  rewardsEarnedHistoryItem.amount = amount
+  rewardsEarnedHistoryItem.timestamp = event.block.timestamp.toI32()
   rewardsEarnedHistoryItem.transaction = event.transaction.hash.toHexString()
   rewardsEarnedHistoryItem.save()
 }
@@ -250,6 +272,11 @@ export function handleExternalSwap(event: ExternalSwapEvent): void {
 }
 
 export function handleLiquidate(event: LiquidateEvent): void {
+  const repayAmount = decimal.fromBigInt(event.params.repayAmount, DEFAULT_DECIMALS)
+  const collateralWithdrawAmount = decimal.fromBigInt(event.params.collateralWithdrawAmount, DEFAULT_DECIMALS)
+  const collateralToLoanRate = decimal.fromBigInt(event.params.collateralToLoanRate, DEFAULT_DECIMALS)
+  const currentMargin = decimal.fromBigInt(event.params.currentMargin, DEFAULT_DECIMALS)
+
   let entity = new Liquidate(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.user = event.params.user.toHexString()
   entity.liquidator = event.params.liquidator
@@ -257,10 +284,10 @@ export function handleLiquidate(event: LiquidateEvent): void {
   entity.lender = event.params.lender
   entity.loanToken = event.params.loanToken
   entity.collateralToken = event.params.collateralToken
-  entity.repayAmount = event.params.repayAmount
-  entity.collateralWithdrawAmount = event.params.collateralWithdrawAmount
-  entity.collateralToLoanRate = event.params.collateralToLoanRate
-  entity.currentMargin = event.params.currentMargin
+  entity.repayAmount = repayAmount
+  entity.collateralWithdrawAmount = collateralWithdrawAmount
+  entity.collateralToLoanRate = collateralToLoanRate
+  entity.currentMargin = currentMargin
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -269,10 +296,10 @@ export function handleLiquidate(event: LiquidateEvent): void {
 
   let changeParams: ChangeLoanState = {
     loanId: event.params.loanId.toHexString(),
-    borrowedAmountChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.repayAmount, 18)),
-    positionSizeChange: BigDecimal.zero().minus(decimal.fromBigInt(event.params.collateralWithdrawAmount)),
+    borrowedAmountChange: BigDecimal.zero().minus(repayAmount),
+    positionSizeChange: BigDecimal.zero().minus(collateralWithdrawAmount),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: decimal.ONE.div(decimal.fromBigInt(event.params.collateralToLoanRate, 18)),
+    rate: decimal.ONE.div(collateralToLoanRate),
     type: LoanActionType.SELL,
     timestamp: event.block.timestamp,
   }
@@ -294,7 +321,7 @@ export function handlePayBorrowingFee(event: PayBorrowingFeeEvent): void {
   entity.payer = event.params.payer
   entity.token = event.params.token
   entity.loanId = event.params.loanId.toHexString()
-  entity.amount = event.params.amount
+  entity.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -314,7 +341,7 @@ export function handlePayLendingFee(event: PayLendingFeeEvent): void {
   let entity = new PayLendingFee(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.payer = event.params.payer
   entity.token = event.params.token
-  entity.amount = event.params.amount
+  entity.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -337,7 +364,7 @@ export function handlePayTradingFee(event: PayTradingFeeEvent): void {
   entity.payer = event.params.payer
   entity.token = event.params.token
   entity.loanId = event.params.loanId.toHexString()
-  entity.amount = event.params.amount
+  entity.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
@@ -367,7 +394,14 @@ export function handleSetLoanPool(event: SetLoanPoolEvent): void {
 export function handleSetWrbtcToken(event: SetWrbtcTokenEvent): void {}
 
 export function handleTrade(event: TradeEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const positionSize = decimal.fromBigInt(event.params.positionSize, DEFAULT_DECIMALS)
+  const borrowedAmount = decimal.fromBigInt(event.params.borrowedAmount, DEFAULT_DECIMALS)
+  const interestRate = decimal.fromBigInt(event.params.interestRate, DEFAULT_DECIMALS)
+  const entryPrice = decimal.fromBigInt(event.params.entryPrice, DEFAULT_DECIMALS)
+  const entryLeverage = decimal.fromBigInt(event.params.entryLeverage, DEFAULT_DECIMALS)
+  const currentLeverage = decimal.fromBigInt(event.params.currentLeverage, DEFAULT_DECIMALS)
+
+  createAndReturnTransaction(event)
 
   let entity = new Trade(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   let loanParams: LoanStartState = {
@@ -377,9 +411,9 @@ export function handleTrade(event: TradeEvent): void {
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
-    borrowedAmount: decimal.fromBigInt(event.params.borrowedAmount, 18),
-    positionSize: decimal.fromBigInt(event.params.positionSize, 18),
-    startRate: decimal.fromBigInt(event.params.entryPrice, 18),
+    borrowedAmount: borrowedAmount,
+    positionSize: positionSize,
+    startRate: entryPrice,
   }
   createAndReturnLoan(loanParams)
   let swapEntity = Swap.load(event.transaction.hash.toHexString())
@@ -394,15 +428,16 @@ export function handleTrade(event: TradeEvent): void {
   entity.collateralToken = event.params.collateralToken.toHexString()
   entity.loanToken = event.params.loanToken.toHexString()
   /** In Collteral tokens */
-  entity.positionSize = event.params.positionSize
+  entity.positionSize = positionSize
   /** In Loan tokens */
-  entity.borrowedAmount = event.params.borrowedAmount
-  entity.interestRate = event.params.interestRate
-  entity.settlementDate = event.params.settlementDate
-  entity.entryPrice = event.params.entryPrice
-  entity.entryLeverage = event.params.entryLeverage
-  entity.currentLeverage = event.params.currentLeverage
+  entity.borrowedAmount = borrowedAmount
+  entity.interestRate = interestRate
+  entity.settlementDate = event.params.settlementDate.toI32()
+  entity.entryPrice = entryPrice
+  entity.entryLeverage = entryLeverage
+  entity.currentLeverage = currentLeverage
 
+  let transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address

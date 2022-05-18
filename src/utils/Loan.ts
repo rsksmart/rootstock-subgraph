@@ -2,9 +2,9 @@
  * This file is a work in progress - the goal is to have all PnL calculations and ot
  */
 
-import { BigDecimal, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { Loan } from '../../generated/schema'
-import { integer, decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
+import { decimal } from '@protofire/subgraph-toolkit'
 export class LoanStartState {
   loanId: Bytes
   user: Bytes
@@ -41,7 +41,7 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity = new Loan(startParams.loanId.toHexString())
     loanEntity.type = startParams.type
     loanEntity.isOpen = true
-    loanEntity.startTimestamp = startParams.startTimestamp
+    loanEntity.startTimestamp = startParams.startTimestamp.toI32()
     loanEntity.user = startParams.user.toHexString()
     loanEntity.collateralToken = startParams.collateralToken.toHexString()
     loanEntity.loanToken = startParams.loanToken.toHexString()
@@ -70,7 +70,7 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
     loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
     loanEntity.isOpen = params.isOpen
     if (params.isOpen == false) {
-      loanEntity.endTimestamp = params.timestamp
+      loanEntity.endTimestamp = params.timestamp.toI32()
     }
     if (loanEntity.positionSize.gt(loanEntity.maximumPositionSize)) {
       loanEntity.maximumPositionSize = loanEntity.positionSize

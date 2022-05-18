@@ -3,8 +3,8 @@
 type Deposit @entity {
   id: ID!
   to: Bytes! # address
-  amount: BigInt! # uint256
-  timestamp: BigInt!
+  amount: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
@@ -13,7 +13,7 @@ type MarginOrderCanceled @entity {
   id: ID!
   hash: Bytes! # bytes32
   trader: Bytes! # address
-  timestamp: BigInt!
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
@@ -22,15 +22,15 @@ type MarginOrderFilled @entity {
   id: ID!
   hash: Bytes! # bytes32
   trader: User! # address
-  principal: BigInt! # uint256
-  collateral: BigInt! # uint256
-  leverageAmount: BigInt! # uint256
+  principal: BigDecimal! # uint256
+  collateral: BigDecimal! # uint256
+  leverageAmount: BigDecimal! # uint256
   loanTokenAddress: Bytes! # address
-  loanTokenSent: BigInt! # uint256
-  collateralTokenSent: BigInt! # uint256
+  loanTokenSent: BigDecimal! # uint256
+  collateralTokenSent: BigDecimal! # uint256
   collateralTokenAddress: Bytes! # address
-  filledPrice: BigInt! # uint256
-  timestamp: BigInt!
+  filledPrice: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
@@ -39,7 +39,7 @@ type OrderCanceled @entity {
   id: ID!
   hash: Bytes! # bytes32
   maker: Bytes! # address
-  timestamp: BigInt!
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
@@ -48,11 +48,11 @@ type OrderFilled @entity {
   id: ID!
   hash: Bytes! # bytes32
   maker: User! # address
-  amountIn: BigInt! # uint256
-  amountOut: BigInt! # uint256
+  amountIn: BigDecimal! # uint256
+  amountOut: BigDecimal! # uint256
   path: [String!]! # address[]
-  filledPrice: BigInt! # uint256
-  timestamp: BigInt!
+  filledPrice: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
@@ -60,8 +60,8 @@ type OrderFilled @entity {
 type Withdrawal @entity {
   id: ID!
   receiver: Bytes! # address
-  amount: BigInt! # uint256
-  timestamp: BigInt!
+  amount: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }

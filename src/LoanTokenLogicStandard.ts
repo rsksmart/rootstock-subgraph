@@ -1,10 +1,12 @@
 import { Burn as BurnEvent, FlashBorrow as FlashBorrowEvent, Mint as MintEvent } from '../generated/templates/LoanTokenLogicStandard/LoanTokenLogicStandard'
 import { UserLendingHistory, LendingHistoryItem, LendingPool } from '../generated/schema'
 import { createAndReturnTransaction } from './utils/Transaction'
-import { Address, BigInt, dataSource } from '@graphprotocol/graph-ts'
+import { createAndReturnUser } from './utils/User'
+import { Address, BigDecimal, BigInt, dataSource } from '@graphprotocol/graph-ts'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
 import { convertToUsd } from './utils/Prices'
 import { LendingHistoryType } from './utils/types'
+import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 
 export function handleBurn(event: BurnEvent): void {
   createAndReturnTransaction(event)
@@ -13,9 +15,12 @@ export function handleBurn(event: BurnEvent): void {
   let underlyingAsset = context.getString('underlyingAsset')
   const userAddress = event.params.burner.toHexString()
 
+  const assetAmount = decimal.fromBigInt(event.params.assetAmount, DEFAULT_DECIMALS)
+  const tokenAmount = decimal.fromBigInt(event.params.tokenAmount, DEFAULT_DECIMALS)
+
   let userHistoryEntity = UserLendingHistory.load(userAddress + dataSource.address().toHexString())
   if (userHistoryEntity != null) {
-    userHistoryEntity.totalUnlendVolume = userHistoryEntity.totalUnlendVolume.plus(event.params.assetAmount)
+    userHistoryEntity.totalUnlendVolume = userHistoryEntity.totalUnlendVolume.plus(assetAmount)
     userHistoryEntity.save()
   }
 
@@ -29,14 +34,14 @@ export function handleBurn(event: BurnEvent): void {
   if (underlyingAsset != null) {
     lendingHistoryItem.asset = underlyingAsset
   }
-  lendingHistoryItem.amount = event.params.assetAmount
-  lendingHistoryItem.loanTokenAmount = event.params.tokenAmount
+  lendingHistoryItem.amount = assetAmount
+  lendingHistoryItem.loanTokenAmount = tokenAmount
   lendingHistoryItem.save()
 
   let lendingPoolEntity = LendingPool.load(event.address.toHexString())
   if (lendingPoolEntity != null) {
-    lendingPoolEntity.poolTokenBalance = lendingPoolEntity.poolTokenBalance.minus(event.params.tokenAmount)
-    lendingPoolEntity.assetBalance = lendingPoolEntity.assetBalance.minus(event.params.assetAmount)
+    lendingPoolEntity.poolTokenBalance = lendingPoolEntity.poolTokenBalance.minus(tokenAmount)
+    lendingPoolEntity.assetBalance = lendingPoolEntity.assetBalance.minus(assetAmount)
     lendingPoolEntity.save()
   }
 
@@ -58,16 +63,19 @@ export function handleMint(event: MintEvent): void {
   let underlyingAsset = context.getString('underlyingAsset')
   const userAddress = event.params.minter.toHexString()
 
+  const assetAmount = decimal.fromBigInt(event.params.assetAmount, DEFAULT_DECIMALS)
+  const tokenAmount = decimal.fromBigInt(event.params.tokenAmount, DEFAULT_DECIMALS)
+
   let userHistoryEntity = UserLendingHistory.load(userAddress + dataSource.address().toHexString())
   if (userHistoryEntity != null) {
-    userHistoryEntity.totalLendVolume = userHistoryEntity.totalLendVolume.plus(event.params.assetAmount)
+    userHistoryEntity.totalLendVolume = userHistoryEntity.totalLendVolume.plus(assetAmount)
     userHistoryEntity.save()
   } else {
     userHistoryEntity = new UserLendingHistory(userAddress + dataSource.address().toHexString())
     userHistoryEntity.user = userAddress
     userHistoryEntity.lendingPool = dataSource.address().toHexString()
-    userHistoryEntity.totalLendVolume = event.params.assetAmount
-    userHistoryEntity.totalUnlendVolume = BigInt.zero()
+    userHistoryEntity.totalLendVolume = assetAmount
+    userHistoryEntity.totalUnlendVolume = BigDecimal.zero()
     userHistoryEntity.save()
   }
 
@@ -81,15 +89,15 @@ export function handleMint(event: MintEvent): void {
   if (underlyingAsset != null) {
     lendingHistoryItem.asset = underlyingAsset
   }
-  lendingHistoryItem.amount = event.params.assetAmount
-  lendingHistoryItem.loanTokenAmount = event.params.tokenAmount
+  lendingHistoryItem.amount = assetAmount
+  lendingHistoryItem.loanTokenAmount = tokenAmount
   lendingHistoryItem.save()
 
   let lendingPoolEntity = LendingPool.load(event.address.toHexString())
   if (lendingPoolEntity != null) {
-    lendingPoolEntity.poolTokenBalance = lendingPoolEntity.poolTokenBalance.plus(event.params.tokenAmount)
-    lendingPoolEntity.assetBalance = lendingPoolEntity.assetBalance.plus(event.params.assetAmount)
-    lendingPoolEntity.totalAssetLent = lendingPoolEntity.totalAssetLent.plus(event.params.assetAmount)
+    lendingPoolEntity.poolTokenBalance = lendingPoolEntity.poolTokenBalance.plus(tokenAmount)
+    lendingPoolEntity.assetBalance = lendingPoolEntity.assetBalance.plus(assetAmount)
+    lendingPoolEntity.totalAssetLent = lendingPoolEntity.totalAssetLent.plus(assetAmount)
     lendingPoolEntity.save()
   }
 

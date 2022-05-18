@@ -26,15 +26,15 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
   proposalEntity.created = event.transaction.hash.toHex()
   proposalEntity.votesFor = BigInt.zero()
   proposalEntity.votesAgainst = BigInt.zero()
-  proposalEntity.countVotersFor = BigInt.zero()
-  proposalEntity.countVotersAgainst = BigInt.zero()
-  proposalEntity.proposalId = event.params.id
+  proposalEntity.countVotersFor = 0
+  proposalEntity.countVotersAgainst = 0
+  proposalEntity.proposalId = event.params.id.toI32()
   proposalEntity.proposer = event.params.proposer
   proposalEntity.targets = event.params.targets.map<string>((item) => item.toHexString())
   proposalEntity.values = event.params.values
   proposalEntity.signatures = event.params.signatures
-  proposalEntity.startBlock = event.params.startBlock
-  proposalEntity.endBlock = event.params.endBlock
+  proposalEntity.startBlock = event.params.startBlock.toI32()
+  proposalEntity.endBlock = event.params.endBlock.toI32()
   proposalEntity.description = event.params.description
   proposalEntity.timestamp = transaction.timestamp
   proposalEntity.emittedBy = event.address
@@ -67,7 +67,7 @@ export function handleVoteCast(event: VoteCastEvent): void {
   let entity = new VoteCast(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
 
   entity.voter = event.params.voter.toHexString()
-  entity.proposalId = event.params.proposalId
+  entity.proposalId = event.params.proposalId.toI32()
   entity.proposal = event.address.toHexString() + '-' + event.params.proposalId.toHexString()
   entity.support = event.params.support
   entity.votes = event.params.votes
@@ -82,10 +82,10 @@ export function handleVoteCast(event: VoteCastEvent): void {
   if (proposalEntity != null) {
     if (event.params.support == true) {
       proposalEntity.votesFor = proposalEntity.votesFor.plus(event.params.votes)
-      proposalEntity.countVotersFor = proposalEntity.countVotersFor.plus(BigInt.fromI32(1))
+      proposalEntity.countVotersFor++
     } else if (event.params.support == false) {
       proposalEntity.votesAgainst = proposalEntity.votesAgainst.plus(event.params.votes)
-      proposalEntity.countVotersAgainst = proposalEntity.countVotersAgainst.plus(BigInt.fromI32(1))
+      proposalEntity.countVotersAgainst++
     }
     proposalEntity.save()
   }

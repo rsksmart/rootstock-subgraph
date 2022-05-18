@@ -11,7 +11,7 @@ type User @entity {
   """
   Timestamp of User's first interaction with the protocol (first transaction)
   """
-  createdAtTimestamp: BigInt!
+  createdAtTimestamp: Int!
   """
   Swaps here refers to only user-triggered swaps. For example, a swap that is part of a margin trade would not be included.
   Swaps involving multiple amm pools are stored as a single swap, comprised of multiple Conversion events

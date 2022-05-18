@@ -10,3 +10,5 @@ export const stakingFish = '{{StakingFish.address}}'
 export const stablecoins = stringToArray('{{stablecoins}}')
 export const adminContracts = stringToArray('{{adminContracts}}')
 export const liquidityPoolV1ChangeBlock = {{blockNumbers.liquidityPoolV1Converter.V2}}
+export const orderbookTestnet = '{{OrderbookTestnet.address}}'
+export const orderbookMainnet = '{{OrderbookMainnet.address}}'

@@ -12,12 +12,12 @@ enum VestingContractType {
 type VestingContract @entity {
   id: ID! # vesting contract id
   user: User!
-  createdAtTimestamp: BigInt!
-  cliff: BigInt # uint256
-  duration: BigInt # uint256
-  startingBalance: BigInt! # uint256
-  currentBalance: BigInt!
-  type: VestingContractType
+  createdAtTimestamp: Int!
+  cliff: Int # uint256
+  duration: Int # uint256
+  startingBalance: BigDecimal! # uint256
+  currentBalance: BigDecimal!
+  type: VestingContractType!
   emittedBy: Bytes!
   createdAtTransaction: Transaction!
   stakeHistory: [VestingHistoryItem!] @derivedFrom(field: "staker")
@@ -33,10 +33,10 @@ type VestingHistoryItem @entity {
   id: ID!
   action: VestingHistoryItemAction!
   staker: VestingContract!
-  amount: BigInt! # uint256
-  lockedUntil: BigInt! # uint256
-  totalStaked: BigInt! # uint256
-  timestamp: BigInt!
+  amount: BigDecimal! # uint256
+  lockedUntil: Int! # uint256
+  totalStaked: BigDecimal! # uint256
+  timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }

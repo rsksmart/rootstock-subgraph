@@ -11,11 +11,12 @@ import {
 } from '../generated/VestingRegistry1/VestingRegistry'
 import { VestingCreated as VestingCreatedProxyEvent, TeamVestingCreated as TeamVestingCreatedProxyEvent } from '../generated/VestingRegistryProxy/VestingProxy'
 import { VestingContract } from '../generated/schema'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { vestingRegistry1, vestingRegistry2, vestingRegistry3, vestingRegistryFish } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
 import { VestingContractType } from './utils/types'
+import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
 
 export function handleAdminAdded(event: AdminAddedEvent): void {}
 
@@ -47,10 +48,10 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
     let entity = new VestingContract(event.params.vesting.toHexString())
     let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
-    entity.cliff = event.params.cliff
-    entity.duration = event.params.duration
-    entity.startingBalance = event.params.amount
-    entity.currentBalance = BigInt.zero()
+    entity.cliff = event.params.cliff.toI32()
+    entity.duration = event.params.duration.toI32()
+    entity.startingBalance = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+    entity.currentBalance = BigDecimal.zero()
     let transaction = createAndReturnTransaction(event)
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
@@ -70,10 +71,10 @@ export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedProxyEven
     let entity = new VestingContract(event.params.vesting.toHexString())
     let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
-    entity.cliff = event.params.cliff
-    entity.duration = event.params.duration
-    entity.startingBalance = event.params.amount
-    entity.currentBalance = BigInt.zero()
+    entity.cliff = event.params.cliff.toI32()
+    entity.duration = event.params.duration.toI32()
+    entity.startingBalance = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+    entity.currentBalance = BigDecimal.zero()
     let transaction = createAndReturnTransaction(event)
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
@@ -91,10 +92,10 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
     let entity = new VestingContract(event.params.vesting.toHexString())
     let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
-    entity.cliff = event.params.cliff
-    entity.duration = event.params.duration
-    entity.startingBalance = event.params.amount
-    entity.currentBalance = BigInt.zero()
+    entity.cliff = event.params.cliff.toI32()
+    entity.duration = event.params.duration.toI32()
+    entity.startingBalance = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+    entity.currentBalance = BigDecimal.zero()
     let transaction = createAndReturnTransaction(event)
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
@@ -110,10 +111,10 @@ export function handleVestingCreatedProxy(event: VestingCreatedProxyEvent): void
     let entity = new VestingContract(event.params.vesting.toHexString())
     let user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
-    entity.cliff = event.params.cliff
-    entity.duration = event.params.duration
-    entity.startingBalance = event.params.amount
-    entity.currentBalance = BigInt.zero()
+    entity.cliff = event.params.cliff.toI32()
+    entity.duration = event.params.duration.toI32()
+    entity.startingBalance = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+    entity.currentBalance = BigDecimal.zero()
     let transaction = createAndReturnTransaction(event)
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp

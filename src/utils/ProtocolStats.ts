@@ -1,13 +1,12 @@
 import { BigDecimal, BigInt, Address } from '@graphprotocol/graph-ts'
 import { ProtocolStats, UserTotal } from '../../generated/schema'
-import { USDTAddress } from '../contracts/contracts'
 import { stablecoins } from '../contracts/contracts'
 
 export function createAndReturnProtocolStats(): ProtocolStats {
   let protocolStatsEntity = ProtocolStats.load('0')
   if (protocolStatsEntity == null) {
     protocolStatsEntity = new ProtocolStats('0')
-    protocolStatsEntity.totalUsers = BigInt.zero()
+    protocolStatsEntity.totalUsers = 0
     protocolStatsEntity.totalMarginTradeVolumeUsd = BigDecimal.zero()
     protocolStatsEntity.totalCloseWithSwapVolumeUsd = BigDecimal.zero()
     protocolStatsEntity.totalDepositCollateralVolumeUsd = BigDecimal.zero()
@@ -22,8 +21,8 @@ export function createAndReturnProtocolStats(): ProtocolStats {
     protocolStatsEntity.totalUnlendVolumeUsd = BigDecimal.zero()
     protocolStatsEntity.totalBorrowVolumeUsd = BigDecimal.zero()
     protocolStatsEntity.totalCloseWithDepositVolumeUsd = BigDecimal.zero()
-    protocolStatsEntity.totalVoluntarilyStakedSov = BigInt.zero()
-    protocolStatsEntity.totalStakedByVestingSov = BigInt.zero()
+    protocolStatsEntity.currentVoluntarilyStakedSov = BigDecimal.zero()
+    protocolStatsEntity.currentStakedByVestingSov = BigDecimal.zero()
     protocolStatsEntity.btcUsdPrice = BigDecimal.zero()
     // TODO: this is hardcoded mainnet value, should be dynamic for testnet/mainnet somehow
     protocolStatsEntity.usdStablecoin = stablecoins[0]

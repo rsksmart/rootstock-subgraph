@@ -2,7 +2,7 @@ import { Address, bigDecimal, BigDecimal, BigInt, log } from '@graphprotocol/gra
 import { Token, LiquidityPoolToken, TokenSmartToken, ProtocolStats, PoolToken } from '../../generated/schema'
 import { ERC20 as ERC20TokenContract } from '../../generated/templates/LiquidityPoolV1Converter/ERC20'
 import { createAndReturnProtocolStats } from './ProtocolStats'
-import { decimal } from '@protofire/subgraph-toolkit'
+import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 import { stablecoins } from '../contracts/contracts'
 import { createAndReturnPoolToken } from './PoolToken'
 
@@ -73,4 +73,13 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
     protocolStats.save()
   }
   return token
+}
+
+export function decimalize(amount: BigInt, tokenAddress: Address): BigDecimal {
+  let tokenEntity = Token.load(tokenAddress.toHexString())
+  if(tokenEntity !== null) {
+    return decimal.fromBigInt(amount, tokenEntity.decimals)
+  } else {
+    return decimal.fromBigInt(amount, DEFAULT_DECIMALS)
+  }
 }

@@ -8,15 +8,15 @@ type UserRewardsEarnedHistory @entity {
   """
   This is the total of all EarnReward and RewardClaimed events
   """
-  totalFeesAndRewardsEarned: BigInt!
+  totalFeesAndRewardsEarned: BigDecimal!
   """
   This is incremented by EarnReward events, and set to 0 by TokensStaked events on the LockedSOV contract
   """
-  availableTradingRewards: BigInt!
+  availableTradingRewards: BigDecimal!
   """
   This is incremented by EarnReward and RewardClaimed events, and set to 0 by RewardWithdrawn events
   """
-  availableRewardSov: BigInt!
+  availableRewardSov: BigDecimal!
   rewardsEarnedHistory: [RewardsEarnedHistoryItem!] @derivedFrom(field: "user")
 }
 
@@ -32,7 +32,7 @@ type RewardsEarnedHistoryItem @entity {
   action: RewardsEarnedAction!
   user: UserRewardsEarnedHistory!
   token: Token
-  amount: BigInt!
-  timestamp: BigInt!
+  amount: BigDecimal!
+  timestamp: Int!
   transaction: Transaction!
 }

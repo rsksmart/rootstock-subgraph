@@ -34,12 +34,12 @@ export function handleLiquidityPoolAdded(event: LiquidityPoolAddedEvent): void {
   let converterRegistryEntity = ConverterRegistry.load(event.address.toHex())
   if (converterRegistryEntity == null) {
     converterRegistryEntity = new ConverterRegistry(event.address.toHex())
-    converterRegistryEntity.numConverters = BigInt.zero()
+    converterRegistryEntity.numConverters = 0
   }
-  converterRegistryEntity.lastUsedAtBlockTimestamp = event.block.timestamp
+  converterRegistryEntity.lastUsedAtBlockTimestamp = event.block.timestamp.toI32()
   converterRegistryEntity.lastUsedAtTransactionHash = event.transaction.hash.toHex()
-  converterRegistryEntity.lastUsedAtBlockNumber = event.block.number
-  converterRegistryEntity.numConverters = converterRegistryEntity.numConverters.plus(BigInt.fromI32(1))
+  converterRegistryEntity.lastUsedAtBlockNumber = event.block.number.toI32()
+  converterRegistryEntity.numConverters++
 
   converterRegistryEntity.save()
   entity.save()
@@ -84,10 +84,8 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
 
   const smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
 
-  if (smartTokenEntity.addedToRegistryBlockNumber === null) {
-    smartTokenEntity.addedToRegistryBlockNumber = event.block.number
-    smartTokenEntity.addedToRegistryTransactionHash = event.transaction.hash
-  }
+  smartTokenEntity.addedToRegistryBlockNumber = event.block.number.toI32()
+  smartTokenEntity.addedToRegistryTransactionHash = event.transaction.hash
 
   log.debug('Smart Token added to registry: {}', [smartTokenAddress.toHex()])
 

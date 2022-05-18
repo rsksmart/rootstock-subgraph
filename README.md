@@ -59,3 +59,4 @@ To set start blocks back to original state:
 ## Useful info
 
 * If you are having issues with postgres when building matchstick, delete the data/ directory from the subgraph root
+* The block numbers for Orderbook contracts on mainnet are set to blocks far in the future, because these contracts only exist on testnet

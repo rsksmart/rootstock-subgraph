@@ -3,8 +3,9 @@ import { UserRewardsEarnedHistory, RewardsEarnedHistoryItem } from '../generated
 
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 import { RewardsEarnedAction } from './utils/types'
+import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
 
 export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
   createAndReturnTransaction(event)
@@ -15,13 +16,13 @@ export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
 
   let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.receiver.toHexString())
   if (userRewardsEarnedHistory != null) {
-    userRewardsEarnedHistory.availableRewardSov = BigInt.zero()
+    userRewardsEarnedHistory.availableRewardSov = BigDecimal.zero()
     userRewardsEarnedHistory.save()
   } else {
     userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params.receiver.toHexString())
-    userRewardsEarnedHistory.availableRewardSov = BigInt.zero()
-    userRewardsEarnedHistory.availableTradingRewards = BigInt.zero()
-    userRewardsEarnedHistory.totalFeesAndRewardsEarned = BigInt.zero()
+    userRewardsEarnedHistory.availableRewardSov = BigDecimal.zero()
+    userRewardsEarnedHistory.availableTradingRewards = BigDecimal.zero()
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = BigDecimal.zero()
     userRewardsEarnedHistory.user = event.params.receiver.toHexString()
     userRewardsEarnedHistory.save()
   }
@@ -29,8 +30,8 @@ export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
   let rewardsHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   rewardsHistoryItem.action = RewardsEarnedAction.StakingRewardWithdrawn
   rewardsHistoryItem.user = event.params.receiver.toHexString()
-  rewardsHistoryItem.amount = event.params.amount
-  rewardsHistoryItem.timestamp = event.block.timestamp
+  rewardsHistoryItem.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+  rewardsHistoryItem.timestamp = event.block.timestamp.toI32()
   rewardsHistoryItem.transaction = event.transaction.hash.toHexString()
   rewardsHistoryItem.save()
 }
