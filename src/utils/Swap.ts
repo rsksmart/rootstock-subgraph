@@ -7,12 +7,12 @@ import { decimal } from '@protofire/subgraph-toolkit'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './ProtocolStats'
 
 export class ConversionEventForSwap {
-  transactionHash: Bytes
+  transactionHash: string
   fromToken: Address
   toToken: Address
   fromAmount: BigDecimal
   toAmount: BigDecimal
-  timestamp: BigInt
+  timestamp: i32
   user: Address
   trader: Address
   lpFee: BigDecimal
@@ -23,13 +23,13 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
   let userEntity: User | null = null
   /** Check if the trader property on the swap is the same as the caller of the tx. If it is, this is a user-instigated swap */
   if (event.user.toHexString() == event.trader.toHexString()) {
-    userEntity = createAndReturnUser(event.user, event.timestamp)
+    userEntity = createAndReturnUser(event.user, BigInt.fromI32(event.timestamp))
   }
-  let swapEntity = Swap.load(event.transactionHash.toHex())
+  let swapEntity = Swap.load(event.transactionHash)
 
   /** Create swap  */
   if (swapEntity == null) {
-    swapEntity = new Swap(event.transactionHash.toHexString())
+    swapEntity = new Swap(event.transactionHash)
     swapEntity.numConversions = 1
     swapEntity.fromToken = event.fromToken.toHexString()
     swapEntity.toToken = event.toToken.toHexString()
@@ -43,8 +43,8 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.isMarginTrade = false
     swapEntity.isBorrow = false
     swapEntity.isLimit = false
-    swapEntity.timestamp = event.timestamp.toI32()
-    swapEntity.transaction = event.transactionHash.toHexString()
+    swapEntity.timestamp = event.timestamp
+    swapEntity.transaction = event.transactionHash
   } else {
     /** Swap already exists - this means it has multiple conversion events */
     swapEntity.numConversions += 1
@@ -84,6 +84,7 @@ export function updatePricing(event: ConversionEventForSwap): void {
       btcAmount = event.toAmount
     } else {
       /** TODO: Handle case where neither token is rBTC for when AMM pools with non-rBTC tokens are introduced */
+      return
     }
 
     /** IF SWAP IS BTC/USDT: Update lastPriceUsd on BTC */
@@ -97,7 +98,7 @@ export function updatePricing(event: ConversionEventForSwap): void {
       BTCToken.prevPriceBtc = decimal.ONE
       BTCToken.lastPriceBtc = decimal.ONE
 
-      updateLastPriceUsdAll(event.timestamp)
+      updateLastPriceUsdAll()
     }
 
     if (token != null) {

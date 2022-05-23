@@ -1,13 +1,38 @@
-import { BigInt } from '@graphprotocol/graph-ts'
-import { SmartToken, Issuance, Destruction, Transfer, Approval, OwnerUpdate } from '../generated/templates/SmartToken/SmartToken'
-// import { ExampleEntity } from '../generated/schema'
+import { BigDecimal } from '@graphprotocol/graph-ts'
+import { SmartToken, LiquidityPool, OwnerUpdate } from '../generated/schema'
+import { OwnerUpdate as OwnerUpdateEvent } from '../generated/templates/SmartToken/SmartToken'
 
-export function handleIssuance(event: Issuance): void {}
+export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
+  let smartTokenEntity = SmartToken.load(event.address.toHexString())
+  let oldConverterEntity = LiquidityPool.load(event.params._prevOwner.toHexString())
+  let newConverterEntity = LiquidityPool.load(event.params._newOwner.toHexString())
 
-export function handleDestruction(event: Destruction): void {}
+  /** Trying to create a liquidity pool here always throws an error on the converterType method. I don't know why. */
 
-export function handleTransfer(event: Transfer): void {}
+  if (smartTokenEntity != null) {
+    smartTokenEntity.owner = event.params._newOwner.toHexString()
+    smartTokenEntity.save()
+  }
 
-export function handleApproval(event: Approval): void {}
+  if (oldConverterEntity !== null && newConverterEntity !== null) {
+    const registry = oldConverterEntity.currentConverterRegistry
+    const token0Balance = oldConverterEntity.token0Balance
+    const token1Balance = oldConverterEntity.token1Balance
 
-export function handleOwnerUpdate(event: OwnerUpdate): void {}
+    newConverterEntity.currentConverterRegistry = registry
+    newConverterEntity.smartToken = event.address.toHexString()
+
+    newConverterEntity.token0Balance = token0Balance
+    oldConverterEntity.token0Balance = BigDecimal.zero()
+
+    newConverterEntity.token1Balance = token1Balance
+    oldConverterEntity.token1Balance = BigDecimal.zero()
+
+    oldConverterEntity.currentConverterRegistry = null
+    oldConverterEntity.smartToken = null
+    oldConverterEntity.activated = false
+
+    newConverterEntity.save()
+    oldConverterEntity.save()
+  }
+}

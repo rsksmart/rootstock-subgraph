@@ -77,9 +77,13 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
 
 export function decimalize(amount: BigInt, tokenAddress: Address): BigDecimal {
   let tokenEntity = Token.load(tokenAddress.toHexString())
-  if(tokenEntity !== null) {
+  if (tokenEntity !== null) {
     return decimal.fromBigInt(amount, tokenEntity.decimals)
   } else {
     return decimal.fromBigInt(amount, DEFAULT_DECIMALS)
   }
+}
+
+export function decimalizeFromToken(amount: BigInt, token: Token): BigDecimal {
+  return decimal.fromBigInt(amount, token.decimals)
 }

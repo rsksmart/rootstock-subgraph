@@ -15,10 +15,9 @@ export function createAndReturnSmartToken(smartTokenAddress: Address): IGetSmart
     smartToken = new SmartToken(smartTokenAddress.toHex())
 
     isNew = true
-
-    /** This is commented out to speed up the subgraph syncing */
-    // SmartTokenTemplate.create(smartTokenAddress)
-    // log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
+    
+    SmartTokenTemplate.create(smartTokenAddress)
+    log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
 
     let smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
     let smartTokenNameResult = smartTokenContract.try_name()
@@ -36,7 +35,7 @@ export function createAndReturnSmartToken(smartTokenAddress: Address): IGetSmart
 
     let converterAddress = smartTokenContract.owner()
     log.debug('Converter address: {}', [converterAddress.toHex()])
-    smartToken.owner = converterAddress
+    smartToken.owner = converterAddress.toHexString()
   }
 
   smartToken.save()

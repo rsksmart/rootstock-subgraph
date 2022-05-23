@@ -23,7 +23,7 @@ class IntervalStr {
 
 export class ICandleSticks {
   tradingPair: string
-  blockTimestamp: BigInt
+  blockTimestamp: i32
   oldPrice: BigDecimal
   newPrice: BigDecimal
   volume: BigDecimal
@@ -57,6 +57,7 @@ export function updateCandleSticks(event: ConversionEventForSwap): void {
   } else {
     // TODO: handle a case where neither side of the conversion is WRBTC
     log.warning('Candlesticks unHandled Conversion - fromToken: {}, toToken {}', [event.fromToken.toHex(), event.toToken.toHex()])
+    return
   }
 
   oldPrice = baseToken.prevPriceBtc
@@ -106,7 +107,7 @@ function updateAllIntervals(
   newPrice: BigDecimal,
   volume: BigDecimal,
   txCount: i32,
-  blockTimestamp: BigInt,
+  blockTimestamp: i32,
 ): void {
   if (baseToken !== null && quoteToken !== null) {
     if (baseToken.id != quoteToken.id) {
@@ -142,11 +143,11 @@ function updateCandlestick(
   newPrice: BigDecimal,
   volume: BigDecimal,
   txCount: i32,
-  blockTimestamp: BigInt,
+  blockTimestamp: i32,
   interval: Interval,
   intervalStr: string,
 ): void {
-  let candleStickTimestamp = blockTimestamp.toI32() - (blockTimestamp.toI32() % interval)
+  let candleStickTimestamp = blockTimestamp - (blockTimestamp % interval)
   log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 80 ~  candleStickTimestamp: {}', [candleStickTimestamp.toString()])
   const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, interval)
   const candleStickObj = getCandleStick(candlestickId, intervalStr)

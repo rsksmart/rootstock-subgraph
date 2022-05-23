@@ -5,7 +5,7 @@ export function createAndReturnConverterRegistry(address: Address): ConverterReg
   let converterRegistryEntity = ConverterRegistry.load(address.toHex())
   if (converterRegistryEntity == null) {
     converterRegistryEntity = new ConverterRegistry(address.toHex())
-    converterRegistryEntity.numConverters = BigInt.zero()
+    converterRegistryEntity.numConverters = 0
     converterRegistryEntity.save()
   }
   return converterRegistryEntity

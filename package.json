@@ -22,7 +22,8 @@
     "test-start-block": "node -r esm utils/startFromLaterBlock.js",
     "build-tests": "sudo docker build -t matchstick .",
     "run-tests": "docker run --rm matchstick",
-    "schema": "sh ./scripts/schema.sh"
+    "schema": "sh ./scripts/schema.sh",
+    "partial-manifest": "node utils/buildPartialManifest.js"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.25.3",

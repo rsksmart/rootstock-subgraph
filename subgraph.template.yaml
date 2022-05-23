@@ -54,7 +54,6 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - NewConverter
-        - OwnerUpdate
         - LiquidityPool
       abis:
         - name: ConverterFactory
@@ -70,8 +69,6 @@ dataSources:
       eventHandlers:
         - event: NewConverter(indexed uint16,indexed address,indexed address)
           handler: handleNewConverter
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
       file: ./src/ConverterFactory.ts
 
   #Converter Registry
@@ -87,15 +84,7 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ConverterAnchorAdded
-        - ConverterAnchorRemoved
-        - LiquidityPoolAdded
-        - LiquidityPoolRemoved
-        - ConvertibleTokenAdded
-        - ConvertibleTokenRemoved
         - SmartTokenAdded
-        - SmartTokenRemoved
-        - OwnerUpdate
         - LiquidityPool
         - SmartToken
       abis:
@@ -112,25 +101,10 @@ dataSources:
         - name: ERC20
           file: ./abis/ERC20.json
       eventHandlers:
-        
-        - event: ConverterAnchorAdded(indexed address)
-          handler: handleConverterAnchorAdded
-        - event: ConverterAnchorRemoved(indexed address)
-          handler: handleConverterAnchorRemoved
-        - event: LiquidityPoolAdded(indexed address)
-          handler: handleLiquidityPoolAdded
-        - event: LiquidityPoolRemoved(indexed address)
-          handler: handleLiquidityPoolRemoved
-        - event: ConvertibleTokenAdded(indexed address,indexed address)
-          handler: handleConvertibleTokenAdded
-        - event: ConvertibleTokenRemoved(indexed address,indexed address)
-          handler: handleConvertibleTokenRemoved
         - event: SmartTokenAdded(indexed address)
           handler: handleSmartTokenAdded
         - event: SmartTokenRemoved(indexed address)
           handler: handleSmartTokenRemoved
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
       file: ./src/ConverterRegistry.ts
 
   # ISovryn
@@ -605,6 +579,10 @@ dataSources:
       eventHandlers:
         - event: RewardClaimed(indexed address,indexed address,uint256)
           handler: handleRewardClaimed
+        - event: PoolTokenAdded(indexed address,indexed address,uint256)
+          handler: handlePoolTokenAdded
+        - event: PoolTokenUpdated(indexed address,indexed address,uint256,uint256)
+          handler: handlePoolTokenUpdated
       file: ./src/MiningProxy.ts
 
   # Staking Reward
@@ -713,7 +691,6 @@ templates:
         - Activation
         - Conversion
         - TokenRateUpdate
-        - OwnerUpdate
         - Token
         - SmartToken
         - PoolToken
@@ -737,8 +714,8 @@ templates:
           handler: handleConversionV1
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
+        - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+          handler: handleWithdrawFees
       file: ./src/LiquidityPoolConverter.ts
 
   # LiquidityPoolV2Converter
@@ -756,7 +733,6 @@ templates:
       entities:
         - Activation
         - Conversion
-        - OwnerUpdate
         - Token
         - SmartToken
         - PoolToken
@@ -776,12 +752,9 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV2
-        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
-          handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
+
       file: ./src/LiquidityPoolConverter.ts
 
   # SmartToken
@@ -800,9 +773,13 @@ templates:
       abis:
         - name: SmartToken
           file: ./abis/SmartToken.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
+        - name: LiquidityPoolV1ConverterProtocolFee
+          file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
       eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
         - event: OwnerUpdate(indexed address,indexed address)
           handler: handleOwnerUpdate
       file: ./src/SmartToken.ts
@@ -849,13 +826,14 @@ templates:
       language: wasm/assemblyscript
       entities:
         - Conversion
-        - OwnerUpdate
         - Token
         - SmartToken
         - PoolToken
       abis:
         - name: LiquidityPoolV1ConverterProtocolFee
           file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
+        - name: LiquidityPoolV1Converter
+          file: ./abis/LiquidityPoolV1Converter.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: SmartToken
@@ -869,10 +847,8 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
           handler: handleConversionV1_2
-        - event: TokenRateUpdate(indexed address,indexed address,uint256,uint256)
-          handler: handleTokenRateUpdate
         - event: ConversionFeeUpdate(uint32,uint32)
           handler: handleConversionFeeUpdate
-        - event: OwnerUpdate(indexed address,indexed address)
-          handler: handleOwnerUpdate
+        - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
+          handler: handleWithdrawFees
       file: ./src/LiquidityPoolConverter.ts

@@ -170,3 +170,11 @@ type Token @entity {
   """
   hasStablecoinPool: Boolean
 }
+
+type OwnerUpdate @entity {
+  id: ID!
+  prevOwner: String!
+  newOwner: String!
+  timestamp: BigInt!
+  emittedBy: String!
+}

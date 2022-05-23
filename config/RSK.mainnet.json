@@ -32,9 +32,6 @@
         "startBlock": 2742418
     },
     "blockNumbers": {
-        "liquidityPoolV1Converter": {
-            "V2": 3921380
-        },
         "genesisVestingBlocks": {
             "start": 3114728,
             "end": 3257234

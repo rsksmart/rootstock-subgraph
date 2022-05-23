@@ -10,7 +10,7 @@ import { createAndReturnProtocolStats } from './ProtocolStats'
 import { WRBTCAddress } from '../contracts/contracts'
 import { decimal } from '@protofire/subgraph-toolkit'
 
-export function updateLastPriceUsdAll(timestamp: BigInt): void {
+export function updateLastPriceUsdAll(): void {
   let protocolStats = createAndReturnProtocolStats()
   const USDTAddress = protocolStats.usdStablecoin.toLowerCase()
   const btcUsdPrice = protocolStats.btcUsdPrice

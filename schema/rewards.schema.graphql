@@ -36,3 +36,27 @@ type RewardsEarnedHistoryItem @entity {
   timestamp: Int!
   transaction: Transaction!
 }
+
+"""
+This entity will have only one instance (id: 0), and will hold global variables required for liquidity mining rewards calculations
+"""
+type LiquidityMiningGlobal @entity {
+  id: ID! # ID will be 0
+  totalAllocationPoint: BigInt!
+  totalRewardPerBlock: BigInt!
+}
+
+type LiquidityMiningAllocationPoint @entity {
+  id: ID! # token address
+  allocationPoint: BigInt!
+  """
+  Calculated as (totalRewardPerBlock * allocationPoint) / totalAllocationPoint
+  """
+  rewardPerBlock: BigDecimal!
+  ammPoolToken: SmartToken
+  lendingPoolToken: LendingPool
+  poolTokenAddedTimestamp: Int!
+  poolTokenUpdatedTImestamp: Int!
+  poolTokenAddedBlock: Int!
+  poolTokenUpdatedBlock: Int!
+}
