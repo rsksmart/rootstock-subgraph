@@ -35,6 +35,17 @@
 
 An example to help you get started with The Graph. For more information see the docs on https://thegraph.com/docs/.
 
+## Deploy Subgraph to locally hosted service
+
+1. Add a tag with command git tag [ TAG_NAME ] . The tag should be consistent with the graph versioning
+2. Run git push origin [ TAG_NAME ]
+3. Go to Jenkins site: 172.20.2.229:8080
+4. Select create-graphql-cluster and build with parameters
+5. Log in to aws console to check that new cluster is up
+6. Get GraphiQL url from aws console and add to Postman in subgrap syn environment
+7. When the new subgraph has synced, we need to change the dns to new subgraph: switching DNS name to new ELB: http://172.20.2.229:8080/job/change-dns-entry-graphql/. Use dns name for new subgraph from aws console as parameter for jenkins.
+8. Check that dns has switched over successfully: "prod" address: https://graphql.sovryn.app/subgraphs/name/DistributedCollective/Sovryn-subgraph/graphql
+
 ## Unit Testing
 
 * Build a matchstick docker image following these instructions: https://github.com/LimeChain/matchstick/blob/main/README.md
