@@ -153,14 +153,16 @@ export function handleTokensUnlocked(event: TokensUnlockedEvent): void {}
 export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
   let transaction = createAndReturnTransaction(event)
   const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
-  handleStakingOrTokensWithdrawn(event.transaction.hash.toHex(), transaction, event.params.staker, event.params.receiver, amount)
+  const id = event.transaction.hash.toHex() + event.logIndex.toHex()
+  handleStakingOrTokensWithdrawn(id, transaction, event.params.staker, event.params.receiver, amount)
 }
 
 /** This is a copy of handleTokensWithdrawn. The event was renamed but params remained the same. */
 export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
   let transaction = createAndReturnTransaction(event)
   const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
-  handleStakingOrTokensWithdrawn(event.transaction.hash.toHex(), transaction, event.params.staker, event.params.receiver, amount)
+  const id = event.transaction.hash.toHex() + event.logIndex.toHex()
+  handleStakingOrTokensWithdrawn(id, transaction, event.params.staker, event.params.receiver, amount)
 }
 
 function handleStakingOrTokensWithdrawn(id: string, transaction: Transaction, staker: Address, receiver: Address, amount: BigDecimal): void {

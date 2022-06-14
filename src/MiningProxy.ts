@@ -1,5 +1,12 @@
 import { PoolTokenAdded, PoolTokenUpdated, RewardClaimed as RewardClaimedEvent } from '../generated/MiningProxy/MiningProxy'
-import { UserRewardsEarnedHistory, RewardsEarnedHistoryItem, LiquidityMiningGlobal, LiquidityMiningAllocationPoint, LendingPool, SmartToken } from '../generated/schema'
+import {
+  UserRewardsEarnedHistory,
+  RewardsEarnedHistoryItem,
+  LiquidityMiningGlobal,
+  LiquidityMiningAllocationPoint,
+  LendingPool,
+  SmartToken,
+} from '../generated/schema'
 import { MiningProxy } from '../generated/MiningProxy/MiningProxy'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
@@ -94,10 +101,10 @@ function createAndReturnLiquidityMiningAllocation(
     /** Check if the pool token is for a lending or amm pool */
     let smartTokenEntity = SmartToken.load(token.toHexString())
     let lendingPoolEntity = LendingPool.load(token.toHexString())
-    if(smartTokenEntity !== null) {
+    if (smartTokenEntity !== null) {
       allocationEntity.ammPoolToken = token.toHexString()
     }
-    if(lendingPoolEntity !== null) {
+    if (lendingPoolEntity !== null) {
       allocationEntity.lendingPoolToken = token.toHexString()
     }
     allocationEntity.save()
@@ -117,7 +124,10 @@ function createAndReturnLiquidityMiningAllocation(
 }
 
 function calculateRewardPerBlock(totalRewardPerBlock: BigInt, allocationPoint: BigInt, totalAllocationPoint: BigInt): BigDecimal {
-  const reward = totalRewardPerBlock.times(allocationPoint).div(totalAllocationPoint)
+  const reward = decimal
+    .fromBigInt(totalRewardPerBlock, DEFAULT_DECIMALS)
+    .times(decimal.fromBigInt(allocationPoint, DEFAULT_DECIMALS))
+    .div(decimal.fromBigInt(totalAllocationPoint, DEFAULT_DECIMALS))
   /** TODO: don't use default decimals. This will require underlying token to be added to contract */
-  return decimal.fromBigInt(reward, DEFAULT_DECIMALS)
+  return reward.truncate(18)
 }
