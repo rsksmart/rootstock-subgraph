@@ -43,7 +43,7 @@ export function handleRewardClaimed(event: RewardClaimedEvent): void {
 }
 
 export function handlePoolTokenAdded(event: PoolTokenAdded): void {
-  const global = createAndReturnLiquidityMiningGlobal(event.address)
+  const global = createOrUpdateLiquidityMiningGlobal(event.address)
   createAndReturnLiquidityMiningAllocation(
     event.params.poolToken,
     event.params.allocationPoint,
@@ -54,7 +54,7 @@ export function handlePoolTokenAdded(event: PoolTokenAdded): void {
 }
 
 export function handlePoolTokenUpdated(event: PoolTokenUpdated): void {
-  const global = createAndReturnLiquidityMiningGlobal(event.address)
+  const global = createOrUpdateLiquidityMiningGlobal(event.address)
   createAndReturnLiquidityMiningAllocation(
     event.params.poolToken,
     event.params.newAllocationPoint,
@@ -64,21 +64,23 @@ export function handlePoolTokenUpdated(event: PoolTokenUpdated): void {
   )
 }
 
-function createAndReturnLiquidityMiningGlobal(proxyAddress: Address): LiquidityMiningGlobal {
+function createOrUpdateLiquidityMiningGlobal(proxyAddress: Address): LiquidityMiningGlobal {
   let globalEntity = LiquidityMiningGlobal.load('0')
   if (globalEntity == null) {
     globalEntity = new LiquidityMiningGlobal('0')
-    let liquidityMiningContract = MiningProxy.bind(proxyAddress)
-    let totalAllocationPointResult = liquidityMiningContract.try_totalAllocationPoint()
-    if (!totalAllocationPointResult.reverted) {
-      globalEntity.totalAllocationPoint = totalAllocationPointResult.value
-    }
-    let rewardPerBlockResult = liquidityMiningContract.try_rewardTokensPerBlock()
-    if (!rewardPerBlockResult.reverted) {
-      globalEntity.totalRewardPerBlock = rewardPerBlockResult.value
-    }
-    globalEntity.save()
   }
+
+  let liquidityMiningContract = MiningProxy.bind(proxyAddress)
+  let totalAllocationPointResult = liquidityMiningContract.try_totalAllocationPoint()
+  if (!totalAllocationPointResult.reverted) {
+    globalEntity.totalAllocationPoint = totalAllocationPointResult.value
+  }
+  let rewardPerBlockResult = liquidityMiningContract.try_rewardTokensPerBlock()
+  if (!rewardPerBlockResult.reverted) {
+    globalEntity.totalRewardPerBlock = rewardPerBlockResult.value
+  }
+  globalEntity.save()
+
   return globalEntity
 }
 
