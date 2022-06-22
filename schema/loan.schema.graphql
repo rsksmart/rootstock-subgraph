@@ -44,6 +44,10 @@ type Loan @entity {
   If a Liquidate, CloseWithSwap or CloseWithDeposit event occurs with 0 margin or 0 leverage, this property changes to false
   """
   isOpen: Boolean!
+  """
+  Next date that the loan will be rolled over, interest paid, and rollover reward paid
+  """
+  nextRollover: Int
   user: User!
   trade: [Trade!] @derivedFrom(field: "loanId")
   borrow: [Borrow!] @derivedFrom(field: "loanId")
@@ -51,6 +55,7 @@ type Loan @entity {
   closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
   liquidates: [Liquidate!] @derivedFrom(field: "loanId")
   depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
+  rollovers: [Rollover!] @derivedFrom(field: "loanId")
   """
   Sum of position volume from Trade, Borrow and DepositCollateral events in this loan, in collateral token
   """
@@ -224,6 +229,21 @@ type Trade @entity {
   entryPrice: BigDecimal! 
   entryLeverage: BigDecimal! 
   currentLeverage: BigDecimal! 
+  timestamp: Int!
+  emittedBy: Bytes!
+  transaction: Transaction!
+}
+
+type Rollover @entity {
+  id: ID!
+  user: User! 
+  lender: Bytes! 
+  loanId: Loan! 
+  principal: BigDecimal! 
+  collateral: BigDecimal! 
+  endTimestamp: Int! 
+  rewardReceiver: User! 
+  reward: BigDecimal!
   timestamp: Int!
   emittedBy: Bytes!
   transaction: Transaction!

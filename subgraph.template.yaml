@@ -134,6 +134,7 @@ dataSources:
         - SetWrbtcToken
         - SetLoanPool
         - Trade
+        - Rollover
         # - WithdrawFees # this needs to be changed due to naming clash
       abis:
         - name: ISovryn
@@ -171,6 +172,8 @@ dataSources:
           handler: handleSetWrbtcToken
         - event: Trade(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTrade
+        - event: Rollover(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,address,uint256)
+          handler: handleRollover
       file: ./src/ISovryn.ts
   
   - kind: ethereum/contract

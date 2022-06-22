@@ -10,6 +10,7 @@ export class LoanStartState {
   user: Bytes
   type: string
   startTimestamp: BigInt
+  endTimestamp: BigInt
   loanToken: Bytes
   collateralToken: Bytes
   /** For Borrow, this is newPrincipal. For Trade this is borrowedAmount */
@@ -42,6 +43,7 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.type = startParams.type
     loanEntity.isOpen = true
     loanEntity.startTimestamp = startParams.startTimestamp.toI32()
+    loanEntity.nextRollover = startParams.endTimestamp.toI32()
     loanEntity.user = startParams.user.toHexString()
     loanEntity.collateralToken = startParams.collateralToken.toHexString()
     loanEntity.loanToken = startParams.loanToken.toHexString()
