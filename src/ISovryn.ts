@@ -14,6 +14,7 @@ import {
   SetLoanPool as SetLoanPoolEvent,
   SetWrbtcToken as SetWrbtcTokenEvent,
   Trade as TradeEvent, // User event
+  Rollover as RolloverEvent, // User event
 } from '../generated/ISovryn/ISovryn'
 import { DepositCollateral as DepositCollateralLegacyEvent } from '../generated/DepositCollateralLegacy/DepositCollateralLegacy'
 import {
@@ -29,6 +30,8 @@ import {
   Swap,
   UserRewardsEarnedHistory,
   RewardsEarnedHistoryItem,
+  Loan,
+  Rollover,
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { createAndReturnTransaction } from './utils/Transaction'
@@ -54,6 +57,7 @@ export function handleBorrow(event: BorrowEvent): void {
     loanId: event.params.loanId,
     type: 'Borrow',
     startTimestamp: event.block.timestamp,
+    endTimestamp: event.block.timestamp.plus(event.params.interestDuration),
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
@@ -408,6 +412,7 @@ export function handleTrade(event: TradeEvent): void {
     loanId: event.params.loanId,
     type: 'Trade',
     startTimestamp: event.block.timestamp,
+    endTimestamp: event.params.settlementDate,
     user: event.params.user,
     loanToken: event.params.loanToken,
     collateralToken: event.params.collateralToken,
@@ -450,4 +455,25 @@ export function handleTrade(event: TradeEvent): void {
   userTotalsEntity.totalMarginTradeVolumeUsd = userTotalsEntity.totalMarginTradeVolumeUsd.plus(usdTradeVolume)
   protocolStatsEntity.save()
   userTotalsEntity.save()
+}
+
+export function handleRollover(event: RolloverEvent): void {
+  createAndReturnTransaction(event)
+  let loan = Loan.load(event.params.loanId.toHexString())
+  if (loan != null) {
+    loan.nextRollover = event.params.endTimestamp.toI32()
+    loan.save()
+  }
+
+  let rolloverEntity = new Rollover(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  rolloverEntity.loanId = event.params.loanId.toHexString()
+  rolloverEntity.principal = decimal.fromBigInt(event.params.principal, DEFAULT_DECIMALS)
+  rolloverEntity.collateral = decimal.fromBigInt(event.params.collateral, DEFAULT_DECIMALS)
+  rolloverEntity.endTimestamp = event.params.endTimestamp.toI32()
+  rolloverEntity.rewardReceiver = event.params.rewardReceiver.toHexString()
+  rolloverEntity.reward = decimal.fromBigInt(event.params.reward, DEFAULT_DECIMALS)
+  rolloverEntity.timestamp = event.block.timestamp.toI32()
+  rolloverEntity.emittedBy = event.address
+  rolloverEntity.transaction = event.transaction.hash.toHexString()
+  rolloverEntity.save()
 }
