@@ -1,4 +1,3 @@
-
 # Candlesticks
 
 type CandleStick @entity {
@@ -17,7 +16,7 @@ type CandleStick @entity {
 
 enum CandleSticksInterval {
   MinuteInterval
-  FifteenMintuesInterval
+  FifteenMinutesInterval
   HourInterval
   FourHourInterval
   DayInterval

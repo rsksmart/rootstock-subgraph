@@ -11,6 +11,8 @@ const { dump } = require('js-yaml')
 const manifestSections = {
     amm: ["ConverterRegistry", "ConverterFactory", "LiquidityPoolV1Converter", "LiquidityPoolV2Converter", "LiquidityPoolV1ConverterProtocolFee", "SmartToken"],
     governance: [],
+    trading: [],
+    bridge: ["FastBTCBridge"],
     sovrynProtocol: [...amm, "ISovryn"]
 }
 

@@ -7,7 +7,7 @@ import { WRBTCAddress } from '../contracts/contracts'
 
 enum Interval {
   MinuteInterval = 60,
-  FifteenMintuesInterval = 60 * 15,
+  FifteenMinutesInterval = 60 * 15,
   HourInterval = 60 * 60,
   FourHourInterval = 60 * 60 * 4,
   DayInterval = 60 * 60 * 24,
@@ -15,7 +15,7 @@ enum Interval {
 
 class IntervalStr {
   static MinuteInterval: string = 'MinuteInterval'
-  static FifteenMintuesInterval: string = 'FifteenMintuesInterval'
+  static FifteenMinutesInterval: string = 'FifteenMinutesInterval'
   static HourInterval: string = 'HourInterval'
   static FourHourInterval: string = 'FourHourInterval'
   static DayInterval: string = 'DayInterval'
@@ -121,8 +121,8 @@ function updateAllIntervals(
           volume,
           txCount,
           blockTimestamp,
-          Interval.FifteenMintuesInterval,
-          IntervalStr.FifteenMintuesInterval,
+          Interval.FifteenMinutesInterval,
+          IntervalStr.FifteenMinutesInterval,
         )
         updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.HourInterval, IntervalStr.HourInterval)
         updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.FourHourInterval, IntervalStr.FourHourInterval)

@@ -12,7 +12,7 @@
     "dev:no-build": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "npx nodemon --exec 'npm run dev'",
     "dev:nodemon:no-build": "npx nodemon --exec 'npm run dev:no-build'",
-    "lint": "npx prettier src/",
+    "lint": "npx prettier --check src/",
     "lint:fix": "npx prettier -w src/",
     "scaffold": "node utils/scaffoldFromAbi.js",
     "cd": "npm run create-local && npm run deploy-local -- --version-label",
