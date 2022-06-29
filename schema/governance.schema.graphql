@@ -19,7 +19,7 @@ type Proposal @entity {
   proposalId: Int!
   proposer: Bytes! # address
   targets: [String!]! # address[]
-  values: [BigInt!]! # uint256[] TODO: Remo
+  values: [BigInt!]! # uint256[] 
   signatures: [String!]! # string[]
   startBlock: Int! # uint256
   endBlock: Int! # uint256

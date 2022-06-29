@@ -52,7 +52,7 @@ type Loan @entity {
   trade: [Trade!] @derivedFrom(field: "loanId")
   borrow: [Borrow!] @derivedFrom(field: "loanId")
   closeWithSwaps: [CloseWithSwap!] @derivedFrom(field: "loanId")
-  closewithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
+  closeWithDeposits: [CloseWithDeposit!] @derivedFrom(field: "loanId")
   liquidates: [Liquidate!] @derivedFrom(field: "loanId")
   depositCollateral: [DepositCollateral!] @derivedFrom(field: "loanId")
   rollovers: [Rollover!] @derivedFrom(field: "loanId")

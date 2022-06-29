@@ -1,8 +1,7 @@
 import { Burn as BurnEvent, FlashBorrow as FlashBorrowEvent, Mint as MintEvent } from '../generated/templates/LoanTokenLogicStandard/LoanTokenLogicStandard'
 import { UserLendingHistory, LendingHistoryItem, LendingPool } from '../generated/schema'
 import { createAndReturnTransaction } from './utils/Transaction'
-import { createAndReturnUser } from './utils/User'
-import { Address, BigDecimal, BigInt, dataSource } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, dataSource } from '@graphprotocol/graph-ts'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
 import { convertToUsd } from './utils/Prices'
 import { LendingHistoryType } from './utils/types'
@@ -36,6 +35,7 @@ export function handleBurn(event: BurnEvent): void {
   }
   lendingHistoryItem.amount = assetAmount
   lendingHistoryItem.loanTokenAmount = tokenAmount
+  lendingHistoryItem.timestamp = event.block.timestamp.toI32()
   lendingHistoryItem.save()
 
   let lendingPoolEntity = LendingPool.load(event.address.toHexString())
@@ -91,6 +91,7 @@ export function handleMint(event: MintEvent): void {
   }
   lendingHistoryItem.amount = assetAmount
   lendingHistoryItem.loanTokenAmount = tokenAmount
+  lendingHistoryItem.timestamp = event.block.timestamp.toI32()
   lendingHistoryItem.save()
 
   let lendingPoolEntity = LendingPool.load(event.address.toHexString())
