@@ -114,7 +114,8 @@
         "address": "0xfD4D1FBFC652f5b3D98881b9346635399F1e6254",
         "startBlock": 2672286
     },
-    "Orderbooktestnet": {
+
+    "OrderbookMainnet": {
         "network": "testnet",
         "address": "0x1c910918d6D05feC83e2376D57226d1b08324028",
         "startBlock": 2726979

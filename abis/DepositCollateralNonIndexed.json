@@ -1,0 +1,27 @@
+[
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "loanId",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "depositAmount",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "rate",
+                "type": "uint256"
+            }
+        ],
+        "name": "DepositCollateral",
+        "type": "event"
+    }
+]
