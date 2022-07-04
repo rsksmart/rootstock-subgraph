@@ -53,7 +53,7 @@ type User @entity {
   """
   Vesting contracts owned by User, labelled by type
   """
-  vestingContracts: [VestingContract!] @derivedFrom(field:"user")
+  vestingContracts: [VestingContract!] @derivedFrom(field: "user")
   """
   Voting history of User
   """
@@ -62,6 +62,11 @@ type User @entity {
   See UserTotals entity for full documentation
   """
   userTotals: UserTotal @derivedFrom(field: "user")
+  """
+  FastBTCBridge transfers from BTC to RSK
+  """
+  bitcoinTransfers: [BitcoinTransfer!] @derivedFrom(field: "user")
+  fastBTCBridgeStats: [FastBTCBridgeStat!] @derivedFrom(field: "user")
   """
   Transactions initiated by this user
   """

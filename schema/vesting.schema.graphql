@@ -1,4 +1,4 @@
-# Vesting Resistry
+# Vesting Registry
 
 enum VestingContractType {
   Origins

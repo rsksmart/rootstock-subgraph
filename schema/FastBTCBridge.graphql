@@ -1,0 +1,83 @@
+type BitcoinTransferBatchSending @entity {
+  id: ID!
+  bitcoinTxHash: Bytes! # bytes32
+  transferBatchSize: Int! # uint8
+  timestamp: Int!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
+
+# type BitcoinTransferFeeChanged @entity {
+#   id: ID!
+#   baseFeeSatoshi: BigInt! # uint256
+#   dynamicFee: BigInt! # uint256
+#   timestamp: Int!
+#   emittedBy: Bytes! #address
+#   transaction: Transaction!
+# }
+
+# type BitcoinTransferStatusUpdated @entity {
+#   id: ID!
+#   transferId: Bytes! # bytes32
+#   newStatus: Int! # uint8
+#   timestamp: Int!
+#   emittedBy: Bytes! #address
+#   transaction: Transaction!
+# }
+
+enum BitcoinTransferStatus {
+  """
+  the transfer slot has not been initialized
+  """
+  NOT_APPLICABLE
+  """
+  the transfer was initiated
+  """
+  NEW
+  """
+  the federators have approved this transfer as part of a transfer batch
+  """
+  SENDING
+  """
+  the transfer was confirmedly mined in Bitcoin blockchain
+  """
+  MINED
+  """
+  the transfer was refunded
+  """
+  REFUNDED
+  """
+  the transfer was reclaimed by the user
+  """
+  RECLAIMED
+}
+
+type BitcoinTransfer @entity {
+  id: ID! # transferId
+  btcAddress: String!
+  nonce: Int!
+  amountBTC: BigDecimal!
+  feeBTC: BigDecimal!
+  totalAmountBTC: BigDecimal!
+  user: User! # user
+  status: BitcoinTransferStatus!
+  bitcoinTxHash: Bytes!
+  createdAtTimestamp: Int!
+  createdAtBlockNumber: Int!
+  createdAtTx: Transaction!
+  updatedAtTimestamp: Int!
+  updatedAtBlockNumber: Int!
+  updatedAtTx: Transaction!
+}
+
+type FastBTCBridgeStat @entity {
+  id: ID!
+  user: User
+  totalAmountBTCInitialized: BigDecimal!
+  totalAmountBTCSending: BigDecimal!
+  totalAmountBTCMined: BigDecimal!
+  totalFeesBTC: BigDecimal!
+  totalAmountBTCRefunded: BigDecimal!
+  createdAtTx: Transaction!
+  updatedAtTx: Transaction!
+}

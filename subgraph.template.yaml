@@ -148,7 +148,7 @@ dataSources:
           handler: handleCloseWithDeposit
         - event: CloseWithSwap(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
           handler: handleCloseWithSwap
-        - event: DepositCollateral(bytes32,uint256,uint256)
+        - event: DepositCollateral(indexed bytes32,uint256,uint256)
           handler: handleDepositCollateral
         - event: EarnReward(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleEarnReward
@@ -195,6 +195,27 @@ dataSources:
       eventHandlers:
         - event: DepositCollateral(bytes32,uint256)
           handler: handleDepositCollateralLegacy
+      file: ./src/ISovryn.ts
+
+  - kind: ethereum/contract
+    name: DepositCollateralNonIndexed
+    network: {{network}}
+    source: 
+      address: '{{ISovryn.address}}'
+      abi: DepositCollateralNonIndexed
+      startBlock: {{ISovryn.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - DepositCollateral
+      abis: 
+        - name: DepositCollateralNonIndexed
+          file: ./abis/DepositCollateralNonIndexed.json
+      eventHandlers:
+        - event: DepositCollateral(bytes32,uint256,uint256)
+          handler: handleDepositCollateralNonIndexed
       file: ./src/ISovryn.ts
 
   - kind: ethereum/contract
@@ -676,7 +697,36 @@ dataSources:
         - event: OrderCreated(indexed bytes32,(address,address,address,uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32),uint256)
           handler: handleOrderCreated
       file: ./src/Orderbook.ts
-  
+
+  - kind: ethereum/contract
+    name: FastBTCBridge
+    network: {{network}}
+    source:
+      address: '{{FastBTCBridge.address}}'
+      abi: FastBTCBridge
+      startBlock: {{FastBTCBridge.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - BitcoinTransferBatchSending
+      abis:
+        - name: FastBTCBridge
+          file: ./abis/FastBTCBridge.json
+      eventHandlers:
+        
+        - event: BitcoinTransferBatchSending(bytes32,uint8)
+          handler: handleBitcoinTransferBatchSending
+        # - event: BitcoinTransferFeeChanged(uint256,uint256)
+        #   handler: handleBitcoinTransferFeeChanged
+        - event: BitcoinTransferStatusUpdated(indexed bytes32,uint8)
+          handler: handleBitcoinTransferStatusUpdated
+        - event: NewBitcoinTransfer(indexed bytes32,string,uint256,uint256,uint256,indexed address)
+          handler: handleNewBitcoinTransfer
+      file: ./src/FastBTCBridge.ts
+
+
 templates:
   # LiquidityPoolV1Converter
   - kind: ethereum/contract

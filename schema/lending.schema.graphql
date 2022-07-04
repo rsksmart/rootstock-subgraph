@@ -58,6 +58,7 @@ type LendingHistoryItem @entity {
   asset: Token 
   amount: BigDecimal!
   loanTokenAmount: BigDecimal!
+  timestamp: Int!
   transaction: Transaction!
   emittedBy: String!
   userLendingHistory: UserLendingHistory!

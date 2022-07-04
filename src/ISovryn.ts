@@ -17,6 +17,7 @@ import {
   Rollover as RolloverEvent, // User event
 } from '../generated/ISovryn/ISovryn'
 import { DepositCollateral as DepositCollateralLegacyEvent } from '../generated/DepositCollateralLegacy/DepositCollateralLegacy'
+import { DepositCollateral as DepositCollateralNonIndexedEvent } from '../generated/DepositCollateralNonIndexed/DepositCollateralNonIndexed'
 import {
   Borrow,
   CloseWithDeposit,
@@ -42,6 +43,7 @@ import { convertToUsd } from './utils/Prices'
 import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 import { createAndReturnLendingPool } from './utils/LendingPool'
 import { RewardsEarnedAction } from './utils/types'
+import { ISovryn as ISovrynContract } from '../generated/ISovryn/ISovryn'
 
 export function handleBorrow(event: BorrowEvent): void {
   createAndReturnTransaction(event)
@@ -124,8 +126,8 @@ export function handleCloseWithDeposit(event: CloseWithDepositEvent): void {
     borrowedAmountChange: BigDecimal.zero().minus(repayAmount),
     positionSizeChange: BigDecimal.zero().minus(collateralWithdrawAmount),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: decimal.ONE.div(collateralToLoanRate),
-    type: LoanActionType.SELL,
+    rate: collateralToLoanRate,
+    type: LoanActionType.CLOSE_WITH_DEPOSIT,
     timestamp: event.block.timestamp,
   }
   updateLoanReturnPnL(changeParams)
@@ -172,7 +174,7 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
     positionSizeChange: BigDecimal.zero().minus(positionCloseSize),
     isOpen: event.params.currentLeverage.gt(BigInt.zero()) ? true : false,
     rate: exitPrice,
-    type: LoanActionType.SELL,
+    type: LoanActionType.CLOSE_WITH_SWAP,
     timestamp: event.block.timestamp,
   }
   updateLoanReturnPnL(changeParams)
@@ -184,6 +186,34 @@ export function handleCloseWithSwap(event: CloseWithSwapEvent): void {
   userTotalsEntity.totalCloseWithSwapVolumeUsd = userTotalsEntity.totalCloseWithSwapVolumeUsd.plus(usdVolume)
   protocolStatsEntity.save()
   userTotalsEntity.save()
+}
+
+export function handleDepositCollateralNonIndexed(event: DepositCollateralNonIndexedEvent): void {
+  const depositAmount = decimal.fromBigInt(event.params.depositAmount, DEFAULT_DECIMALS)
+  const rate = decimal.fromBigInt(event.params.rate, DEFAULT_DECIMALS)
+
+  let entity = new DepositCollateral(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  entity.loanId = event.params.loanId.toHexString()
+  entity.depositAmount = depositAmount
+  entity.rate = rate
+  let transaction = createAndReturnTransaction(event)
+  entity.transaction = transaction.id
+  entity.timestamp = transaction.timestamp
+  entity.emittedBy = event.address
+  entity.save()
+
+  let changeParams: ChangeLoanState = {
+    loanId: event.params.loanId.toHexString(),
+    borrowedAmountChange: BigDecimal.zero(),
+    positionSizeChange: depositAmount,
+    isOpen: true,
+    rate: rate,
+    type: LoanActionType.DEPOSIT_COLLATERAL,
+    timestamp: event.block.timestamp,
+  }
+  updateLoanReturnPnL(changeParams)
+
+  /** TODO: Update protocolStats. Need to return collateralToken from updateLoanReturnPnL */
 }
 
 export function handleDepositCollateral(event: DepositCollateralEvent): void {
@@ -206,7 +236,7 @@ export function handleDepositCollateral(event: DepositCollateralEvent): void {
     positionSizeChange: depositAmount,
     isOpen: true,
     rate: rate,
-    type: LoanActionType.NEUTRAL,
+    type: LoanActionType.DEPOSIT_COLLATERAL,
     timestamp: event.block.timestamp,
   }
   updateLoanReturnPnL(changeParams)
@@ -230,7 +260,7 @@ export function handleDepositCollateralLegacy(event: DepositCollateralLegacyEven
     positionSizeChange: decimal.fromBigInt(event.params.depositAmount, DEFAULT_DECIMALS),
     isOpen: true,
     rate: decimal.ONE, //This is a placeholder, this value is not used for DepositCollateral events
-    type: LoanActionType.NEUTRAL,
+    type: LoanActionType.DEPOSIT_COLLATERAL_LEGACY,
     timestamp: event.block.timestamp,
   }
   updateLoanReturnPnL(changeParams)
@@ -303,8 +333,8 @@ export function handleLiquidate(event: LiquidateEvent): void {
     borrowedAmountChange: BigDecimal.zero().minus(repayAmount),
     positionSizeChange: BigDecimal.zero().minus(collateralWithdrawAmount),
     isOpen: event.params.currentMargin.gt(BigInt.zero()) ? true : false,
-    rate: decimal.ONE.div(collateralToLoanRate),
-    type: LoanActionType.SELL,
+    rate: collateralToLoanRate,
+    type: LoanActionType.LIQUIDATE,
     timestamp: event.block.timestamp,
   }
   updateLoanReturnPnL(changeParams)
@@ -386,8 +416,6 @@ export function handlePayTradingFee(event: PayTradingFeeEvent): void {
 
 export function handleSetLoanPool(event: SetLoanPoolEvent): void {
   /** This function creates a new lending pool */
-
-  /** Context not currently working, not sure why */
   let context = new DataSourceContext()
   context.setString('underlyingAsset', event.params.underlying.toHexString())
   LoanTokenTemplate.createWithContext(event.params.loanPool, context)
@@ -432,7 +460,7 @@ export function handleTrade(event: TradeEvent): void {
   entity.loanId = event.params.loanId.toHexString()
   entity.collateralToken = event.params.collateralToken.toHexString()
   entity.loanToken = event.params.loanToken.toHexString()
-  /** In Collteral tokens */
+  /** In Collateral tokens */
   entity.positionSize = positionSize
   /** In Loan tokens */
   entity.borrowedAmount = borrowedAmount
@@ -462,6 +490,12 @@ export function handleRollover(event: RolloverEvent): void {
   let loan = Loan.load(event.params.loanId.toHexString())
   if (loan != null) {
     loan.nextRollover = event.params.endTimestamp.toI32()
+    loan.positionSize = decimal.fromBigInt(event.params.collateral, DEFAULT_DECIMALS)
+    loan.borrowedAmount = decimal.fromBigInt(event.params.principal, DEFAULT_DECIMALS)
+    if (loan.positionSize == BigDecimal.zero() || loan.borrowedAmount == BigDecimal.zero()) {
+      loan.isOpen = false
+      loan.endTimestamp = event.block.timestamp.toI32()
+    }
     loan.save()
   }
 

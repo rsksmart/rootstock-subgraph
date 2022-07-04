@@ -118,5 +118,10 @@
         "network": "mainnet",
         "address": "0x1c910918d6D05feC83e2376D57226d1b08324028",
         "startBlock": 1000000000
+    },
+    "FastBTCBridge": {
+        "network": "mainnet",
+        "address": "0x0D5006330289336ebdF9d0AC9E0674f91b4851eA",
+        "startBlock": 4029878
     }
 }

@@ -34,16 +34,16 @@ export function handleSmartTokenAdded(event: SmartTokenAddedEvent): void {
 
 export function handleSmartTokenRemoved(event: SmartTokenRemovedEvent): void {
   let smartTokenEntity = SmartToken.load(event.params._smartToken.toHexString())
-  if(smartTokenEntity !== null) {
+  if (smartTokenEntity !== null) {
     let registry = ConverterRegistry.load(event.address.toHexString())
     if (registry !== null) {
-      registry.numConverters = registry.numConverters -1
+      registry.numConverters = registry.numConverters - 1
       registry.save()
     }
     smartTokenEntity.currentConverterRegistry = null
     smartTokenEntity.save()
     let liquidityPoolEntity = LiquidityPool.load(smartTokenEntity.owner)
-    if(liquidityPoolEntity !== null) {
+    if (liquidityPoolEntity !== null) {
       liquidityPoolEntity.activated = false
       liquidityPoolEntity.save()
     }
