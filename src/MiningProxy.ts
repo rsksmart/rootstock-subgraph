@@ -22,11 +22,11 @@ export function handleRewardClaimed(event: RewardClaimedEvent): void {
 
   let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.user.toHexString())
   if (userRewardsEarnedHistory != null) {
-    userRewardsEarnedHistory.availableRewardSov = userRewardsEarnedHistory.availableRewardSov.plus(amount)
+    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(amount)
     userRewardsEarnedHistory.save()
   } else {
     userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params.user.toHexString())
-    userRewardsEarnedHistory.availableRewardSov = amount
+    userRewardsEarnedHistory.totalTradingRewards = BigDecimal.zero()
     userRewardsEarnedHistory.availableTradingRewards = BigDecimal.zero()
     userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(amount)
     userRewardsEarnedHistory.user = event.params.user.toHexString()

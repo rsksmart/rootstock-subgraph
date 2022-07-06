@@ -14,7 +14,7 @@ export function handleTokenStaked(event: TokenStakedEvent): void {
     userRewardsEarnedHistory.save()
   } else {
     userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params._initiator.toHexString())
-    userRewardsEarnedHistory.availableRewardSov = BigDecimal.zero()
+    userRewardsEarnedHistory.totalTradingRewards = BigDecimal.zero()
     userRewardsEarnedHistory.availableTradingRewards = BigDecimal.zero()
     userRewardsEarnedHistory.totalFeesAndRewardsEarned = BigDecimal.zero()
     userRewardsEarnedHistory.user = event.params._initiator.toHexString()

@@ -10,13 +10,15 @@ type UserRewardsEarnedHistory @entity {
   """
   totalFeesAndRewardsEarned: BigDecimal!
   """
-  This is incremented by EarnReward events, and set to 0 by TokensStaked events on the LockedSOV contract
+  SOV rewards earned from margin trading, but not yet claimed and vested
+  Incremented by EarnReward events, and set to 0 by TokensStaked events on the LockedSOV contract
   """
   availableTradingRewards: BigDecimal!
   """
-  This is incremented by EarnReward and RewardClaimed events, and set to 0 by RewardWithdrawn events
+  Sum of all SOV rewards earned from margin trading.
+  Incremented by EarnReward events
   """
-  availableRewardSov: BigDecimal!
+  totalTradingRewards: BigDecimal!
   rewardsEarnedHistory: [RewardsEarnedHistoryItem!] @derivedFrom(field: "user")
 }
 
