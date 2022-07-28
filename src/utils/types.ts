@@ -18,6 +18,7 @@ export class RewardsEarnedAction {
   static EarnReward: string = 'EarnReward'
   static RewardClaimed: string = 'RewardClaimed'
   static RewardSovStaked: string = 'RewardSovStaked'
+  static UserFeeWithdrawn: string = 'UserFeeWithdrawn'
 }
 
 export class StakeHistoryAction {
