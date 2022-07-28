@@ -66,6 +66,14 @@ To set start blocks back to original state:
 * ``npm run test-start-block -reset``
 * ``npm run prepare:RSK:testnet``
 
+## Build a partial subgraph
+
+While developing, you can partially build a subgraph if you don't need data from all the contracts.
+
+To build a partial manifest run:
+* ``npm run partial-manifest -- -sect [ SUBSECTION NAME ]``
+
+To add a new manifest subsection (eg vesting, governance, bridges), go to utils/buildPartialManifest.js and add a list of the contracts you want in your subsection to the manifestSections array.
 
 ## Useful info
 
