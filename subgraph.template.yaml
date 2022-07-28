@@ -459,6 +459,29 @@ dataSources:
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
 
+  # Four Year Vesting
+  - kind: ethereum/contract
+    name: FourYearVesting
+    network: {{network}}
+    source:
+      address: '{{FourYearVesting.address}}'
+      abi: FourYearVesting
+      startBlock: {{FourYearVesting.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - FourYearVestingCreated
+      abis:
+        - name: FourYearVesting
+          file: ./abis/FourYearVesting.json
+      eventHandlers:
+        
+        - event: FourYearVestingCreated(indexed address,indexed address)
+          handler: handleFourYearVestingCreated
+      file: ./src/FourYearVesting.ts
+
   # Staking
   - kind: ethereum/contract
     name: Staking
@@ -725,7 +748,6 @@ dataSources:
         - event: NewBitcoinTransfer(indexed bytes32,string,uint256,uint256,uint256,indexed address)
           handler: handleNewBitcoinTransfer
       file: ./src/FastBTCBridge.ts
-
 
 templates:
   # LiquidityPoolV1Converter

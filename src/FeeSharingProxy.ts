@@ -8,8 +8,8 @@ import {
   UserFeeWithdrawn as UserFeeWithdrawnEvent,
   WhitelistedConverter as WhitelistedConverterEvent,
 } from '../generated/FeeSharingProxy/FeeSharingProxy'
-import { StakeHistoryItem, FeeSharingTokensTransferred } from '../generated/schema'
-import { StakeHistoryAction } from './utils/types'
+import { StakeHistoryItem, FeeSharingTokensTransferred, RewardsEarnedHistoryItem } from '../generated/schema'
+import { StakeHistoryAction, RewardsEarnedAction } from './utils/types'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
 
@@ -45,6 +45,14 @@ export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
   stakeHistoryItem.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   stakeHistoryItem.transaction = event.transaction.hash.toHexString()
   stakeHistoryItem.save()
+
+  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  rewardsEarnedHistoryItem.action = RewardsEarnedAction.UserFeeWithdrawn
+  rewardsEarnedHistoryItem.user = event.params.sender.toHexString()
+  rewardsEarnedHistoryItem.amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+  rewardsEarnedHistoryItem.timestamp = event.block.timestamp.toI32()
+  rewardsEarnedHistoryItem.transaction = event.transaction.hash.toHexString()
+  rewardsEarnedHistoryItem.save()
 }
 
 export function handleWhitelistedConverter(event: WhitelistedConverterEvent): void {}

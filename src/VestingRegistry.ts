@@ -35,12 +35,6 @@ export function handleOwnershipTransferred(event: OwnershipTransferredEvent): vo
 
 export function handleSOVTransferred(event: SOVTransferredEvent): void {}
 
-const vestingContractTypes = new Map<string, string>()
-vestingContractTypes.set(vestingRegistry1.toLowerCase(), VestingContractType.Origins)
-vestingContractTypes.set(vestingRegistry2.toLowerCase(), VestingContractType.Origins)
-vestingContractTypes.set(vestingRegistry3.toLowerCase(), VestingContractType.Rewards)
-vestingContractTypes.set(vestingRegistryFish.toLowerCase(), VestingContractType.Fish)
-
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
   /** Some contracts are created twice. So, we need to first check if the contract already exists */
   let existingContract = VestingContract.load(event.params.vesting.toHexString())
@@ -56,11 +50,7 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
     entity.emittedBy = event.address
-    const contractType =
-      vestingContractTypes.get(event.address.toHexString().toLowerCase()) == VestingContractType.Fish ? VestingContractType.FishTeam : VestingContractType.Team
-    if (contractType != null) {
-      entity.type = contractType
-    }
+    entity.type = event.address.toHexString() === vestingRegistryFish ? VestingContractType.FishTeam : VestingContractType.Team
     entity.save()
   }
 }
@@ -100,7 +90,7 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
     entity.emittedBy = event.address
-    entity.type = vestingContractTypes.get(event.address.toHexString().toLowerCase())
+    entity.type = getVestingContractType(event.address.toHexString(), event.params.cliff, event.params.duration, event.block.timestamp)
     entity.save()
   }
 }
@@ -122,4 +112,24 @@ export function handleVestingCreatedProxy(event: VestingCreatedProxyEvent): void
     entity.type = VestingContractType.Rewards
     entity.save()
   }
+}
+
+function getVestingContractType(address: string, cliff: BigInt, duration: BigInt, timestamp: BigInt): string {
+  /** To determine if a vesting contract from vesting registries 1 and 2 is from Origins or from a Strategic investment round, check if the cliff is equal to the duration
+   * We could maybe also check the timestamp as added redundancy, but this adds testnet/mainnet complexity that I want to avoid
+   */
+  const originsOrStrategic = (cliff: BigInt, duration: BigInt): string => {
+    if (cliff == duration) {
+      return VestingContractType.Origins
+    } else {
+      return VestingContractType.Strategic
+    }
+  }
+
+  if (address == vestingRegistry3.toLowerCase()) return VestingContractType.Rewards
+  if (address == vestingRegistryFish.toLowerCase()) return VestingContractType.Fish
+  if (address == vestingRegistry1.toLowerCase() || address == vestingRegistry2.toLowerCase()) return originsOrStrategic(cliff, duration)
+
+  /** Rewards is the default type. We could consider having type Undefined or Other */
+  return VestingContractType.Rewards
 }

@@ -18,6 +18,7 @@ export class RewardsEarnedAction {
   static EarnReward: string = 'EarnReward'
   static RewardClaimed: string = 'RewardClaimed'
   static RewardSovStaked: string = 'RewardSovStaked'
+  static UserFeeWithdrawn: string = 'UserFeeWithdrawn'
 }
 
 export class StakeHistoryAction {
@@ -37,6 +38,8 @@ export class VestingContractType {
   static FishTeam: string = 'FishTeam'
   static Team: string = 'Team'
   static Rewards: string = 'Rewards'
+  static FourYearVesting: string = 'FourYearVesting'
+  static Strategic: string = 'Strategic'
 }
 
 export class VestingHistoryActionItem {

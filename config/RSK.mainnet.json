@@ -52,6 +52,11 @@
         "address": "0x14F3FE332e21Ef3f5d244C45C8D5fbFcEF2FB5c9",
         "startBlock": 3159211
     },
+    "VestingRegistry4": {
+        "network": "mainnet",
+        "address": "0xc47E977d30fa553412897d0B1f97247F635c09b2",
+        "startBlock": 2851598
+    },
     "VestingRegistryProxy": {
         "network": "mainnet",
         "address": "0xe24ABdB7DcaB57F3cbe4cBDDd850D52F143eE920",
@@ -123,5 +128,10 @@
         "network": "mainnet",
         "address": "0x0D5006330289336ebdF9d0AC9E0674f91b4851eA",
         "startBlock": 4029878
+    },
+    "FourYearVesting": {
+        "network": "mainnet",
+        "address": "0xD5564a16f356dD45e445beC725F54496700b5C5A",
+        "startBlock": 4378315
     }
 }

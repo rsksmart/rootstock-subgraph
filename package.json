@@ -12,6 +12,7 @@
     "dev:no-build": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "npx nodemon --exec 'npm run dev'",
     "dev:nodemon:no-build": "npx nodemon --exec 'npm run dev:no-build'",
+    "dev:up": "docker compose --env-file .env.dev up -d",
     "lint": "npx prettier --check src/",
     "lint:fix": "npx prettier -w src/",
     "scaffold": "node utils/scaffoldFromAbi.js",
