@@ -82,6 +82,11 @@ const wrapperProxyContractsMainnet = {
             name: "rbtcWrapperProxyTokenConverted3368577",
             address: '0xa917BF723433d020a15629eba71f6C2a6B38e52d',
             startBlock: 3368577
+        },
+        {
+            name: "rbtcWrapperProxyTokenConverted4525385",
+            address: '0x2BEe6167f91D10db23252e03de039Da6b9047D49',
+            startBlock: 4525385
         }
     ]
 }

@@ -1,39 +1,111 @@
-# Governor Contracts
+# Governor contracts
+
+"""
+A Proposal is created each time a SIP (Sovryn Improvement Proposal) is proposed
+The Proposal is created, voted on, and then executed if it passes
+To see if a Proposal has been executed, see if the executed property is null or if it has a transaction
+"""
 type Proposal @entity {
-  id: ID! # contract address + id
+  """
+  ID is the address of the governor contract that was used to create the proposal, + the id of the proposal
+  """
+  id: ID! 
+  """
+  Transaction that created the proposal
+  """
   created: Transaction!
+  """
+  If the proposal was canceled, the transaction that canceled it (otherwise null)
+  """
   canceled: Transaction
+  """
+  If the proposal was executed, the transaction that executed it (otherwise null)
+  """
   executed: Transaction
+  """
+  If the proposal was queued, the transaction that queued it (otherwise null)
+  """
   queued: Transaction
-  votesFor: BigInt! # No need to decimalize
+  """
+  Number of votes for the proposal (weighted vote, not number of voters)
+  """
+  votesFor: BigInt!
+  """
+  Number of votes against the proposal (weighted vote, not number of voters)
+  """
   votesAgainst: BigInt!
   """
   Number of unique wallets that voted for this proposal
   """
   countVotersFor: Int!
-    """
+  """
   Number of unique wallets that voted against this proposal
   """
   countVotersAgainst: Int!
+  """
+  Individual vote transactions
+  """
   votes: [VoteCast!] @derivedFrom(field: "proposal")
   proposalId: Int!
+  """
+  Address of the user who created this proposal
+  """
   proposer: Bytes! # address
+  """
+  Contract or contracts that this proposal targets
+  """
   targets: [String!]! # address[]
   values: [BigInt!]! # uint256[] 
+  """
+  Function signatures in the targeted contract that would be affected by this proposal passing
+  """
   signatures: [String!]! # string[]
+  """
+  Block when voting starts
+  """
   startBlock: Int! # uint256
+  """
+  Block when voting ends
+  """
   endBlock: Int! # uint256
+  """
+  Brief description of what this SIP is for, sometimes with a link to the github repo and README for this proposal
+  """
   description: String! # string
+  """
+  Timestamp when this proposal was created. This is also available in the created transaction, but is included here so it is possible to order by timestamp
+  """
   timestamp: Int!
+  """
+  The contract that emitted this event
+  """
   emittedBy: Bytes! #address
 }
 
+"""
+This is the event emitted when a user votes for or against a proposed SIP
+"""
 type VoteCast @entity {
+  """
+  ID is transaction hash + log index
+  """
   id: ID!
   voter: User! # address
+  """
+  The ID of the proposal
+  """
   proposalId: Int! # uint256
+  """
+  The ID of the Proposal entity that this vote is for/against
+  """
   proposal: Proposal!
+  """
+  True if the vote is for the proposal, False if it is against
+  """
   support: Boolean! # bool
+  """
+  The number of votes the user cast (the voting power of that user)
+  """
   votes: BigInt! # uint256
   timestamp: Int!
   emittedBy: Bytes! #address

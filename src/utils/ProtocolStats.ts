@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, Address } from '@graphprotocol/graph-ts'
+import { BigDecimal, Address } from '@graphprotocol/graph-ts'
 import { ProtocolStats, UserTotal } from '../../generated/schema'
 import { stablecoins } from '../contracts/contracts'
 

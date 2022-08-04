@@ -1,38 +1,108 @@
+"""
+This is an event emitted from the staking contract when tokens are staked, either by a user or by a vesting contract
+If tokens are staked by a vesting contract, there may be multiple tokens staked event per transaction (eg if tokensa are vested over 10 months, there would be 10 TokensStaked events each with a different lockedUntil date)
+We have improvements planned to better represent staking on our subgraph.
+"""
 type TokensStaked @entity {
+  """
+  ID is transaction hash + log index
+  """
   id: ID!
+  """
+  If tokens were staked by a vesting contract, user property will be null
+  """
   user: User
+  """
+  The staker is either a user address or a vesting contract address
+  """
   staker: Bytes! # address
+  """
+  The amount of SOV staked in this event (as mentioned above, there can be multiple TokensStaked events per transaction)
+  """
   amount: BigDecimal! # uint256
+  """
+  The date when these tokens will unlock
+  A user/vesting contract can have multiple stakes with different lockedUntil dates
+  """
   lockedUntil: Int! # uint256
+  """
+  The total amount staked for this specific user until this specific lockedUntil date
+  """
   totalStaked: BigDecimal! # uint256
   timestamp: Int!
   emittedBy: Bytes! #address
   transaction: Transaction!
+  """
+  If this is false, the tokens were staked by a vesting contract, and not voluntarily by a user
+  """
   isUserStaked: Boolean!
 }
 
-# This maps to existing stakeHistory api
-
+"""
+This entity holds the voluntary staking history (ie not staking by a vesting contract) of one user
+"""
 type UserStakeHistory @entity {
+  """
+  ID is the user address
+  """
   id: ID! # id is user
   user: User!
+  """
+  Granular history of the user's voluntary staking activity
+  """
   stakeHistory: [StakeHistoryItem!] @derivedFrom(field: "user")
+  """
+  totalStaked is the total amount the user has EVER staked (over all time).
+  Eg if they stake 10 SOV and then withdraw it and stake it again, totalStaked is 20 SOV
+  """
   totalStaked: BigDecimal!
+  """
+  totalWithdrawn is the total amount the user has ever withdrawn from voluntary staking (over all time)
+  """
   totalWithdrawn: BigDecimal!
+  """
+  totalRemaining is the amount the user currently has staked.
+  It should be the same as the result of calling the balanceOf(USER_ADDRESS) method on the staking contract.
+  """
   totalRemaining: BigDecimal!
 }
 
 enum StakeHistoryAction {
+  """
+  Voluntarily staking SOV (ie not staked through a vesting contract)
+  """
   Stake
+  """
+  Increasing the amount of an existing stake. The lockedUntil date of this stake remains the same, but amount increases.
+  """
   IncreaseStake
+  """
+  Extending an existing stake. The amount of the stake remains the same, but the lockedUntil date increases.
+  """
   ExtendStake
+  """
+  When a user delegates voting power to another user. This can also be for voting power that the user has through a vesting contract.
+  """
   Delegate
+  """
+  Unstake is early unstaking, when a user withdraws staked SOV before the lockedUntil date and incurs a slashing penalty.
+  """
   Unstake
+  """
+  WithdrawStaked is when a user withdraws SOV from the staking contract after the unlock date, when the funds are no longer staked or locked
+  """
   WithdrawStaked
+  """
+  When a user withdraws their share of the Protocol fees that is shared amongst stakers
+  """
   FeeWithdrawn
 }
 
+"""
+This entity is the granular history of user actions related to voluntary staking
+"""
 type StakeHistoryItem @entity {
+  
   id: ID! # transaction hash
   user: UserStakeHistory!
   action: StakeHistoryAction!

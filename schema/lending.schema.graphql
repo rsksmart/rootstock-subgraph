@@ -10,7 +10,16 @@ type LendingPool @entity {
   The actual asset being lent and borrowed in this pool
   """
   underlyingAsset: Token!
+  """
+  The total supply of this pool token (not the underlying asset).
+  It is incremented on Mint events and decremented on Burn events
+  """
   poolTokenBalance: BigDecimal!
+  """
+  Balance of the underlying asset (ERC20 token) represented by the total supply of pool tokens
+  It is incremented on Mint events and decremented on Burn events.
+  WORK-IN-PROGRESS: This is a work-in-progress as it does not properly account for interest payments currently
+  """
   assetBalance: BigDecimal!
   """
   Total asset volume lent over all time
@@ -43,23 +52,47 @@ type UserLendingHistory @entity {
 }
 
 enum LendingHistoryType {
+  """
+  Lend is equivalent to a Mint event
+  """
   Lend
+  """
+  UnLend is equivalent to a Burn event
+  """
   UnLend
 }
 
+"""
+LendingHistoryItem is one user's history of Lend/UnLend events across all the lending pools
+"""
 type LendingHistoryItem @entity {
   id: ID! # tx hash
   lender: User!
+  """
+  Type is Lend/UnLend
+  """
   type: LendingHistoryType!
+  """
+  The lending pool the user interacted with
+  """
   lendingPool: LendingPool!
   """
   The underlying asset for this pool (eg USDT for the iUSDT pool)
   """
   asset: Token 
+  """
+  The amount of ERC20 token that was lent/unlent
+  """
   amount: BigDecimal!
+  """
+  The amount of pool token that was minted or burned
+  """
   loanTokenAmount: BigDecimal!
   timestamp: Int!
   transaction: Transaction!
   emittedBy: String!
+  """
+  Foreign key to the UserLendingHistory entity (see the docs on this entity for more information)
+  """
   userLendingHistory: UserLendingHistory!
 }

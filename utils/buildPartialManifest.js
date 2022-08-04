@@ -13,18 +13,23 @@ const manifestSections = {
     voting: [],
     trading: [],
     bridge: ["FastBTCBridge"],
-    // sovrynProtocol: [...amm, "ISovryn"],
-    vestingStaking: ["FourYearVesting", "Staking", "VestingRegistryProxy", "VestingRegistry1", "VestingRegistry2", "VestingRegistry3", "VestingRegistryFish"]
+    // sovrynProtocol: [...amm, "ISovryn"]
+}
+
+const keyWords = {
+    stakingVesting: ["Staking", "Vesting"]
 }
 
 const pruneManifest = (section) => {
-    const contracts = manifestSections[section]
+    const contracts = manifestSections[section] || []
+    const keyword = keyWords[section] || []
     let doc = yaml.load(fs.readFileSync('./subgraph.yaml', 'utf8'));
     let newDataSources = []
     let newTemplates = []
 
-    for (const dataSource of doc.dataSources) {
-        if (!contracts.includes(dataSource.name)) {
+    const appendNewDataSources = (dataSource) => {
+        const containsKeywords = keyword.filter(item => dataSource.name.includes(item)).length > 0
+        if (!contracts.includes(dataSource.name) && !containsKeywords) {
             console.log(`${dataSource.name} removed`)
         } else {
             newDataSources.push(dataSource)
@@ -32,18 +37,16 @@ const pruneManifest = (section) => {
         }
     }
 
+    for (const dataSource of doc.dataSources) {
+        appendNewDataSources(dataSource)
+    }
+
     for (const dataSource of doc.templates) {
-        if (!contracts.includes(dataSource.name)) {
-            console.log(`${dataSource.name} removed`)
-        } else {
-            newTemplates.push(dataSource)
-            console.log('\x1b[36m%s\x1b[0m', `${dataSource.name} kept`)
-        }
+        appendNewDataSources(dataSource)
     }
 
     doc.dataSources = newDataSources
     doc.templates = newTemplates
-    console.log(doc)
     const newYamlDoc = dump(doc, { lineWidth: -1 })
     fs.writeFile('./subgraph.yaml', newYamlDoc)
     console.log("Partial manifest written")
@@ -57,7 +60,7 @@ const run = async () => {
     const { section } = options
 
     console.log(section)
-    if (!manifestSections[section]) {
+    if (!manifestSections[section] && !keyWords[section]) {
         console.error(`Valid sections are: ${Object.keys(manifestSections)}`)
         throw new Error(`${section} is not a valid section`)
     } else {

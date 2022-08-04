@@ -1,4 +1,4 @@
-import { Address, Bytes, BigInt, BigDecimal } from '@graphprotocol/graph-ts'
+import { Address, BigInt, BigDecimal } from '@graphprotocol/graph-ts'
 import { Swap, Token, User } from '../../generated/schema'
 import { createAndReturnUser } from './User'
 import { WRBTCAddress } from '../contracts/contracts'
@@ -63,11 +63,11 @@ export function updatePricing(event: ConversionEventForSwap): void {
   if (event.fromAmount < threshold || event.toAmount < threshold) {
     return
   }
-  let protocolStatsEntity = createAndReturnProtocolStats()
+  const protocolStatsEntity = createAndReturnProtocolStats()
   const USDTAddress = protocolStatsEntity.usdStablecoin.toLowerCase()
   let btcUsdPrice = protocolStatsEntity.btcUsdPrice
 
-  let BTCToken = Token.load(WRBTCAddress.toLowerCase())
+  const BTCToken = Token.load(WRBTCAddress.toLowerCase())
 
   if (BTCToken != null) {
     let token: Token | null
@@ -111,8 +111,8 @@ export function updatePricing(event: ConversionEventForSwap): void {
 
       token.prevPriceBtc = token.lastPriceBtc
       token.lastPriceBtc = newPriceBtc
-      let lpFeeUsd = newPriceUsd.times(event.lpFee)
-      let stakerFeeUsd = newPriceUsd.times(event.protocolFee)
+      const lpFeeUsd = newPriceUsd.times(event.lpFee)
+      const stakerFeeUsd = newPriceUsd.times(event.protocolFee)
 
       if (token.id.toLowerCase() != USDTAddress.toLowerCase()) {
         // TODO: handle this case
@@ -128,7 +128,7 @@ export function updatePricing(event: ConversionEventForSwap): void {
       BTCToken.save()
 
       if (event.user.toHexString() == event.trader.toHexString()) {
-        let userTotalsEntity = createAndReturnUserTotals(event.user)
+        const userTotalsEntity = createAndReturnUserTotals(event.user)
         userTotalsEntity.totalAmmStakerFeesUsd = userTotalsEntity.totalAmmStakerFeesUsd.plus(stakerFeeUsd)
         userTotalsEntity.totalAmmLpFeesUsd = userTotalsEntity.totalAmmLpFeesUsd.plus(lpFeeUsd)
         userTotalsEntity.save()

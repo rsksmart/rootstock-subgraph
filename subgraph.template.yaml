@@ -131,8 +131,6 @@ dataSources:
         - PayBorrowingFee
         - PayLendingFee
         - PayTradingFee
-        - SetWrbtcToken
-        - SetLoanPool
         - Trade
         - Rollover
         # - WithdrawFees # this needs to be changed due to naming clash
@@ -156,20 +154,14 @@ dataSources:
           handler: handleExternalSwap
         - event: Liquidate(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
           handler: handleLiquidate
-        - event: LoanSwap(indexed bytes32,indexed address,indexed address,address,uint256,uint256)
-          handler: handleLoanSwap
         - event: PayBorrowingFee(indexed address,indexed address,indexed bytes32,uint256)
           handler: handlePayBorrowingFee
         - event: PayLendingFee(indexed address,indexed address,uint256)
           handler: handlePayLendingFee
-        - event: PayInterestTransfer(indexed address,indexed address,uint256)
-          handler: handlePayInterestTransfer
         - event: PayTradingFee(indexed address,indexed address,indexed bytes32,uint256)
           handler: handlePayTradingFee
         - event: SetLoanPool(indexed address,indexed address,indexed address)
           handler: handleSetLoanPool
-        - event: SetWrbtcToken(indexed address,indexed address,indexed address)
-          handler: handleSetWrbtcToken
         - event: Trade(indexed address,indexed address,indexed bytes32,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTrade
         - event: Rollover(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,address,uint256)
@@ -277,18 +269,6 @@ dataSources:
         - name: VestingRegistry
           file: ./abis/VestingRegistry.json
       eventHandlers:
-        - event: AdminAdded(address)
-          handler: handleAdminAdded
-        - event: AdminRemoved(address)
-          handler: handleAdminRemoved
-        - event: CSOVReImburse(address,uint256,uint256)
-          handler: handleCSOVReImburse
-        - event: CSOVTokensExchanged(indexed address,uint256)
-          handler: handleCSOVTokensExchanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: SOVTransferred(indexed address,uint256)
-          handler: handleSOVTransferred
         - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleTeamVestingCreated
         - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
@@ -320,23 +300,8 @@ dataSources:
         - name: VestingRegistry
           file: ./abis/VestingRegistry.json
       eventHandlers:
-        
-        - event: AdminAdded(address)
-          handler: handleAdminAdded
-        - event: AdminRemoved(address)
-          handler: handleAdminRemoved
-        - event: CSOVReImburse(address,uint256,uint256)
-          handler: handleCSOVReImburse
-        - event: CSOVTokensExchanged(indexed address,uint256)
-          handler: handleCSOVTokensExchanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: SOVTransferred(indexed address,uint256)
-          handler: handleSOVTransferred
         - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleTeamVestingCreated
-        - event: TokensStaked(indexed address,uint256)
-          handler: handleTokensStaked
         - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
@@ -366,22 +331,8 @@ dataSources:
         - name: VestingRegistry
           file: ./abis/VestingRegistry.json
       eventHandlers:
-        - event: AdminAdded(address)
-          handler: handleAdminAdded
-        - event: AdminRemoved(address)
-          handler: handleAdminRemoved
-        - event: CSOVReImburse(address,uint256,uint256)
-          handler: handleCSOVReImburse
-        - event: CSOVTokensExchanged(indexed address,uint256)
-          handler: handleCSOVTokensExchanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: SOVTransferred(indexed address,uint256)
-          handler: handleSOVTransferred
         - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleTeamVestingCreated
-        - event: TokensStaked(indexed address,uint256)
-          handler: handleTokensStaked
         - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
@@ -407,8 +358,6 @@ dataSources:
       eventHandlers:
         - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256,uint256)
           handler: handleTeamVestingCreatedProxy
-        - event: TokensStaked(indexed address,uint256)
-          handler: handleTokensStaked
         - event: VestingCreated(indexed address,address,uint256,uint256,uint256,uint256)
           handler: handleVestingCreatedProxy
       file: ./src/VestingRegistry.ts
@@ -438,23 +387,8 @@ dataSources:
         - name: VestingRegistry
           file: ./abis/VestingRegistry.json
       eventHandlers:
-        
-        - event: AdminAdded(address)
-          handler: handleAdminAdded
-        - event: AdminRemoved(address)
-          handler: handleAdminRemoved
-        - event: CSOVReImburse(address,uint256,uint256)
-          handler: handleCSOVReImburse
-        - event: CSOVTokensExchanged(indexed address,uint256)
-          handler: handleCSOVTokensExchanged
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: SOVTransferred(indexed address,uint256)
-          handler: handleSOVTransferred
         - event: TeamVestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleTeamVestingCreated
-        - event: TokensStaked(indexed address,uint256)
-          handler: handleTokensStaked
         - event: VestingCreated(indexed address,address,uint256,uint256,uint256)
           handler: handleVestingCreated
       file: ./src/VestingRegistry.ts
@@ -477,7 +411,6 @@ dataSources:
         - name: FourYearVesting
           file: ./abis/FourYearVesting.json
       eventHandlers:
-        
         - event: FourYearVestingCreated(indexed address,indexed address)
           handler: handleFourYearVestingCreated
       file: ./src/FourYearVesting.ts
@@ -508,23 +441,14 @@ dataSources:
         - name: Staking
           file: ./abis/Staking.json
       eventHandlers:
-        
         - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
           handler: handleDelegateChanged
-        - event: DelegateStakeChanged(indexed address,uint256,uint256,uint256)
-          handler: handleDelegateStakeChanged
         - event: ExtendedStakingDuration(indexed address,uint256,uint256)
           handler: handleExtendedStakingDuration
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: TokensStaked(indexed address,uint256,uint256,uint256)
           handler: handleTokensStaked
-        - event: TokensUnlocked(uint256)
-          handler: handleTokensUnlocked
         - event: TokensWithdrawn(indexed address,address,uint256)
           handler: handleTokensWithdrawn
-        - event: VestingTokensWithdrawn(address,address)
-          handler: handleVestingTokensWithdrawn
         - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
       file: ./src/Staking.ts
@@ -553,7 +477,7 @@ dataSources:
           handler: handleTokensWithdrawn
         - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
-      file: ./src/Staking.ts
+      file: ./src/StakingFish.ts
    
   #  FeeSharingProxy contract
   - kind: ethereum/contract
@@ -573,10 +497,6 @@ dataSources:
         - name: FeeSharingProxy
           file: ./abis/FeeSharingProxy.json
       eventHandlers:
-        - event: FeeAMMWithdrawn(indexed address,indexed address,uint256)
-          handler: handleFeeAMMWithdrawn
-        - event: FeeWithdrawn(indexed address,indexed address,uint256)
-          handler: handleFeeWithdrawn
         - event: TokensTransferred(indexed address,indexed address,uint256)
           handler: handleTokensTransferred
         - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
@@ -738,11 +658,8 @@ dataSources:
         - name: FastBTCBridge
           file: ./abis/FastBTCBridge.json
       eventHandlers:
-        
         - event: BitcoinTransferBatchSending(bytes32,uint8)
           handler: handleBitcoinTransferBatchSending
-        # - event: BitcoinTransferFeeChanged(uint256,uint256)
-        #   handler: handleBitcoinTransferFeeChanged
         - event: BitcoinTransferStatusUpdated(indexed bytes32,uint8)
           handler: handleBitcoinTransferStatusUpdated
         - event: NewBitcoinTransfer(indexed bytes32,string,uint256,uint256,uint256,indexed address)
@@ -787,8 +704,6 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV1
-        - event: ConversionFeeUpdate(uint32,uint32)
-          handler: handleConversionFeeUpdate
         - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
           handler: handleWithdrawFees
       file: ./src/LiquidityPoolConverter.ts
@@ -827,8 +742,6 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256)
           handler: handleConversionV2
-        - event: ConversionFeeUpdate(uint32,uint32)
-          handler: handleConversionFeeUpdate
 
       file: ./src/LiquidityPoolConverter.ts
 
@@ -881,8 +794,6 @@ templates:
       eventHandlers:
         - event: Burn(indexed address,uint256,uint256,uint256)
           handler: handleBurn
-        - event: FlashBorrow(address,address,address,uint256)
-          handler: handleFlashBorrow
         - event: Mint(indexed address,uint256,uint256,uint256)
           handler: handleMint
       file: ./src/LoanTokenLogicStandard.ts
@@ -922,8 +833,6 @@ templates:
           handler: handleActivation
         - event: Conversion(indexed address,indexed address,indexed address,uint256,uint256,int256,int256)
           handler: handleConversionV1_2
-        - event: ConversionFeeUpdate(uint32,uint32)
-          handler: handleConversionFeeUpdate
         - event: WithdrawFees(indexed address,indexed address,address,uint256,uint256)
           handler: handleWithdrawFees
       file: ./src/LiquidityPoolConverter.ts

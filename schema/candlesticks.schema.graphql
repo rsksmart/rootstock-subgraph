@@ -1,17 +1,42 @@
 # Candlesticks
 
+"""
+Candlesticks are for presentational purposes on the dapp. This entity supports the candlestick trading data on the trading view charts.
+Trading data is available for the following pairs:
+1. All tokens to RBTC
+2. All tokens to current usdStablecoin (see ProtocolStats entity for more information)
+There is not candlestick data for other trading pairs as this would cause the amount of data stored to increase exponentially
+"""
 type CandleStick @entity {
-  id: ID! # fromToken + toToken + timestamp + interval
+  """
+  The ID is fromToken + toToken + timestamp + interval
+  toToken will be either RBTC or XUSD
+  interval is a CandleSticksInterval (see interval data type below)
+  """
+  id: ID!
+  """
+  Eg in the pair SOV-XUSD, the base token is SOV and the quote token is XUSD
+  Prices shown are the price of the base token in the quote token (eg price of SOV in XUSD)
+  """
   baseToken: Token
   quoteToken: Token
+  """
+  Time period of this particular candlestick series
+  """
   interval: CandleSticksInterval
   open: BigDecimal # opening price
   high: BigDecimal! # high price
   low: BigDecimal! # low price
   close: BigDecimal! # close price
   txCount: Int! # number of transactions during period
-  totalVolume: BigDecimal! # total volume in quote currency
-  periodStartUnix: Int! # unix timestamp for start of candle
+  """
+  The volume of the base token that has been bought and sold in this time period
+  """
+  totalVolume: BigDecimal! 
+  """
+  Unix timestamp for the candlestick start time
+  """
+  periodStartUnix: Int!
 }
 
 enum CandleSticksInterval {

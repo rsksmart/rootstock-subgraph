@@ -1,5 +1,5 @@
-import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
-import { CandleStick, ProtocolStats, Token } from '../../generated/schema'
+import { BigDecimal, log } from '@graphprotocol/graph-ts'
+import { CandleStick, Token } from '../../generated/schema'
 
 import { createAndReturnProtocolStats } from './ProtocolStats'
 import { ConversionEventForSwap } from './Swap'
@@ -38,9 +38,9 @@ export function updateCandleSticks(event: ConversionEventForSwap): void {
   let oldPrice = BigDecimal.zero()
   let newPrice = BigDecimal.zero()
   let volume = BigDecimal.zero()
-  let blockTimestamp = event.timestamp
+  const blockTimestamp = event.timestamp
 
-  let protocolStats = createAndReturnProtocolStats()
+  const protocolStats = createAndReturnProtocolStats()
   const usdStablecoin = protocolStats.usdStablecoin.toLowerCase()
   log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 45 ~ : usdStablecoin {}', [usdStablecoin])
 
@@ -147,7 +147,7 @@ function updateCandlestick(
   interval: Interval,
   intervalStr: string,
 ): void {
-  let candleStickTimestamp = blockTimestamp - (blockTimestamp % interval)
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % interval)
   log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 80 ~  candleStickTimestamp: {}', [candleStickTimestamp.toString()])
   const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, interval)
   const candleStickObj = getCandleStick(candlestickId, intervalStr)

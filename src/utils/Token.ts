@@ -1,4 +1,4 @@
-import { Address, bigDecimal, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { Token, LiquidityPoolToken, TokenSmartToken, ProtocolStats, PoolToken } from '../../generated/schema'
 import { ERC20 as ERC20TokenContract } from '../../generated/templates/LiquidityPoolV1Converter/ERC20'
 import { createAndReturnProtocolStats } from './ProtocolStats'
@@ -8,10 +8,8 @@ import { createAndReturnPoolToken } from './PoolToken'
 
 export function createAndReturnToken(tokenAddress: Address, converterAddress: Address, smartTokenAddress: Address): Token {
   let token = Token.load(tokenAddress.toHex())
-  let isNewToken = false
   let protocolStats: ProtocolStats
   if (token === null) {
-    isNewToken = true
     token = new Token(tokenAddress.toHex())
     token.prevPriceUsd = BigDecimal.zero()
     token.lastPriceUsd = BigDecimal.zero()
@@ -30,15 +28,15 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
 
     log.debug('Token created: {}', [smartTokenAddress.toHex()])
     const tokenContract = ERC20TokenContract.bind(tokenAddress)
-    let connectorTokenNameResult = tokenContract.try_name()
+    const connectorTokenNameResult = tokenContract.try_name()
     if (!connectorTokenNameResult.reverted) {
       token.name = connectorTokenNameResult.value
     }
-    let connectorTokenSymbolResult = tokenContract.try_symbol()
+    const connectorTokenSymbolResult = tokenContract.try_symbol()
     if (!connectorTokenSymbolResult.reverted) {
       token.symbol = connectorTokenSymbolResult.value
     }
-    let connectorTokenDecimalsResult = tokenContract.try_decimals()
+    const connectorTokenDecimalsResult = tokenContract.try_decimals()
     if (!connectorTokenDecimalsResult.reverted) {
       token.decimals = connectorTokenDecimalsResult.value
     }
@@ -47,7 +45,7 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
   if (liquidityPoolToken == null) {
     liquidityPoolToken = new LiquidityPoolToken(converterAddress.toHex() + tokenAddress.toHex())
     /** Try to load PoolToken first */
-    let poolTokenEntity = PoolToken.load(smartTokenAddress.toHexString())
+    const poolTokenEntity = PoolToken.load(smartTokenAddress.toHexString())
     if (poolTokenEntity == null) {
       createAndReturnPoolToken(smartTokenAddress, converterAddress, tokenAddress)
     }
@@ -76,7 +74,7 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
 }
 
 export function decimalize(amount: BigInt, tokenAddress: Address): BigDecimal {
-  let tokenEntity = Token.load(tokenAddress.toHexString())
+  const tokenEntity = Token.load(tokenAddress.toHexString())
   if (tokenEntity !== null) {
     return decimal.fromBigInt(amount, tokenEntity.decimals)
   } else {

@@ -1,18 +1,12 @@
 import { PoolTokenAdded, PoolTokenUpdated, RewardClaimed as RewardClaimedEvent } from '../generated/MiningProxy/MiningProxy'
-import {
-  UserRewardsEarnedHistory,
-  RewardsEarnedHistoryItem,
-  LiquidityMiningGlobal,
-  LiquidityMiningAllocationPoint,
-  LendingPool,
-  SmartToken,
-} from '../generated/schema'
+import { UserRewardsEarnedHistory, LiquidityMiningGlobal, LiquidityMiningAllocationPoint, LendingPool, SmartToken } from '../generated/schema'
 import { MiningProxy } from '../generated/MiningProxy/MiningProxy'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
 import { BigDecimal, Address, BigInt } from '@graphprotocol/graph-ts'
 import { RewardsEarnedAction } from './utils/types'
 import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
+import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
 
 export function handleRewardClaimed(event: RewardClaimedEvent): void {
   createAndReturnTransaction(event)
@@ -33,13 +27,13 @@ export function handleRewardClaimed(event: RewardClaimedEvent): void {
     userRewardsEarnedHistory.save()
   }
 
-  let rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  rewardsEarnedHistoryItem.action = RewardsEarnedAction.RewardClaimed
-  rewardsEarnedHistoryItem.user = event.params.user.toHexString()
-  rewardsEarnedHistoryItem.amount = amount
-  rewardsEarnedHistoryItem.timestamp = event.block.timestamp.toI32()
-  rewardsEarnedHistoryItem.transaction = event.transaction.hash.toHexString()
-  rewardsEarnedHistoryItem.save()
+  createOrIncrementRewardItem({
+    action: RewardsEarnedAction.RewardClaimed,
+    user: event.params.user,
+    amount: amount,
+    timestamp: event.block.timestamp,
+    transactionHash: event.transaction.hash,
+  })
 }
 
 export function handlePoolTokenAdded(event: PoolTokenAdded): void {
@@ -70,12 +64,12 @@ function createOrUpdateLiquidityMiningGlobal(proxyAddress: Address): LiquidityMi
     globalEntity = new LiquidityMiningGlobal('0')
   }
 
-  let liquidityMiningContract = MiningProxy.bind(proxyAddress)
-  let totalAllocationPointResult = liquidityMiningContract.try_totalAllocationPoint()
+  const liquidityMiningContract = MiningProxy.bind(proxyAddress)
+  const totalAllocationPointResult = liquidityMiningContract.try_totalAllocationPoint()
   if (!totalAllocationPointResult.reverted) {
     globalEntity.totalAllocationPoint = totalAllocationPointResult.value
   }
-  let rewardPerBlockResult = liquidityMiningContract.try_rewardTokensPerBlock()
+  const rewardPerBlockResult = liquidityMiningContract.try_rewardTokensPerBlock()
   if (!rewardPerBlockResult.reverted) {
     globalEntity.totalRewardPerBlock = rewardPerBlockResult.value
   }
@@ -98,11 +92,11 @@ function createAndReturnLiquidityMiningAllocation(
     allocationEntity.poolTokenAddedBlock = blockNumber
     allocationEntity.poolTokenAddedTimestamp = timestamp
     allocationEntity.poolTokenUpdatedBlock = blockNumber
-    allocationEntity.poolTokenAddedTimestamp = timestamp
+    allocationEntity.poolTokenUpdatedTimestamp = timestamp
     allocationEntity.rewardPerBlock = calculateRewardPerBlock(global.totalRewardPerBlock, allocationPoint, global.totalAllocationPoint)
     /** Check if the pool token is for a lending or amm pool */
-    let smartTokenEntity = SmartToken.load(token.toHexString())
-    let lendingPoolEntity = LendingPool.load(token.toHexString())
+    const smartTokenEntity = SmartToken.load(token.toHexString())
+    const lendingPoolEntity = LendingPool.load(token.toHexString())
     if (smartTokenEntity !== null) {
       allocationEntity.ammPoolToken = token.toHexString()
     }
@@ -116,7 +110,7 @@ function createAndReturnLiquidityMiningAllocation(
   if (allocationEntity.allocationPoint !== allocationPoint) {
     allocationEntity.allocationPoint = allocationPoint
     allocationEntity.poolTokenUpdatedBlock = blockNumber
-    allocationEntity.poolTokenAddedTimestamp = timestamp
+    allocationEntity.poolTokenUpdatedTimestamp = timestamp
     allocationEntity.rewardPerBlock = calculateRewardPerBlock(global.totalRewardPerBlock, allocationPoint, global.totalAllocationPoint)
     allocationEntity.save()
     return allocationEntity

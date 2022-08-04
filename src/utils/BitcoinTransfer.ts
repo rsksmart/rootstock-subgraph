@@ -21,7 +21,7 @@ export class BitcoinTransferStatus {
 }
 
 export const createBitcoinTransfer = (event: NewBitcoinTransferEvent): BitcoinTransfer => {
-  const transaction = createAndReturnTransaction(event)
+  createAndReturnTransaction(event)
   let bitcoinTransfer = BitcoinTransfer.load(event.params.transferId.toHex())
   if (bitcoinTransfer == null) {
     bitcoinTransfer = new BitcoinTransfer(event.params.transferId.toHex())
@@ -30,7 +30,7 @@ export const createBitcoinTransfer = (event: NewBitcoinTransferEvent): BitcoinTr
     bitcoinTransfer.amountBTC = satoshiToBTC(event.params.amountSatoshi)
     bitcoinTransfer.feeBTC = satoshiToBTC(event.params.feeSatoshi)
     bitcoinTransfer.totalAmountBTC = satoshiToBTC(event.params.amountSatoshi.plus(event.params.feeSatoshi))
-    const user = createAndReturnUser(event.params.rskAddress, event.block.timestamp)
+    createAndReturnUser(event.params.rskAddress, event.block.timestamp)
     bitcoinTransfer.user = event.params.rskAddress.toHex()
     bitcoinTransfer.status = BitcoinTransferStatus.getStatus(1)
     bitcoinTransfer.createdAtTimestamp = event.block.timestamp.toI32()

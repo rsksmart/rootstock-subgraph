@@ -13,11 +13,18 @@ type ProtocolStats @entity {
   An array of all tokens in the protocol
   """
   tokens: [Token!]!
+  """
+  The token currently used as a proxy for USD/BTC prices
+  """
   usdStablecoin: Token!
+  """
+  Current price of BTC in usdStablecoin
+  """
   btcUsdPrice: BigDecimal!
   """
   Total number of users of the protocol. This number is incremented each time a user initiates a transaction with the Protocol.
-  Currently this is incremented by specific user actions, but could be incremented on a per Transaction basis.
+  Incremented when a user interacts with any contracts tracked by this subgraph.
+  Does not include the Zero, Mynt and Perperpetual Swaps users (unless they have also used the core protocol)
   """
   totalUsers: Int!
   """
@@ -84,10 +91,10 @@ type ProtocolStats @entity {
   This is SOV staked by vesting contracts. It in incremented when the contracts stake the tokens, and decremented when users claim their unlocked tokens
   """
   currentStakedByVestingSov: BigDecimal!
-  """
-  NOT YET IMPLEMENTED: This will be a total of volumes of all transaction types (AMM Swaps, Margin Trades, CloseWithSwap etc etc)
-  """
-  totalTransactedVolumeUsd: Int! # TODO: Implement
+  # """
+  # NOT YET IMPLEMENTED: This will be a total of volumes of all transaction types (AMM Swaps, Margin Trades, CloseWithSwap etc etc)
+  # """
+  # totalTransactedVolumeUsd: Int! # TODO: Implement
 }
 
 """
@@ -112,6 +119,9 @@ type Transaction @entity {
   The account that initiated this transaction. This must be an Account and not a Contract.
   """
   from: User!
+  """
+  The contract the user interacted with
+  """
   to: Bytes
   value: BigInt!
   gasLimit: BigInt!
@@ -127,6 +137,9 @@ type Token @entity {
   id: ID!
   name: String
   symbol: String
+  """
+  Number of decimal places used in the smart contract for this token
+  """
   decimals: Int
   version: Int
   """
@@ -139,14 +152,20 @@ type Token @entity {
   smartTokens: [TokenSmartToken!] @derivedFrom(field: "token")
   # tokenSwapTotals: [TokenSwapTotals!]
   """
-  previous BTC price used for candleSticks
+  Internal use only - previous BTC price used for candleSticks
   """
   prevPriceBtc: BigDecimal!
+  """
+  lastPriceBtc is the last traded price of this token in BTC
+  """
   lastPriceBtc: BigDecimal!
   """
-  previous BTC price used for candleSticks
+  Internal use only - previous BTC price used for candleSticks
   """
   prevPriceUsd: BigDecimal!
+  """
+  lastPriceUsd is the last traded price of this token in USD
+  """
   lastPriceUsd: BigDecimal!
   """
   The total volume of this token that has been traded through the protocol quoted in BTC
@@ -161,14 +180,6 @@ type Token @entity {
   """
   tokenVolume: BigDecimal!
   currentConverterRegistry: ConverterRegistry
-  """
-  Does this token have an AMM pool with rBTC as the other reserve asset?
-  """
-  hasBtcPool: Boolean
-  """
-  Does this token have an AMM pool with the protocol stablecoin as the other reserve asset?
-  """
-  hasStablecoinPool: Boolean
 }
 
 type OwnerUpdate @entity {

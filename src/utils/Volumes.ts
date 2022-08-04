@@ -61,14 +61,14 @@ function updateProtocolStatsVolume(volumeUsd: BigDecimal): void {
 }
 
 function updatePoolVolume(parsedEvent: ConversionEventForSwap, liquidityPoolAddress: Address): void {
-  let fromTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.fromToken.toHexString())
+  const fromTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.fromToken.toHexString())
   if (fromTokenEntity != null) {
     fromTokenEntity.volumeSold = fromTokenEntity.volumeSold.plus(parsedEvent.fromAmount)
     fromTokenEntity.totalVolume = fromTokenEntity.totalVolume.plus(parsedEvent.fromAmount)
     fromTokenEntity.save()
   }
 
-  let toTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.toToken.toHexString())
+  const toTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.toToken.toHexString())
   if (toTokenEntity != null) {
     toTokenEntity.volumeBought = toTokenEntity.volumeBought.plus(parsedEvent.toAmount)
     toTokenEntity.totalVolume = toTokenEntity.totalVolume.plus(parsedEvent.toAmount)

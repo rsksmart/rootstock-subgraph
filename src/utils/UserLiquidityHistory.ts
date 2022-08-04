@@ -45,7 +45,7 @@ export function updateLiquidityHistory(params: IUserLiquidityHistory): void {
 }
 
 function createLiquidityHistoryItem(params: IUserLiquidityHistory, userLiquidityHistoryId: string): void {
-  let liquidityHistoryItem = new LiquidityHistoryItem(params.id)
+  const liquidityHistoryItem = new LiquidityHistoryItem(params.id)
   liquidityHistoryItem.user = params.user
   liquidityHistoryItem.userLiquidityHistory = userLiquidityHistoryId
   liquidityHistoryItem.type = params.type
