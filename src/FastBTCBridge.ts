@@ -1,6 +1,5 @@
 import {
   BitcoinTransferBatchSending as BitcoinTransferBatchSendingEvent,
-  BitcoinTransferFeeChanged as BitcoinTransferFeeChangedEvent,
   BitcoinTransferStatusUpdated as BitcoinTransferStatusUpdatedEvent,
   NewBitcoinTransfer as NewBitcoinTransferEvent,
 } from '../generated/FastBTCBridge/FastBTCBridge'
@@ -11,22 +10,20 @@ import { BitcoinTransferStatus, createBitcoinTransfer, loadBitcoinTransfer } fro
 import { createAndReturnTransaction } from './utils/Transaction'
 
 export function handleBitcoinTransferBatchSending(event: BitcoinTransferBatchSendingEvent): void {
-  let entity = new BitcoinTransferBatchSending(event.transaction.hash.toHex())
+  const entity = new BitcoinTransferBatchSending(event.transaction.hash.toHex())
   entity.bitcoinTxHash = event.params.bitcoinTxHash
   entity.transferBatchSize = event.params.transferBatchSize
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
 }
 
-export function handleBitcoinTransferFeeChanged(event: BitcoinTransferFeeChangedEvent): void {}
-
 export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusUpdatedEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
 
-  let bitcoinTransferBatchSending = BitcoinTransferBatchSending.load(event.transaction.hash.toHex())
+  const bitcoinTransferBatchSending = BitcoinTransferBatchSending.load(event.transaction.hash.toHex())
 
   const bitcoinTransfer = loadBitcoinTransfer(event.params.transferId)
   bitcoinTransfer.status = BitcoinTransferStatus.getStatus(event.params.newStatus)
@@ -42,7 +39,7 @@ export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusU
 }
 
 export function handleNewBitcoinTransfer(event: NewBitcoinTransferEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
 
   const bitcoinTransfer = createBitcoinTransfer(event)
 

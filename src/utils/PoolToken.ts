@@ -15,16 +15,16 @@ export function createAndReturnPoolToken(poolTokenAddress: Address, liquidityPoo
 
     isNew = true
 
-    let poolTokenContract = ERC20.bind(poolTokenAddress)
-    let poolTokenNameResult = poolTokenContract.try_name()
+    const poolTokenContract = ERC20.bind(poolTokenAddress)
+    const poolTokenNameResult = poolTokenContract.try_name()
     if (!poolTokenNameResult.reverted) {
       poolToken.name = poolTokenNameResult.value
     }
-    let poolTokenSymbolResult = poolTokenContract.try_symbol()
+    const poolTokenSymbolResult = poolTokenContract.try_symbol()
     if (!poolTokenSymbolResult.reverted) {
       poolToken.symbol = poolTokenSymbolResult.value
     }
-    let smartTokenDecimalsResult = poolTokenContract.try_decimals()
+    const smartTokenDecimalsResult = poolTokenContract.try_decimals()
     if (!smartTokenDecimalsResult.reverted) {
       poolToken.decimals = smartTokenDecimalsResult.value
     }
@@ -46,7 +46,7 @@ export function createAndReturnPoolToken(poolTokenAddress: Address, liquidityPoo
  * The empty string returned if a pool token does not exist is not a very nice implementation, this should probably be improved
  * */
 export function getPoolTokenFromToken(token: Address, liquidityPool: Address): string {
-  let liquidityPoolTokenEntity = LiquidityPoolToken.load(liquidityPool.toHexString() + token.toHexString())
+  const liquidityPoolTokenEntity = LiquidityPoolToken.load(liquidityPool.toHexString() + token.toHexString())
   if (liquidityPoolTokenEntity != null) {
     return liquidityPoolTokenEntity.poolToken
   } else {

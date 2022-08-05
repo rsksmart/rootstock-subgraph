@@ -1,5 +1,5 @@
 import { ConverterRegistry } from '../../generated/schema'
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 
 export function createAndReturnConverterRegistry(address: Address): ConverterRegistry {
   let converterRegistryEntity = ConverterRegistry.load(address.toHex())

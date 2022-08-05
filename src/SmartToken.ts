@@ -1,11 +1,11 @@
 import { BigDecimal } from '@graphprotocol/graph-ts'
-import { SmartToken, LiquidityPool, OwnerUpdate } from '../generated/schema'
+import { SmartToken, LiquidityPool } from '../generated/schema'
 import { OwnerUpdate as OwnerUpdateEvent } from '../generated/templates/SmartToken/SmartToken'
 
 export function handleOwnerUpdate(event: OwnerUpdateEvent): void {
-  let smartTokenEntity = SmartToken.load(event.address.toHexString())
-  let oldConverterEntity = LiquidityPool.load(event.params._prevOwner.toHexString())
-  let newConverterEntity = LiquidityPool.load(event.params._newOwner.toHexString())
+  const smartTokenEntity = SmartToken.load(event.address.toHexString())
+  const oldConverterEntity = LiquidityPool.load(event.params._prevOwner.toHexString())
+  const newConverterEntity = LiquidityPool.load(event.params._newOwner.toHexString())
 
   /** Trying to create a liquidity pool here always throws an error on the converterType method. I don't know why. */
 

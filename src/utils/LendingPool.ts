@@ -1,6 +1,6 @@
 import { SetLoanPool } from '../../generated/ISovryn/ISovryn'
 import { LendingPool } from '../../generated/schema'
-import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
+import { BigDecimal } from '@graphprotocol/graph-ts'
 
 export function createAndReturnLendingPool(event: SetLoanPool): LendingPool {
   let lendingPoolEntity = LendingPool.load(event.params.loanPool.toHexString())

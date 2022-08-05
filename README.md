@@ -1,4 +1,14 @@
-# Example Subgraph
+# Sovryn Subgraph
+
+## Description
+
+Subgraph for the Sovryn Core Protocol contracts including AMM, Staking, Vesting, Governance, FastBTC, Margin Trading and Borrowing. Other products like Perpetual Swaps and Zero have their own subgraphs.
+
+This subgraph contains logic for transforming and storing blockchain events in the Sovryn Protocol, and serving up a publicly available graphQL API for this data. The iGraphQL explorer is deployed [here](https://subgraph.sovryn.app/subgraphs/name/DistributedCollective/sovryn-subgraph/graphql), and you can find detailed schema documentation there or in the ./schema directory in this repo.
+
+Please note that this is still an early version of the subgraph. While it has undergone testing, we are aware there may be some bugs. If you wish to report a bug, please contact us on discord through the [tech-support](https://discord.com/channels/729675474665603133/813119624098611260) or [user-feedback](https://discord.com/channels/729675474665603133/750376232771780608) channels to let us know.
+
+For more information on The Graph protocol, head to the Graph documentation here: https://thegraph.com/docs/.
 
 ## Prerequisites
 
@@ -9,50 +19,35 @@
 
 * clone repo
   
-* npm install
+* Run ``npm install``
 
-* npm run prepare:RSK:testnet (this will create the docker compose file and the subgraph.yaml from the template files)
+* Add a ``.env.dev`` file in the root of the project. Copy the contents of ``.env.example`` into this file (you can change the password to your own password if you wish)
+
+* Run ``npm run schema`` to generate the schema.graphql file from the ./schema directory
+
+* Run ``npm run prepare:RSK:testnet``. This will create the docker-compose.yml file and the subgraph.yaml file from the template files.
   
-* docker-compose up -d
+* Run ``npm run dev:up``. This will run docker compose up -d and pass in your environment file.
   
-* npm run codegen
+* Run ``npm run codegen``. This will generate the ./generated folder with types and contract objects.
   
-* npm run build
+* Run ``npm run build`` to generate the build folder
   
-* npm run create-local
+* Run ``npm run create-local`` to start running the graph node locally
   
-* npm run deploy-local
+* Run ``npm run deploy-local`` to deploy the contents of the build folder locally
   
-* go to http://localhost:8000/subgraphs/name/DistributedCollective/sovryn-subgraph/graphql
+* Go to http://localhost:8000/subgraphs/name/DistributedCollective/sovryn-subgraph/graphql to see the iGraphQL GUI for your local subgraph
 
 
 ## Scaffolding:
 
-* npm run scaffold -- -fp <abi file path> -gm -gs -a <contract address>
+When adding a new abi to the subgraph, you can s
 
-* npm run scaffold -- --help for more options
+* ``npm run scaffold -- -fp <ABI_FILE_PATH> -gm -gs -a <CONTRACT_ADDRESS>``
+This will generate a mapping file in ./src with the name of the abi, a schema file in ./schema with 
 
-
-An example to help you get started with The Graph. For more information see the docs on https://thegraph.com/docs/.
-
-## Deploy Subgraph to locally hosted service
-
-1. Add a tag with command git tag [ TAG_NAME ] . The tag should be consistent with the graph versioning
-2. Run git push origin [ TAG_NAME ]
-3. Go to Jenkins site: 172.20.2.229:8080
-4. Select create-graphql-cluster and build with parameters
-5. Log in to aws console to check that new cluster is up
-6. Get GraphiQL url from aws console and add to Postman in subgrap syn environment
-7. When the new subgraph has synced, we need to change the dns to new subgraph: switching DNS name to new ELB: http://172.20.2.229:8080/job/change-dns-entry-graphql/. Use dns name for new subgraph from aws console as parameter for jenkins.
-8. Check that dns has switched over successfully: "prod" address: https://graphql.sovryn.app/subgraphs/name/DistributedCollective/Sovryn-subgraph/graphql
-
-## Unit Testing
-
-* Build a matchstick docker image following these instructions: https://github.com/LimeChain/matchstick/blob/main/README.md
-
-* To build the tests run: ``sudo docker build -t matchstick .``
-
-* To run the tests run: ``docker run --rm matchstick``
+* ``npm run scaffold -- --help`` for more options
 
 ## Test subgraph from a later block
 
@@ -60,22 +55,29 @@ If you want to start the subgraph from a later block, you can run the following 
 
 To temporarily change the start block for testing:
 * ``npm run test-start-block -b [ BLOCK_NUMBER ]``
-* ``npm run prepare:RSK:testnet``
 
-To set start blocks back to original state:
-* ``npm run test-start-block -reset``
+To reset start blocks back to original state:
 * ``npm run prepare:RSK:testnet``
 
 ## Build a partial subgraph
 
-While developing, you can partially build a subgraph if you don't need data from all the contracts.
+While developing, you can partially build a subgraph if you don't need data to sync from all the contracts.
 
 To build a partial manifest run:
-* ``npm run partial-manifest -- -sect [ SUBSECTION NAME ]``
+* ``npm run partial-manifest -- -sect [ SUBSECTION_NAME ]``
 
-To add a new manifest subsection (eg vesting, governance, bridges), go to utils/buildPartialManifest.js and add a list of the contracts you want in your subsection to the manifestSections array.
+To add a new manifest subsection (eg vesting, governance, bridges), go to ``utils/buildPartialManifest.js`` and add an array of the contracts you want in your subsection to the manifestSections array.
+
+You can also add to the keywords array if you want to filter the contracts by keyword, for example only keeping contracts that contain 'Vesting'.
 
 ## Useful info
 
-* If you are having issues with postgres when building matchstick, delete the data/ directory from the subgraph root
+* If you are having issues with postgres, delete the ``data/`` directory from the subgraph root
 * The block numbers for Orderbook contracts on mainnet are set to blocks far in the future, because these contracts only exist on testnet
+
+## Acknowledgments
+
+Thanks to creators/contributors of the following repos for inspiration and code snippets:
+- Bancor Blocklytics
+- Uniswap
+- Protofire library

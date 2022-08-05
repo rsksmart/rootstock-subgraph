@@ -9,7 +9,7 @@ import { createAndReturnUser } from './utils/User'
 export function handleFourYearVestingCreated(event: FourYearVestingCreatedEvent): void {
   createAndReturnTransaction(event)
   createAndReturnUser(event.params._tokenOwner, event.block.timestamp)
-  let newVestingContract = new VestingContract(event.params.fourYearVesting.toHexString())
+  const newVestingContract = new VestingContract(event.params.fourYearVesting.toHexString())
   newVestingContract.user = event.params._tokenOwner.toHexString()
   newVestingContract.createdAtTimestamp = event.block.timestamp.toI32()
   const oneWeekInSeconds = 604800

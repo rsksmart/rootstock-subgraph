@@ -7,24 +7,6 @@ type BitcoinTransferBatchSending @entity {
   transaction: Transaction!
 }
 
-# type BitcoinTransferFeeChanged @entity {
-#   id: ID!
-#   baseFeeSatoshi: BigInt! # uint256
-#   dynamicFee: BigInt! # uint256
-#   timestamp: Int!
-#   emittedBy: Bytes! #address
-#   transaction: Transaction!
-# }
-
-# type BitcoinTransferStatusUpdated @entity {
-#   id: ID!
-#   transferId: Bytes! # bytes32
-#   newStatus: Int! # uint8
-#   timestamp: Int!
-#   emittedBy: Bytes! #address
-#   transaction: Transaction!
-# }
-
 enum BitcoinTransferStatus {
   """
   the transfer slot has not been initialized

@@ -11,8 +11,8 @@ import { VoteCast, Proposal } from '../generated/schema'
 import { createAndReturnTransaction } from './utils/Transaction'
 
 export function handleProposalCanceled(event: ProposalCanceledEvent): void {
-  let transaction = createAndReturnTransaction(event)
-  let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
+  const transaction = createAndReturnTransaction(event)
+  const proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
   if (proposalEntity != null) {
     proposalEntity.canceled = transaction.id
     proposalEntity.save()
@@ -20,9 +20,9 @@ export function handleProposalCanceled(event: ProposalCanceledEvent): void {
 }
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
   /** Create Proposal event */
-  let proposalEntity = new Proposal(dataSource.address().toHexString() + '-' + event.params.id.toString())
+  const proposalEntity = new Proposal(dataSource.address().toHexString() + '-' + event.params.id.toString())
   proposalEntity.created = event.transaction.hash.toHex()
   proposalEntity.votesFor = BigInt.zero()
   proposalEntity.votesAgainst = BigInt.zero()
@@ -42,10 +42,10 @@ export function handleProposalCreated(event: ProposalCreatedEvent): void {
 }
 
 export function handleProposalExecuted(event: ProposalExecutedEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
 
   /** Load and update proposal event */
-  let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
+  const proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
   if (proposalEntity != null) {
     proposalEntity.executed = transaction.id
     proposalEntity.save()
@@ -53,10 +53,10 @@ export function handleProposalExecuted(event: ProposalExecutedEvent): void {
 }
 
 export function handleProposalQueued(event: ProposalQueuedEvent): void {
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
 
   /** Load and update proposal event */
-  let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
+  const proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.id.toString())
   if (proposalEntity != null) {
     proposalEntity.queued = transaction.id
     proposalEntity.save()
@@ -64,21 +64,21 @@ export function handleProposalQueued(event: ProposalQueuedEvent): void {
 }
 
 export function handleVoteCast(event: VoteCastEvent): void {
-  let entity = new VoteCast(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+  const entity = new VoteCast(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
 
   entity.voter = event.params.voter.toHexString()
   entity.proposalId = event.params.proposalId.toI32()
   entity.proposal = event.address.toHexString() + '-' + event.params.proposalId.toHexString()
   entity.support = event.params.support
   entity.votes = event.params.votes
-  let transaction = createAndReturnTransaction(event)
+  const transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
 
   /** Load and update proposal event */
-  let proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.proposalId.toString())
+  const proposalEntity = Proposal.load(dataSource.address().toHexString() + '-' + event.params.proposalId.toString())
   if (proposalEntity != null) {
     if (event.params.support == true) {
       proposalEntity.votesFor = proposalEntity.votesFor.plus(event.params.votes)

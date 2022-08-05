@@ -1,5 +1,5 @@
-import { BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
-import { CandleStick, ProtocolStats, Token } from '../../generated/schema'
+import { BigDecimal, log } from '@graphprotocol/graph-ts'
+import { CandleStickDay, CandleStickFifteenMinute, CandleStickFourHour, CandleStickHour, CandleStickMinute, Token } from '../../generated/schema'
 
 import { createAndReturnProtocolStats } from './ProtocolStats'
 import { ConversionEventForSwap } from './Swap'
@@ -13,44 +13,23 @@ enum Interval {
   DayInterval = 60 * 60 * 24,
 }
 
-class IntervalStr {
-  static MinuteInterval: string = 'MinuteInterval'
-  static FifteenMinutesInterval: string = 'FifteenMinutesInterval'
-  static HourInterval: string = 'HourInterval'
-  static FourHourInterval: string = 'FourHourInterval'
-  static DayInterval: string = 'DayInterval'
-}
-
-export class ICandleSticks {
-  tradingPair: string
-  blockTimestamp: i32
-  oldPrice: BigDecimal
-  newPrice: BigDecimal
-  volume: BigDecimal
-  baseToken: string
-  quoteToken: string
-}
-
+// TODO: this method needs to be refactored into smaller methods for cleaner code
 export function updateCandleSticks(event: ConversionEventForSwap): void {
-  log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 0 ~  event.fromToken: {}, event.toToken: {}', [event.fromToken.toHex(), event.toToken.toHex()])
   let baseToken: Token
   let quoteToken: Token
   let oldPrice = BigDecimal.zero()
   let newPrice = BigDecimal.zero()
   let volume = BigDecimal.zero()
-  let blockTimestamp = event.timestamp
+  const blockTimestamp = event.timestamp
 
-  let protocolStats = createAndReturnProtocolStats()
+  const protocolStats = createAndReturnProtocolStats()
   const usdStablecoin = protocolStats.usdStablecoin.toLowerCase()
-  log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 45 ~ : usdStablecoin {}', [usdStablecoin])
 
   if (event.fromToken.toHex().toLowerCase() == WRBTCAddress.toLowerCase()) {
-    log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 1 ~  event.fromToken: {} event.toToken', [event.fromToken.toHex(), event.toToken.toHex()])
     baseToken = Token.load(event.toToken.toHex()) as Token
     quoteToken = Token.load(event.fromToken.toHex()) as Token
     volume = event.toAmount
   } else if (event.toToken.toHex().toLowerCase() == WRBTCAddress.toLowerCase()) {
-    log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 2 ~  event.fromToken: {} event.toToken', [event.fromToken.toHex(), event.toToken.toHex()])
     baseToken = Token.load(event.fromToken.toHex()) as Token
     quoteToken = Token.load(event.toToken.toHex()) as Token
     volume = event.fromAmount
@@ -112,21 +91,11 @@ function updateAllIntervals(
   if (baseToken !== null && quoteToken !== null) {
     if (baseToken.id != quoteToken.id) {
       if (oldPrice.gt(BigDecimal.zero()) && newPrice.gt(BigDecimal.zero())) {
-        updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.MinuteInterval, IntervalStr.MinuteInterval)
-        updateCandlestick(
-          baseToken,
-          quoteToken,
-          oldPrice,
-          newPrice,
-          volume,
-          txCount,
-          blockTimestamp,
-          Interval.FifteenMinutesInterval,
-          IntervalStr.FifteenMinutesInterval,
-        )
-        updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.HourInterval, IntervalStr.HourInterval)
-        updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.FourHourInterval, IntervalStr.FourHourInterval)
-        updateCandlestick(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp, Interval.DayInterval, IntervalStr.DayInterval)
+        updateCandlestickMinute(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp)
+        updateCandlestickFifteenMinute(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp)
+        updateCandlestickHour(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp)
+        updateCandlestickFourHour(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp)
+        updateCandlestickDay(baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp)
       }
     } else {
       log.warning('Candlesticks baseToken and quoteToken are the same - baseToken: {}, quoteToken {}', [baseToken.id, quoteToken.id])
@@ -136,7 +105,7 @@ function updateAllIntervals(
   }
 }
 
-function updateCandlestick(
+function updateCandlestickMinute(
   baseToken: Token,
   quoteToken: Token,
   oldPrice: BigDecimal,
@@ -144,17 +113,90 @@ function updateCandlestick(
   volume: BigDecimal,
   txCount: i32,
   blockTimestamp: i32,
-  interval: Interval,
-  intervalStr: string,
 ): void {
-  let candleStickTimestamp = blockTimestamp - (blockTimestamp % interval)
-  log.debug('src/utils/Candlesticks.ts ~ Candlesticks.ts ~ 80 ~  candleStickTimestamp: {}', [candleStickTimestamp.toString()])
-  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, interval)
-  const candleStickObj = getCandleStick(candlestickId, intervalStr)
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % Interval.MinuteInterval)
+  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, Interval.MinuteInterval)
+  let candleStickMinute = CandleStickMinute.load(candlestickId)
+  if (candleStickMinute == null) {
+    candleStickMinute = new CandleStickMinute(candlestickId)
+    candleStickMinute.periodStartUnix = candleStickTimestamp
+    candleStickMinute.open = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickMinute.low = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickMinute.high = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickMinute.txCount = 0
+    candleStickMinute.totalVolume = BigDecimal.zero()
+    candleStickMinute.baseToken = baseToken.id
+    candleStickMinute.quoteToken = quoteToken.id
+  }
 
-  const isNew = candleStickObj.isNew
-  const candleStick = candleStickObj.candleStick
-  if (isNew) {
+  if (newPrice.gt(candleStickMinute.high)) {
+    candleStickMinute.high = newPrice
+  }
+
+  if (newPrice.lt(candleStickMinute.low)) {
+    candleStickMinute.low = newPrice
+  }
+
+  candleStickMinute.totalVolume = candleStickMinute.totalVolume.plus(volume)
+
+  candleStickMinute.close = newPrice
+  candleStickMinute.txCount = candleStickMinute.txCount + txCount
+  candleStickMinute.save()
+}
+
+function updateCandlestickFifteenMinute(
+  baseToken: Token,
+  quoteToken: Token,
+  oldPrice: BigDecimal,
+  newPrice: BigDecimal,
+  volume: BigDecimal,
+  txCount: i32,
+  blockTimestamp: i32,
+): void {
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % Interval.FifteenMinutesInterval)
+  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, Interval.FifteenMinutesInterval)
+  let candleStickFifteenMinute = CandleStickFifteenMinute.load(candlestickId)
+  if (candleStickFifteenMinute == null) {
+    candleStickFifteenMinute = new CandleStickFifteenMinute(candlestickId)
+    candleStickFifteenMinute.periodStartUnix = candleStickTimestamp
+    candleStickFifteenMinute.open = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickFifteenMinute.low = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickFifteenMinute.high = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStickFifteenMinute.txCount = 0
+    candleStickFifteenMinute.totalVolume = BigDecimal.zero()
+    candleStickFifteenMinute.baseToken = baseToken.id
+    candleStickFifteenMinute.quoteToken = quoteToken.id
+  }
+
+  if (newPrice.gt(candleStickFifteenMinute.high)) {
+    candleStickFifteenMinute.high = newPrice
+  }
+
+  if (newPrice.lt(candleStickFifteenMinute.low)) {
+    candleStickFifteenMinute.low = newPrice
+  }
+
+  candleStickFifteenMinute.totalVolume = candleStickFifteenMinute.totalVolume.plus(volume)
+
+  candleStickFifteenMinute.close = newPrice
+  candleStickFifteenMinute.txCount = candleStickFifteenMinute.txCount + txCount
+  candleStickFifteenMinute.save()
+}
+
+function updateCandlestickHour(
+  baseToken: Token,
+  quoteToken: Token,
+  oldPrice: BigDecimal,
+  newPrice: BigDecimal,
+  volume: BigDecimal,
+  txCount: i32,
+  blockTimestamp: i32,
+): void {
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % Interval.HourInterval)
+  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, Interval.HourInterval)
+  let candleStick = CandleStickHour.load(candlestickId)
+  if (candleStick == null) {
+    candleStick = new CandleStickHour(candlestickId)
     candleStick.periodStartUnix = candleStickTimestamp
     candleStick.open = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
     candleStick.low = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
@@ -179,24 +221,83 @@ function updateCandlestick(
   candleStick.txCount = candleStick.txCount + txCount
   candleStick.save()
 }
-class ICandleStick {
-  candleStick: CandleStick
-  isNew: boolean
+
+function updateCandlestickFourHour(
+  baseToken: Token,
+  quoteToken: Token,
+  oldPrice: BigDecimal,
+  newPrice: BigDecimal,
+  volume: BigDecimal,
+  txCount: i32,
+  blockTimestamp: i32,
+): void {
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % Interval.FourHourInterval)
+  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, Interval.FourHourInterval)
+  let candleStick = CandleStickFourHour.load(candlestickId)
+  if (candleStick == null) {
+    candleStick = new CandleStickFourHour(candlestickId)
+    candleStick.periodStartUnix = candleStickTimestamp
+    candleStick.open = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.low = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.high = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.txCount = 0
+    candleStick.totalVolume = BigDecimal.zero()
+    candleStick.baseToken = baseToken.id
+    candleStick.quoteToken = quoteToken.id
+  }
+
+  if (newPrice.gt(candleStick.high)) {
+    candleStick.high = newPrice
+  }
+
+  if (newPrice.lt(candleStick.low)) {
+    candleStick.low = newPrice
+  }
+
+  candleStick.totalVolume = candleStick.totalVolume.plus(volume)
+
+  candleStick.close = newPrice
+  candleStick.txCount = candleStick.txCount + txCount
+  candleStick.save()
 }
 
-function getCandleStick(candlestickId: string, interval: string): ICandleStick {
-  let candleStick = CandleStick.load(candlestickId)
-  let isNew = false
+function updateCandlestickDay(
+  baseToken: Token,
+  quoteToken: Token,
+  oldPrice: BigDecimal,
+  newPrice: BigDecimal,
+  volume: BigDecimal,
+  txCount: i32,
+  blockTimestamp: i32,
+): void {
+  const candleStickTimestamp = blockTimestamp - (blockTimestamp % Interval.DayInterval)
+  const candlestickId = getCandleStickId(baseToken, quoteToken, candleStickTimestamp, Interval.DayInterval)
+  let candleStick = CandleStickDay.load(candlestickId)
   if (candleStick == null) {
-    isNew = true
-    candleStick = new CandleStick(candlestickId)
-    candleStick.interval = interval
+    candleStick = new CandleStickDay(candlestickId)
+    candleStick.periodStartUnix = candleStickTimestamp
+    candleStick.open = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.low = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.high = oldPrice == BigDecimal.zero() ? newPrice : oldPrice
+    candleStick.txCount = 0
+    candleStick.totalVolume = BigDecimal.zero()
+    candleStick.baseToken = baseToken.id
+    candleStick.quoteToken = quoteToken.id
   }
 
-  return {
-    candleStick,
-    isNew,
+  if (newPrice.gt(candleStick.high)) {
+    candleStick.high = newPrice
   }
+
+  if (newPrice.lt(candleStick.low)) {
+    candleStick.low = newPrice
+  }
+
+  candleStick.totalVolume = candleStick.totalVolume.plus(volume)
+
+  candleStick.close = newPrice
+  candleStick.txCount = candleStick.txCount + txCount
+  candleStick.save()
 }
 
 function getCandleStickId(baseToken: Token, quoteToken: Token, candleStickTimestamp: number, interval: Interval): string {

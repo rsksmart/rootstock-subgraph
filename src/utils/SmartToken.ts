@@ -19,21 +19,21 @@ export function createAndReturnSmartToken(smartTokenAddress: Address): IGetSmart
     SmartTokenTemplate.create(smartTokenAddress)
     log.debug('Smart Token created: {}', [smartTokenAddress.toHex()])
 
-    let smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
-    let smartTokenNameResult = smartTokenContract.try_name()
+    const smartTokenContract = SmartTokenContract.bind(smartTokenAddress)
+    const smartTokenNameResult = smartTokenContract.try_name()
     if (!smartTokenNameResult.reverted) {
       smartToken.name = smartTokenNameResult.value
     }
-    let smartTokenSymbolResult = smartTokenContract.try_symbol()
+    const smartTokenSymbolResult = smartTokenContract.try_symbol()
     if (!smartTokenSymbolResult.reverted) {
       smartToken.symbol = smartTokenSymbolResult.value
     }
-    let smartTokenDecimalsResult = smartTokenContract.try_decimals()
+    const smartTokenDecimalsResult = smartTokenContract.try_decimals()
     if (!smartTokenDecimalsResult.reverted) {
       smartToken.decimals = smartTokenDecimalsResult.value
     }
 
-    let converterAddress = smartTokenContract.owner()
+    const converterAddress = smartTokenContract.owner()
     log.debug('Converter address: {}', [converterAddress.toHex()])
     smartToken.owner = converterAddress.toHexString()
   }

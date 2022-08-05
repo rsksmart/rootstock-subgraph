@@ -8,7 +8,7 @@ import { createAndReturnTransaction } from './utils/Transaction'
 export function handleTokenConverted(event: TokenConvertedEvent): void {
   createAndReturnTransaction(event)
 
-  let swapEntity = Swap.load(event.transaction.hash.toHexString())
+  const swapEntity = Swap.load(event.transaction.hash.toHexString())
   if (swapEntity != null) {
     swapEntity.user = event.params._beneficiary.toHexString()
     swapEntity.save()
