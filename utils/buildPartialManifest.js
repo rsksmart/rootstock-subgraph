@@ -1,8 +1,6 @@
 require('dotenv').config()
 const fs = require('fs-extra')
-const path = require('path')
 const { Command } = require('commander');
-const { readFileSync, writeFileSync } = require('fs');
 const program = new Command();
 program.version('0.0.1');
 const yaml = require('js-yaml');
@@ -27,22 +25,22 @@ const pruneManifest = (section) => {
     let newDataSources = []
     let newTemplates = []
 
-    const appendNewDataSources = (dataSource) => {
+    const appendNewDataSources = (dataSource, arr) => {
         const containsKeywords = keyword.filter(item => dataSource.name.includes(item)).length > 0
         if (!contracts.includes(dataSource.name) && !containsKeywords) {
             console.log(`${dataSource.name} removed`)
         } else {
-            newDataSources.push(dataSource)
+            arr.push(dataSource)
             console.log('\x1b[36m%s\x1b[0m', `${dataSource.name} kept`)
         }
     }
 
     for (const dataSource of doc.dataSources) {
-        appendNewDataSources(dataSource)
+        appendNewDataSources(dataSource, newDataSources)
     }
 
     for (const dataSource of doc.templates) {
-        appendNewDataSources(dataSource)
+        appendNewDataSources(dataSource, newTemplates)
     }
 
     doc.dataSources = newDataSources
