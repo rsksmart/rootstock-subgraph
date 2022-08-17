@@ -20,7 +20,7 @@ export function handleTokensTransferred(event: TokensTransferredEvent): void {
 
 export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
   createAndReturnTransaction(event)
-  const stakeHistoryItem = new StakeHistoryItem(event.params.sender.toHexString())
+  const stakeHistoryItem = new StakeHistoryItem(event.transaction.index.toHexString() + '-' + event.logIndex.toString())
   stakeHistoryItem.user = event.params.sender.toHexString()
   stakeHistoryItem.action = StakeHistoryAction.FeeWithdrawn
   stakeHistoryItem.timestamp = event.block.timestamp.toI32()
