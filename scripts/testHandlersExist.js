@@ -13,6 +13,7 @@ program.version('0.0.1');
 const yaml = require('js-yaml');
 
 function main() {
+    console.log("Testing handlers exist")
     let doc = yaml.load(fs.readFileSync('./subgraph.template.yaml', 'utf8'));
     let handlers = doc.dataSources.map(item => {
         return {
@@ -27,10 +28,12 @@ function main() {
             item.handlers.forEach(functionName => {
                 if (data.indexOf(functionName) < 0) {
                     console.error(`${functionName} missing from file ${item.file}`)
+                    process.exit(1)
                 }
             })
         });
     })
+    console.log("All handlers exist - woohoo!!\n\n")
 }
 
 main()
