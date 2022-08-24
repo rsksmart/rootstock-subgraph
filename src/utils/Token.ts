@@ -26,7 +26,7 @@ export function createAndReturnToken(tokenAddress: Address, converterAddress: Ad
     }
     protocolStats.tokens = protocolStats.tokens.concat([tokenAddress.toHexString()])
 
-    log.debug('Token created: {}', [smartTokenAddress.toHex()])
+    log.debug('Token created: {}', [tokenAddress.toHex()])
     const tokenContract = ERC20TokenContract.bind(tokenAddress)
     const connectorTokenNameResult = tokenContract.try_name()
     if (!connectorTokenNameResult.reverted) {

@@ -50,7 +50,7 @@ export function getPoolTokenFromToken(token: Address, liquidityPool: Address): s
   if (liquidityPoolTokenEntity != null) {
     return liquidityPoolTokenEntity.poolToken
   } else {
-    log.debug('src/utils/PoolToken.ts ~ PoolToken.ts ~ 56 ~  : {}', [token.toHexString(), liquidityPool.toHexString()])
+    log.debug('PoolToken wal NULL for token: {}, liquidityPool: {}', [token.toHexString(), liquidityPool.toHexString()])
     return ''
   }
 }

@@ -47,3 +47,25 @@ export class VestingHistoryActionItem {
   static TeamTokensRevoked: string = 'TeamTokensRevoked'
   static TokensWithdrawn: string = 'TokensWithdrawn'
 }
+
+export class CrossDirection {
+  static Incoming: string = 'Incoming'
+  static Outgoing: string = 'Outgoing'
+}
+
+export class CrossStatus {
+  static Voting: string = 'Voting'
+  static Executed: string = 'Executed'
+  static Revoked: string = 'Revoked'
+}
+
+export class BridgeChain {
+  static RSK: string = 'RSK'
+  static ETH: string = 'ETH'
+  static BSC: string = 'BSC'
+}
+
+export class BridgeType {
+  static RSK_BSC: string = 'RSK_BSC'
+  static RSK_ETH: string = 'RSK_ETH'
+}

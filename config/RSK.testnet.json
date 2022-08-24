@@ -128,5 +128,15 @@
         "network": "testnet",
         "address": "0x10C848e9495a32acA95F6c23C92eCA2b2bE9903A",
         "startBlock": 2417524
+    },
+    "BridgeBSC": {
+        "network": "testnet",
+        "address": "0x2b2bcad081fa773dc655361d1bb30577caa556f8",
+        "startBlock": 1884362
+    },
+    "BridgeETH": {
+        "network": "testnet",
+        "address": "0xC0E7A7FfF4aBa5e7286D5d67dD016B719DCc9156",
+        "startBlock": 1745576
     }
 }

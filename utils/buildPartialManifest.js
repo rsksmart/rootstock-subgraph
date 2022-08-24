@@ -10,8 +10,9 @@ const manifestSections = {
     amm: ["ConverterRegistry", "ConverterFactory", "LiquidityPoolV1Converter", "LiquidityPoolV2Converter", "LiquidityPoolV1ConverterProtocolFee", "SmartToken"],
     voting: [],
     trading: [],
-    bridge: ["FastBTCBridge"],
+    bridge: ["BridgeETH", "BridgeBSC", "Federation"],
     // sovrynProtocol: [...amm, "ISovryn"]
+    vestingStaking: ["FourYearVesting", "Staking", "VestingRegistryProxy", "VestingRegistry1", "VestingRegistry2", "VestingRegistry3", "VestingRegistryFish"]
 }
 
 const keyWords = {

@@ -11,9 +11,9 @@ export function createAndReturnUser(address: Address, timestamp: BigInt): User {
     const protocolStats = createAndReturnProtocolStats()
     protocolStats.totalUsers++
     protocolStats.save()
+    userEntity.save()
   }
 
-  userEntity.save()
   return userEntity
 }
 

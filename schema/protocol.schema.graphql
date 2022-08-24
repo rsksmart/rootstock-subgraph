@@ -180,6 +180,19 @@ type Token @entity {
   """
   tokenVolume: BigDecimal!
   currentConverterRegistry: ConverterRegistry
+  """
+  Does this token have an AMM pool with rBTC as the other reserve asset?
+  """
+  hasBtcPool: Boolean
+  """
+  Does this token have an AMM pool with the protocol stablecoin as the other reserve asset?
+  """
+  hasStablecoinPool: Boolean
+
+  """
+  CrossTransfers: cross transfers list (currently only relevant to SOV)
+  """
+  crossTransfers: [CrossTransfer!] @derivedFrom(field: "token")
 }
 
 type OwnerUpdate @entity {

@@ -133,5 +133,15 @@
         "network": "mainnet",
         "address": "0xD5564a16f356dD45e445beC725F54496700b5C5A",
         "startBlock": 4378315
+    },
+    "BridgeBSC": {
+        "network": "mainnet",
+        "address": "0x971b97c8cc82e7d27bc467c2dc3f219c6ee2e350",
+        "startBlock": 3398643
+    },
+    "BridgeETH": {
+        "network": "mainnet",
+        "address": "0x1CcAd820B6d031B41C54f1F3dA11c0d48b399581",
+        "startBlock": 3257444
     }
 }

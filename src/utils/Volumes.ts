@@ -1,4 +1,4 @@
-import { Address, BigDecimal, log } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal } from '@graphprotocol/graph-ts'
 
 import { Token, LiquidityPoolToken } from '../../generated/schema'
 import { ConversionEventForSwap } from './Swap'
@@ -39,8 +39,6 @@ function updateTokenVolume(token: Token, amount: BigDecimal): Token {
 function updateUserTotalVolume(parsedEvent: ConversionEventForSwap, volumeUsd: BigDecimal): void {
   // TODO: should we load trader or user or both?
   const userTotalsEntity = createAndReturnUserTotals(parsedEvent.user)
-  log.debug('src/utils/Volumes.ts ~ Volumes.ts ~ 39 ~  parsedEvent.user.toHex(){}', [parsedEvent.user.toHex()])
-
   userTotalsEntity.totalAmmVolumeUsd = userTotalsEntity.totalAmmVolumeUsd.plus(volumeUsd)
   userTotalsEntity.save()
 }

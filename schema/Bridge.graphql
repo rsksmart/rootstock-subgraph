@@ -1,0 +1,224 @@
+"""
+BridgeType - only 2 bridges at the moment - RSK <-> BSC and RSK <-> ETH
+"""
+enum BridgeType {
+  RSK_BSC
+  RSK_ETH
+}
+"""
+Cross Chain Bridge
+"""
+type Bridge @entity {
+  """
+  Bridge ID - Bridge Contract Address
+  """
+  id: ID! # Bridge address
+  """
+  BridgeType - there are currently only two bridges - RSK_BSC and RSK_ETH
+  """
+  type: BridgeType! # BridgeType
+  """
+  Prefix - prefix added to sideTokens symbol when created
+  """
+  prefix: String
+  """
+  isSuffix - is suffix or prefix
+  """
+  isSuffix: Boolean
+  """
+  Federation - the Federation entity associated with this bridge
+  """
+  federation: Federation!
+  """
+  isUpgrading - Indicates if the bridge is currently upgrading
+  """
+  isUpgrading: Boolean! # boolean
+  """
+  isPaused - Indicates if the bridge is currently paused
+  """
+  isPaused: Boolean! # boolean
+  """
+  Pausers - an array of addresses authorized to pause the bridge
+  """
+  pausers: [Bytes!]! # address[]
+  """
+  CreatedAtTx - The bridge creation transaction
+  """
+  createdAtTx: Transaction! # Transaction
+  """
+  UpdatedAtTx - The bridge last updated at this transaction
+  """
+  updatedAtTx: Transaction! # Transaction
+}
+
+"""
+Federation - the federation entity
+"""
+type Federation @entity {
+  """
+  Id - the id of the federation entity is the federation contract address
+  """
+  id: ID! # Bridge address
+  """
+  IsActive - is this federation contract active
+  """
+  isActive: Boolean! # Is active
+  """
+  Bridge - the bridge that is associated with this federation contract
+  """
+  bridge: Bridge!
+  """
+  TotalVotes - total votes cast on this federation
+  """
+  totalVotes: Int!
+  """
+  TotalExecuted - total transfers executed by this federation
+  """
+  totalExecuted: Int!
+  """
+  Members - federators that are members of this federation
+  """
+  members: [Bytes!]!
+  """
+  CreatedAtTx - the creation transaction of this federation
+  """
+  createdAtTx: Transaction! # Transaction
+  """
+  UpdatedAtTx - the transaction at which this entity was last updated
+  """
+  updatedAtTx: Transaction! # Transaction
+}
+
+enum CrossDirection {
+  Incoming
+  Outgoing
+}
+
+enum CrossStatus {
+  Voting
+  Executed
+  Revoked
+}
+
+enum BridgeChain {
+  RSK
+  ETH
+  BSC
+}
+
+type CrossTransfer @entity {
+  """
+  Id - the cross transfer Id - for outgoing it is generated from the cross event params for incoming it is coming from the federation events
+  """
+  id: ID! # TransactionIdU
+  """
+  Direction - the direction of the cross transfer (Incoming or Outgoing)
+  """
+  direction: CrossDirection! # CrossDirection
+  """
+  sourceChain - the source chain - for outgoing it is RSK and for incoming it is BSC/ETH
+  """
+  sourceChain: BridgeChain!
+  """
+  DestinationChain - the destination chain - for outgoing it is BSC/ETH and for incoming it is RSK
+  """
+  destinationChain: BridgeChain!
+  """
+  Votes - Number of votes cast for this transfer
+  """
+  votes: Int # uint8
+  """
+  Status - transfer status - Voting, Executed, Revoked
+  """
+  status: CrossStatus! # CrossStatus
+  """
+  originalTokenAddress - the original token address for the transfer (for outgoing it is just the RSK token address)
+  """
+  originalTokenAddress: Bytes!
+  """
+  TokenAddress - the token address for the transfer (only relevant for incoming transfers)
+  """
+  tokenAddress: Bytes # address
+  """
+  Token - the token entity if exist of original token address
+  """
+  token: Token # Token
+  """
+  sideToken - the SideToken entity if exist of original token address
+  """
+  sideToken: SideToken # SideToken
+  """
+  Receiver - The receiver of funds (can be a wallet or contract)
+  """
+  receiver: Bytes # address
+  """
+  Sender - The sender of funds (can be a wallet or contracts)
+  """
+  sender: Bytes
+  """
+  Amount - the amount of originalToken transferred across the bridge
+  """
+  amount: BigDecimal!
+  """
+  Symbol - the token symbol
+  """
+  symbol: String # string
+  """
+  SourceChainBlockHash - the source chain block hash of the transfer, for outgoing transfers this is just the RSK block hash
+  """
+  sourceChainBlockHash: Bytes # bytes
+  """
+  SourceChainTransactionHash - the source chain transaction hash of the transfer, for outgoing transfers this is just the RSK transaction hash
+  """
+  sourceChainTransactionHash: Bytes # bytes
+  """
+  CreatedAtTx - the transaction at which this transfer was created
+  """
+  createdAtTx: Transaction! # Transaction
+  """
+  CreatedAtTimestamp - the timestamp at which this transfer was created
+  """
+  createdAtTimestamp: Int!
+  """
+  updatedAtTx - the transaction at which this transfer was last updated
+  """
+  updatedAtTx: Transaction! # Transaction
+  """
+  updatedAtTimestamp - the timestamp at which this transfer was last updated
+  """
+  updatedAtTimestamp: Int!
+}
+
+"""
+SideToken entity - for every token that is passed across the bridge and does not exist on sovryn a side token is created
+"""
+type SideToken @entity {
+  """
+  Id - the side token is stored twice, once with the original token address as id and another with the side token address
+  """
+  id: ID!
+  """
+  OriginalTokenAddress - the original token address of the side token
+  """
+  originalTokenAddress: Bytes!
+  """
+  SideTokenAddress - the token address on RSK of the side token
+  """
+  sideTokenAddress: Bytes!
+  """
+  newSymbol - the new symbol given to the side token
+  """
+  newSymbol: String!
+  """
+  Granularity - this is the ERC777 granularity value for the side token
+  """
+  granularity: BigInt!
+  """
+  CreatedAtTx - the creation transaction of the side token
+  """
+  createdAtTx: Transaction! # Transaction
+  """
+  UpdatedAtTx - The side token was last updated at this transaction
+  """
+  updatedAtTx: Transaction! # Transaction
+}

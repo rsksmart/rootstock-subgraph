@@ -11,3 +11,5 @@ export const stablecoins = stringToArray('{{stablecoins}}')
 export const adminContracts = stringToArray('{{adminContracts}}')
 export const orderbookTestnet = '{{OrderbookTestnet.address}}'
 export const orderbookMainnet = '{{OrderbookMainnet.address}}'
+export const bridgeETH = '{{BridgeETH.address}}'
+export const bridgeBSC = '{{BridgeBSC.address}}'
