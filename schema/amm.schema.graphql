@@ -16,14 +16,10 @@ type ConverterRegistry @entity {
   All smart tokens in this registry
   """
   smartTokens: [SmartToken!] @derivedFrom(field: "currentConverterRegistry")
-    """
+  """
   All ERC20 tokens in this registry
   """
   connectorTokens: [Token!] @derivedFrom(field: "currentConverterRegistry")
-  """
-  The contract/account that owns the registry
-  """
-  owner: Bytes! # address
   """
   The number of active converters (AMM pools) in this registry
   """
@@ -31,7 +27,7 @@ type ConverterRegistry @entity {
 }
 
 """
-The smart token represents a single reserve asset on a single pool. 
+The smart token represents a single reserve asset on a single pool.
 For V1 pools, there is 1 smart token representing both reserve assets. For V2 pools, there are 2 smart tokens, one for each reserve asset.
 """
 type SmartToken @entity {
@@ -115,10 +111,6 @@ type Swap @entity {
   """
   id: ID!
   """
-  The AMM Conversion events involved in this swap
-  """
-  conversions: [Conversion!] @derivedFrom(field: "swapTransaction")
-  """
   The number of AMM Conversions involved in this swap (this is primarily for debugging purposes)
   """
   numConversions: Int!
@@ -170,7 +162,6 @@ type Conversion @entity {
   timestamp: Int!
   emittedBy: LiquidityPool! #address
   transaction: Transaction!
-  swapTransaction: Swap!
   blockNumber: Int!
 }
 

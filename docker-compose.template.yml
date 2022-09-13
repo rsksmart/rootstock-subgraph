@@ -25,6 +25,11 @@ services:
       # Change next line if you want to connect to a different JSON-RPC endpoint
       ethereum: '{{node.network}}:{{& node.address}}'
       GRAPH_LOG: '{{node.log_level}}'
+      GRAPH_GRAPHQL_QUERY_TIMEOUT: '{{node.graph_graphql_query_timeout}}'
+      GRAPH_SQL_STATEMENT_TIMEOUT: '{{node.graph_sql_statement_timeout}}'
+      GRAPH_GRAPHQL_MAX_DEPTH: '{{node.graph_graphql_max_depth}}'
+      GRAPH_GRAPHQL_MAX_COMPLEXITY: '{{node.graph_graphql_max_complexity}}'
+    restart: '{{node.restart}}'
   ipfs:
     image: ipfs/go-ipfs:v0.11.0
     ports:

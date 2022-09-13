@@ -69,3 +69,8 @@ export class BridgeType {
   static RSK_BSC: string = 'RSK_BSC'
   static RSK_ETH: string = 'RSK_ETH'
 }
+
+export class PoolTokenType {
+  static Lending: string = 'Lending'
+  static Amm: string = 'Amm'
+}

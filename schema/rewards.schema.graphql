@@ -1,4 +1,3 @@
-
 """
 This entity contains the history, fees and totals regarding one users' SOV rewards
 """
@@ -19,6 +18,28 @@ type UserRewardsEarnedHistory @entity {
   Incremented by EarnReward events
   """
   totalTradingRewards: BigDecimal!
+  """
+  The total liquidity mining rewards the user has claimed, earned from the lending pools.
+  Incremented by RewardClaimed, where poolToken is a lending pool token
+  """
+  totalLendingRewards: BigDecimal!
+  """
+  The total liquidity mining rewards the user has claimed, earned from the amm pools.
+  Incremented by RewardClaimed, where poolToken is an amm pool token
+  """
+  totalLiquidityRewards: BigDecimal!
+  """
+  Total liquid SOV rewards the user has earned through staking.
+  Incremented by RewardWithdrawn
+  """
+  totalStakingRewards: BigDecimal!
+  """
+  The total protocol fees this user has earned and withdrawn, quoted in RBTC.
+  Fees can be paid out in different tokens (usually RBTC and SOV).
+  This is the total amount, converted to RBTC using the rate at the time of transaction.
+  Incremented by UserFeeWithdrawn
+  """
+  totalFeeWithdrawn: BigDecimal!
   """
   Granular events for transaction where a reward is earned
   """
@@ -53,7 +74,7 @@ type RewardsEarnedHistoryItem @entity {
   id: ID! # transaction hash + RewardEarnedAction
   action: RewardsEarnedAction!
   user: UserRewardsEarnedHistory!
-  token: Token
+  token: String
   amount: BigDecimal!
   timestamp: Int!
   transaction: Transaction!

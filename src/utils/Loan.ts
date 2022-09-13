@@ -30,6 +30,7 @@ export class ChangeLoanState {
   timestamp: BigInt
 }
 
+/* eslint-disable no-unused-vars */
 export enum LoanActionType {
   LIQUIDATE,
   CLOSE_WITH_SWAP,
@@ -57,6 +58,7 @@ export function createAndReturnLoan(startParams: LoanStartState): Loan {
     loanEntity.startPositionSize = startParams.positionSize
     loanEntity.maximumPositionSize = startParams.positionSize
     loanEntity.totalBought = startParams.positionSize
+    loanEntity.startRate = startParams.startRate
     loanEntity.totalSold = BigDecimal.zero()
     loanEntity.averageBuyPrice = startParams.startRate
     loanEntity.averageSellPrice = BigDecimal.zero()
@@ -76,7 +78,7 @@ export function updateLoanReturnPnL(params: ChangeLoanState): BigDecimal {
   if (loanEntity !== null) {
     loanEntity.positionSize = loanEntity.positionSize.plus(params.positionSizeChange)
     loanEntity.borrowedAmount = loanEntity.borrowedAmount.plus(params.borrowedAmountChange)
-    loanEntity.isOpen = loanEntity.positionSize.gt(BigDecimal.zero())
+    loanEntity.isOpen = loanEntity.positionSize.gt(BigDecimal.zero()) && loanEntity.borrowedAmount.gt(BigDecimal.zero())
     if (!loanEntity.isOpen) {
       loanEntity.endTimestamp = params.timestamp.toI32()
     }

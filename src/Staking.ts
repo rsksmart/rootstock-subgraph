@@ -54,7 +54,7 @@ export function handleTokensStaked(event: TokensStakedEvent): void {
   entity.emittedBy = event.address
 
   const vestingContract = VestingContract.load(event.params.staker.toHexString())
-  entity.isUserStaked == false
+  entity.isUserStaked = false
 
   /** Gensis Vesting contracts did not emit a VestingCreated event. Therefore, they need to be created from here.
    * We will create a special case for if caller != staker between the genesis block range

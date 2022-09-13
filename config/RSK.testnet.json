@@ -3,7 +3,12 @@
     "node": {
         "network": "testnet",
         "address": "https://testnet.sovryn.app/rpc",
-        "log_level": "debug"
+        "log_level": "debug",
+        "graph_graphql_query_timeout": 10,
+        "graph_sql_statement_timeout": 10,
+        "graph_graphql_max_depth": 16,
+        "graph_graphql_max_complexity": 1500000,
+        "restart": "always"
     },
     "SOV": {
         "network": "testnet",
@@ -22,6 +27,9 @@
     },
     "WRBTCToken": {
         "address": "0x69FE5cEC81D5eF92600c1A0dB1F11986AB3758Ab"
+    },
+    "BTCLoanToken": {
+        "address": "0x6b41566353d6C7B8C2a7931d498F11489DacAc29"
     },
     "USDTToken": {
         "address": "0x4D5a316D23eBE168d8f887b4447bf8DbFA4901CC"

@@ -9,10 +9,9 @@
     "deploy": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
     "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "dev": "npm run schema && npm run codegen && npm run deploy-local -- --version-label v0.0.1",
-    "dev:no-build": "npm run codegen && npm run deploy-local",
     "dev:nodemon": "npx nodemon --exec 'npm run dev'",
-    "dev:nodemon:no-build": "npx nodemon --exec 'npm run dev:no-build'",
     "dev:up": "docker compose --env-file .env.dev up -d",
+    "dev:down": "docker compose --env-file .env.dev down",
     "lint": "npx prettier --check src/ && eslint . --ext .ts",
     "lint:fix": "npx prettier -w src/ && eslint . --ext .ts --fix",
     "scaffold": "node utils/scaffoldFromAbi.js",
@@ -25,8 +24,8 @@
     "partial-manifest": "node utils/buildPartialManifest.js"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.26.1",
-    "@graphprotocol/graph-ts": "^0.27.0",
+    "@graphprotocol/graph-cli": "^0.25.3",
+    "@graphprotocol/graph-ts": "^0.24.1",
     "@protofire/subgraph-toolkit": "^0.1.2",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",

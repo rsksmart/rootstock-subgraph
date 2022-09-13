@@ -102,13 +102,13 @@ enum StakeHistoryAction {
 This entity is the granular history of user actions related to voluntary staking
 """
 type StakeHistoryItem @entity {
-  
   id: ID! # transaction hash
   user: UserStakeHistory!
   action: StakeHistoryAction!
   timestamp: Int!
   transaction: Transaction!
   amount: BigDecimal
+  token: Token
   lockedUntil: Int
 }
 

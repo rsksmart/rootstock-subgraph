@@ -148,13 +148,13 @@ type CrossTransfer @entity {
   """
   sideToken: SideToken # SideToken
   """
-  Receiver - The receiver of funds (can be a wallet or contract)
+  Address of the user on RSK chain
   """
-  receiver: Bytes # address
+  user: User!
   """
-  Sender - The sender of funds (can be a wallet or contracts)
+  Address of the user on the external chain (eg Ethereum, BSC etc.)
   """
-  sender: Bytes
+  externalUser: Bytes
   """
   Amount - the amount of originalToken transferred across the bridge
   """

@@ -28,15 +28,14 @@ import { createAndReturnUser } from './utils/User'
 
 export function handleCross(event: CrossEvent): void {
   const transaction = createAndReturnTransaction(event)
-
   const crossTransferEvent: CrossTransferEvent = {
+    id: '',
     receiver: event.params._to,
     bridgeAddress: event.address.toHex(),
     originalTokenAddress: event.params._tokenAddress,
     amount: event.params._amount,
     decimals: event.params._decimals,
     granularity: event.params._granularity,
-    // userData: event.params._userData,
     status: CrossStatus.Executed,
     direction: CrossDirection.Outgoing,
     timestamp: event.block.timestamp,
@@ -47,13 +46,7 @@ export function handleCross(event: CrossEvent): void {
   crossTransfer.symbol = event.params._symbol
   crossTransfer.sourceChain = BridgeChain.RSK
   crossTransfer.sender = event.transaction.from
-  const sender = createAndReturnUser(event.transaction.from, event.block.timestamp)
-  if (sender != null) {
-    const sentCrossChainTransfers = sender.sentCrossChainTransfers
-    sentCrossChainTransfers.push(crossTransfer.id)
-    sender.sentCrossChainTransfers = sentCrossChainTransfers
-    sender.save()
-  }
+  createAndReturnUser(event.transaction.from, event.block.timestamp)
 
   const destinationChain = isETHBridge(event.address.toHex()) ? BridgeChain.ETH : BridgeChain.BSC
   crossTransfer.destinationChain = destinationChain
@@ -88,10 +81,10 @@ export function handleFederationChanged(event: FederationChangedEvent): void {
 }
 
 export function handleNewSideToken(event: NewSideTokenEvent): void {
-  // when a incoming token is a token that does not exist on Sovryn yet a new token is created
-  // and the new token is called a SideToken so if you transfer BNB across the bridge from BSC to RSK
-  // on RSK side a new contract is deployed a new token called BNBes is created
-  // this event is fired when the new token is deployed on RSK side
+  /** When a incoming token is a token that does not exist on Sovryn yet a new token is created
+  and the new token is called a SideToken so if you transfer BNB across the bridge from BSC to RSK
+  on RSK side a new contract is deployed a new token called BNBes is created
+  this event is fired when the new token is deployed on RSK side */
 
   const transaction = createAndReturnTransaction(event)
   // store sideToken with both original AND new address as ID so we can fetch it later by either one

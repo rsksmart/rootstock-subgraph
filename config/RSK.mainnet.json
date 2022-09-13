@@ -3,7 +3,12 @@
     "node": {
         "network": "mainnet",
         "address": "https://rsk-graph1.sovryn.app/rpc",
-        "log_level": "info"
+        "log_level": "info",
+        "graph_graphql_query_timeout": 10,
+        "graph_sql_statement_timeout": 10,
+        "graph_graphql_max_depth": 16,
+        "graph_graphql_max_complexity": 1500000,
+        "restart": "always"
     },
     "SOV": {
         "network": "mainnet",
@@ -22,6 +27,9 @@
     },
     "WRBTCToken": {
         "address": "0x542fDA317318eBF1d3DEAf76E0b632741A7e677d"
+    },
+    "BTCLoanToken": {
+        "address": "0xa9dcdc63eabb8a2b6f39d7ff9429d88340044a7a"
     },
     "USDTToken": {
         "address": "0xEf213441a85DF4d7acBdAe0Cf78004E1e486BB96"

@@ -1,38 +1,38 @@
 import { PoolTokenAdded, PoolTokenUpdated, RewardClaimed as RewardClaimedEvent } from '../generated/MiningProxy/MiningProxy'
-import { UserRewardsEarnedHistory, LiquidityMiningGlobal, LiquidityMiningAllocationPoint, LendingPool, SmartToken } from '../generated/schema'
+import { LiquidityMiningGlobal, LiquidityMiningAllocationPoint, LendingPool, SmartToken } from '../generated/schema'
 import { MiningProxy } from '../generated/MiningProxy/MiningProxy'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
 import { BigDecimal, Address, BigInt } from '@graphprotocol/graph-ts'
-import { RewardsEarnedAction } from './utils/types'
+import { PoolTokenType, RewardsEarnedAction } from './utils/types'
 import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
 import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
+import {
+  incrementTotalFeesAndRewardsEarned,
+  incrementTotalLendingRewards,
+  incrementTotalLiquidityRewards,
+  getPoolTokenType,
+} from './utils/UserRewardsEarnedHistory'
+import { SOVAddress } from './contracts/contracts'
 
 export function handleRewardClaimed(event: RewardClaimedEvent): void {
+  const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   createAndReturnTransaction(event)
   createAndReturnUser(event.params.user, event.block.timestamp)
-
-  const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
-
-  let userRewardsEarnedHistory = UserRewardsEarnedHistory.load(event.params.user.toHexString())
-  if (userRewardsEarnedHistory != null) {
-    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(amount)
-    userRewardsEarnedHistory.save()
-  } else {
-    userRewardsEarnedHistory = new UserRewardsEarnedHistory(event.params.user.toHexString())
-    userRewardsEarnedHistory.totalTradingRewards = BigDecimal.zero()
-    userRewardsEarnedHistory.availableTradingRewards = BigDecimal.zero()
-    userRewardsEarnedHistory.totalFeesAndRewardsEarned = userRewardsEarnedHistory.totalFeesAndRewardsEarned.plus(amount)
-    userRewardsEarnedHistory.user = event.params.user.toHexString()
-    userRewardsEarnedHistory.save()
+  incrementTotalFeesAndRewardsEarned(event.params.user, amount)
+  const poolTokenType = getPoolTokenType(event.params.poolToken)
+  if (poolTokenType == PoolTokenType.Lending) {
+    incrementTotalLendingRewards(event.params.user, amount)
+  } else if (poolTokenType == PoolTokenType.Amm) {
+    incrementTotalLiquidityRewards(event.params.user, amount)
   }
-
   createOrIncrementRewardItem({
     action: RewardsEarnedAction.RewardClaimed,
     user: event.params.user,
     amount: amount,
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
+    token: SOVAddress,
   })
 }
 

@@ -1,10 +1,10 @@
 import { BigDecimal, log } from '@graphprotocol/graph-ts'
 import { CandleStickDay, CandleStickFifteenMinute, CandleStickFourHour, CandleStickHour, CandleStickMinute, Token } from '../../generated/schema'
-
 import { createAndReturnProtocolStats } from './ProtocolStats'
 import { ConversionEventForSwap } from './Swap'
 import { WRBTCAddress } from '../contracts/contracts'
 
+/* eslint-disable no-unused-vars */
 enum Interval {
   MinuteInterval = 60,
   FifteenMinutesInterval = 60 * 15,
