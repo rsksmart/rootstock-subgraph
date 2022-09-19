@@ -32,6 +32,30 @@ export function createAndReturnProtocolStats(): ProtocolStats {
   return protocolStatsEntity
 }
 
+export function incrementCurrentStakedByVestingSov(amount: BigDecimal): void {
+  const protocolStatsEntity = createAndReturnProtocolStats()
+  protocolStatsEntity.currentStakedByVestingSov = protocolStatsEntity.currentStakedByVestingSov.plus(amount)
+  protocolStatsEntity.save()
+}
+
+export function decrementCurrentStakedByVestingSov(amount: BigDecimal): void {
+  const protocolStatsEntity = createAndReturnProtocolStats()
+  protocolStatsEntity.currentStakedByVestingSov = protocolStatsEntity.currentStakedByVestingSov.minus(amount)
+  protocolStatsEntity.save()
+}
+
+export function incrementCurrentVoluntarilyStakedSov(amount: BigDecimal): void {
+  const protocolStatsEntity = createAndReturnProtocolStats()
+  protocolStatsEntity.currentVoluntarilyStakedSov = protocolStatsEntity.currentVoluntarilyStakedSov.plus(amount)
+  protocolStatsEntity.save()
+}
+
+export function decrementCurrentVoluntarilyStakedSov(amount: BigDecimal): void {
+  const protocolStatsEntity = createAndReturnProtocolStats()
+  protocolStatsEntity.currentVoluntarilyStakedSov = protocolStatsEntity.currentVoluntarilyStakedSov.minus(amount)
+  protocolStatsEntity.save()
+}
+
 export function createAndReturnUserTotals(user: Address): UserTotal {
   let userTotals = UserTotal.load(user.toHexString())
   if (userTotals == null) {

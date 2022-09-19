@@ -31,7 +31,7 @@ For more information on The Graph protocol, head to the Graph documentation here
 
 ## Scaffolding:
 
-When adding a new abi to the subgraph, you can s
+When adding a new abi to the subgraph, you can auto-generate the subgraph.yaml and initial mapping file by running a scaffold script:
 
 - `npm run scaffold -- -fp <ABI_FILE_PATH> -gm -gs -a <CONTRACT_ADDRESS>`
   This will generate a mapping file in ./src with the name of the abi, a schema file in ./schema with an entity for each event, and a datasource in the subgraph.template.yml

@@ -45,7 +45,6 @@ export function handleCross(event: CrossEvent): void {
   const crossTransfer = createAndReturnCrossTransfer(crossTransferEvent)
   crossTransfer.symbol = event.params._symbol
   crossTransfer.sourceChain = BridgeChain.RSK
-  crossTransfer.sender = event.transaction.from
   createAndReturnUser(event.transaction.from, event.block.timestamp)
 
   const destinationChain = isETHBridge(event.address.toHex()) ? BridgeChain.ETH : BridgeChain.BSC

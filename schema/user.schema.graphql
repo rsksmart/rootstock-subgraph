@@ -55,6 +55,10 @@ type User @entity {
   """
   vestingContracts: [VestingContract!] @derivedFrom(field: "user")
   """
+  Stakes the user owns, including stakes from Vesting Contracts
+  """
+  currentStakes: [Stake!] @derivedFrom(field: "user")
+  """
   Voting history of User
   """
   votes: [VoteCast!] @derivedFrom(field: "voter")

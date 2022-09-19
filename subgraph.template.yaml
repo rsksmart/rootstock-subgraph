@@ -451,6 +451,8 @@ dataSources:
           handler: handleTokensWithdrawn
         - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
+        - event: DelegateStakeChanged(indexed address,uint256,uint256,uint256)
+          handler: handleDelegateStakeChanged
       file: ./src/Staking.ts
 
   - kind: ethereum/contract
