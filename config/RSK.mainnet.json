@@ -119,8 +119,8 @@
     "adminContracts": "[0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711, 0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247, 0x51C754330c6cD04B810014E769Dab0343E31409E]",
     "Settlement": {
         "network": "mainnet",
-        "address": "0x5d1da2342a2128f56498c5267ecf1d718000a142",
-        "startBlock": 2672298
+        "address": "0x823e55322a395516ac3930F4C1ad9C7c2Fe2EACd",
+        "startBlock": 4208688
     },
     "OrderbookTestnet": {
         "network": "mainnet",
