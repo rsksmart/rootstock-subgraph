@@ -166,6 +166,10 @@ dataSources:
           handler: handleTrade
         - event: Rollover(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256,address,uint256)
           handler: handleRollover
+        - event: WithdrawFees(indexed address,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleWithdrawFees
+        - event: PayInterestTransfer(indexed address,indexed address,uint256)
+          handler: handlePayInterestTransfer
       file: ./src/ISovryn.ts
   
   - kind: ethereum/contract

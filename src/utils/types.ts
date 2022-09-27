@@ -74,3 +74,10 @@ export class PoolTokenType {
   static Lending: string = 'Lending'
   static Amm: string = 'Amm'
 }
+
+export class ProtocolFeeType {
+  static Trading: string = 'Trading'
+  static Borrowing: string = 'Borrowing'
+  static Lending: string = 'Lending'
+  static AMM: string = 'AMM'
+}

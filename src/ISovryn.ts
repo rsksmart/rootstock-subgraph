@@ -16,7 +16,9 @@ import {
   PayTradingFee as PayTradingFeeEvent,
   SetLoanPool as SetLoanPoolEvent,
   Trade as TradeEvent, // User event
-  Rollover as RolloverEvent, // User event
+  Rollover as RolloverEvent,
+  WithdrawFees as WithdrawFeesEvent,
+  PayInterestTransfer as PayInterestTransferEvent,
 } from '../generated/ISovryn/ISovryn'
 import { DepositCollateral as DepositCollateralLegacyEvent } from '../generated/DepositCollateralLegacy/DepositCollateralLegacy'
 import { DepositCollateral as DepositCollateralNonIndexedEvent } from '../generated/DepositCollateralNonIndexed/DepositCollateralNonIndexed'
@@ -33,16 +35,19 @@ import {
   Swap,
   Loan,
   Rollover,
+  Token,
+  ProtocolWithdrawFee,
+  PayInterestTransfer,
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnLoan, LoanStartState, updateLoanReturnPnL, ChangeLoanState, LoanActionType } from './utils/Loan'
-import { BigDecimal, BigInt, DataSourceContext } from '@graphprotocol/graph-ts'
+import { BigDecimal, BigInt, DataSourceContext, ethereum } from '@graphprotocol/graph-ts'
 import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils/ProtocolStats'
 import { convertToUsd } from './utils/Prices'
 import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 import { createAndReturnLendingPool } from './utils/LendingPool'
-import { RewardsEarnedAction } from './utils/types'
+import { RewardsEarnedAction, ProtocolFeeType } from './utils/types'
 import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
 import { incrementAvailableTradingRewards, incrementTotalFeesAndRewardsEarned, incrementTotalTradingRewards } from './utils/UserRewardsEarnedHistory'
 import { SOVAddress } from './contracts/contracts'
@@ -497,4 +502,37 @@ export function handleRollover(event: RolloverEvent): void {
   rolloverEntity.emittedBy = event.address
   rolloverEntity.transaction = event.transaction.hash.toHexString()
   rolloverEntity.save()
+}
+
+export function handleWithdrawFees(event: WithdrawFeesEvent): void {
+  createAndReturnTransaction(event)
+  function createWithdrawFees(amount: BigDecimal, token: Token, feeType: string, event: ethereum.Event): void {
+    const withdrawFees = new ProtocolWithdrawFee(event.transaction.hash.toHexString() + '-' + event.logIndex.toHexString() + '-' + feeType)
+    withdrawFees.amount = amount
+    withdrawFees.amountUsd = amount.times(token.lastPriceUsd)
+    withdrawFees.token = token.id
+    withdrawFees.feeType = feeType
+    withdrawFees.transaction = event.transaction.hash.toHexString()
+    withdrawFees.timestamp = event.block.timestamp.toI32()
+    withdrawFees.emittedBy = event.address.toHexString()
+    withdrawFees.save()
+  }
+  const token = Token.load(event.params.token.toHexString())
+  if (token != null) {
+    createWithdrawFees(decimal.fromBigInt(event.params.tradingAmount, token.decimals), token, ProtocolFeeType.Trading, event)
+    createWithdrawFees(decimal.fromBigInt(event.params.borrowingAmount, token.decimals), token, ProtocolFeeType.Borrowing, event)
+    createWithdrawFees(decimal.fromBigInt(event.params.lendingAmount, token.decimals), token, ProtocolFeeType.Lending, event)
+  }
+}
+
+export function handlePayInterestTransfer(event: PayInterestTransferEvent): void {
+  createAndReturnTransaction(event)
+  const payInterestTransfer = new PayInterestTransfer(event.transaction.hash.toHexString() + '-' + event.logIndex.toHexString())
+  payInterestTransfer.interestToken = event.params.interestToken.toHexString()
+  payInterestTransfer.lender = event.params.lender.toHexString()
+  payInterestTransfer.effectiveInterest = decimal.fromBigInt(event.params.effectiveInterest, DEFAULT_DECIMALS)
+  payInterestTransfer.transaction = event.transaction.hash.toHexString()
+  payInterestTransfer.emittedBy = event.address.toHexString()
+  payInterestTransfer.timestamp = event.block.timestamp.toI32()
+  payInterestTransfer.save()
 }
