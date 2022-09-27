@@ -13,7 +13,7 @@ import {
 import { Conversion as ConversionEventV1WithProtocol } from '../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
 import { Conversion, LiquidityPool, LiquidityPoolToken, Token, Transaction } from '../generated/schema'
 import { ConversionEventForSwap, createAndReturnSwap, updatePricing } from './utils/Swap'
-import { createAndReturnToken, decimalize, decimalizeFromToken } from './utils/Token'
+import { createAndReturnToken, decimalizeFromToken } from './utils/Token'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { BigInt, dataSource, Address } from '@graphprotocol/graph-ts'
 import { createAndReturnSmartToken } from './utils/SmartToken'
@@ -23,7 +23,8 @@ import { updateCandleSticks } from './utils/Candlesticks'
 import { LiquidityHistoryType } from './utils/types'
 import { decrementPoolBalance, incrementPoolBalance } from './utils/LiquidityPool'
 import { updateLiquidityHistory } from './utils/UserLiquidityHistory'
-import { decimal } from '@protofire/subgraph-toolkit'
+import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
+import { incrementProtocolAmmTotals, incrementUserAmmTotals } from './utils/ProtocolStats'
 
 export function handleLiquidityAdded(event: LiquidityAddedEvent): void {
   createAndReturnTransaction(event)
@@ -204,10 +205,13 @@ class IConversionEvent {
 }
 
 function handleConversion(event: IConversionEvent): void {
-  const fromAmount = decimalize(event.fromAmount, event.fromToken)
-  const toAmount = decimalize(event.toAmount, event.toToken)
-  const conversionFee = decimalize(event.conversionFee, event.toToken)
-  const protocolFee = decimalize(event.protocolFee, event.toToken)
+  const toToken = Token.load(event.toToken.toHexString())
+  const fromToken = Token.load(event.fromToken.toHexString())
+  const toDecimals = toToken !== null ? toToken.decimals : DEFAULT_DECIMALS
+  const fromAmount = decimal.fromBigInt(event.fromAmount, fromToken !== null ? fromToken.decimals : DEFAULT_DECIMALS)
+  const toAmount = decimal.fromBigInt(event.toAmount, toDecimals)
+  const conversionFee = decimal.fromBigInt(event.conversionFee, toDecimals)
+  const protocolFee = decimal.fromBigInt(event.protocolFee, toDecimals)
   let liquidityPool = LiquidityPool.load(event.liquidityPool.toHexString())
 
   const entity = new Conversion(event.transaction.id + '-' + event.logIndex.toString())
@@ -241,10 +245,13 @@ function handleConversion(event: IConversionEvent): void {
   updatePricing(parsedEvent)
   updateVolumes(parsedEvent, dataSource.address())
   updateCandleSticks(parsedEvent)
-  if (liquidityPool !== null) {
-    // updatePoolBalanceFromConversion(parsedEvent, liquidityPool)
+  if (liquidityPool != null) {
     liquidityPool = incrementPoolBalance(liquidityPool, event.fromToken, fromAmount)
     decrementPoolBalance(liquidityPool, event.toToken, toAmount)
+  }
+  if (toToken != null) {
+    incrementProtocolAmmTotals(toAmount, conversionFee, protocolFee, toToken)
+    incrementUserAmmTotals(toAmount, conversionFee, protocolFee, toToken, event.user)
   }
 }
 

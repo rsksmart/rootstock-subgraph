@@ -290,9 +290,9 @@ export function handleEarnReward(event: EarnRewardEvent): void {
 }
 
 export function handleExternalSwap(event: ExternalSwapEvent): void {
+  createAndReturnTransaction(event)
   const swapEntity = Swap.load(event.transaction.hash.toHexString())
   if (swapEntity != null) {
-    createAndReturnTransaction(event)
     swapEntity.user = event.transaction.from.toHexString()
     swapEntity.save()
   }

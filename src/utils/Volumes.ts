@@ -1,15 +1,10 @@
 import { Address, BigDecimal } from '@graphprotocol/graph-ts'
-
 import { Token, LiquidityPoolToken } from '../../generated/schema'
 import { ConversionEventForSwap } from './Swap'
-import { createAndReturnUserTotals, createAndReturnProtocolStats } from './ProtocolStats'
 
 export function updateVolumes(parsedEvent: ConversionEventForSwap, liquidityPoolAddress: Address): void {
-  const volumeUsd = tokenVolumeUsd(parsedEvent.fromToken, parsedEvent.fromAmount)
   updateTokensVolume(parsedEvent)
-  updateUserTotalVolume(parsedEvent, volumeUsd)
   updatePoolVolume(parsedEvent, liquidityPoolAddress)
-  updateProtocolStatsVolume(volumeUsd)
 }
 
 function updateTokensVolume(parsedEvent: ConversionEventForSwap): void {
@@ -34,28 +29,6 @@ function updateTokenVolume(token: Token, amount: BigDecimal): Token {
   token.usdVolume = token.usdVolume.plus(amount.times(token.lastPriceUsd))
 
   return token
-}
-
-function updateUserTotalVolume(parsedEvent: ConversionEventForSwap, volumeUsd: BigDecimal): void {
-  // TODO: should we load trader or user or both?
-  const userTotalsEntity = createAndReturnUserTotals(parsedEvent.user)
-  userTotalsEntity.totalAmmVolumeUsd = userTotalsEntity.totalAmmVolumeUsd.plus(volumeUsd)
-  userTotalsEntity.save()
-}
-
-function tokenVolumeUsd(token: Address, amount: BigDecimal): BigDecimal {
-  const tokenEntity = Token.load(token.toHex())
-  let volumeUsd = BigDecimal.zero()
-  if (tokenEntity != null) {
-    volumeUsd = amount.times(tokenEntity.lastPriceUsd)
-  }
-  return volumeUsd
-}
-
-function updateProtocolStatsVolume(volumeUsd: BigDecimal): void {
-  const protocolStats = createAndReturnProtocolStats()
-  protocolStats.totalAmmVolumeUsd = protocolStats.totalAmmVolumeUsd.plus(volumeUsd)
-  protocolStats.save()
 }
 
 function updatePoolVolume(parsedEvent: ConversionEventForSwap, liquidityPoolAddress: Address): void {

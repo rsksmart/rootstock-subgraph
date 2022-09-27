@@ -1,5 +1,6 @@
 import { BigDecimal, Address } from '@graphprotocol/graph-ts'
-import { ProtocolStats, UserTotal } from '../../generated/schema'
+import { DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
+import { ProtocolStats, Token, UserTotal } from '../../generated/schema'
 import { stablecoins } from '../contracts/contracts'
 
 export function createAndReturnProtocolStats(): ProtocolStats {
@@ -30,6 +31,14 @@ export function createAndReturnProtocolStats(): ProtocolStats {
     protocolStatsEntity.save()
   }
   return protocolStatsEntity
+}
+
+export function incrementProtocolAmmTotals(toAmount: BigDecimal, lpFee: BigDecimal, stakerFee: BigDecimal, toToken: Token): void {
+  const protocolStats = createAndReturnProtocolStats()
+  protocolStats.totalAmmVolumeUsd = protocolStats.totalAmmVolumeUsd.plus(toAmount.times(toToken.lastPriceUsd).truncate(DEFAULT_DECIMALS))
+  protocolStats.totalAmmLpFeesUsd = protocolStats.totalAmmLpFeesUsd.plus(lpFee.times(toToken.lastPriceUsd)).truncate(DEFAULT_DECIMALS)
+  protocolStats.totalAmmStakerFeesUsd = protocolStats.totalAmmStakerFeesUsd.plus(stakerFee.times(toToken.lastPriceUsd)).truncate(DEFAULT_DECIMALS)
+  protocolStats.save()
 }
 
 export function incrementCurrentStakedByVestingSov(amount: BigDecimal): void {
@@ -78,4 +87,12 @@ export function createAndReturnUserTotals(user: Address): UserTotal {
     userTotals.save()
   }
   return userTotals
+}
+
+export function incrementUserAmmTotals(toAmount: BigDecimal, lpFee: BigDecimal, stakerFee: BigDecimal, toToken: Token, user: Address): void {
+  const userTotal = createAndReturnUserTotals(user)
+  userTotal.totalAmmVolumeUsd = userTotal.totalAmmVolumeUsd.plus(toAmount.times(toToken.lastPriceUsd).truncate(DEFAULT_DECIMALS))
+  userTotal.totalAmmLpFeesUsd = userTotal.totalAmmLpFeesUsd.plus(lpFee.times(toToken.lastPriceUsd)).truncate(DEFAULT_DECIMALS)
+  userTotal.totalAmmStakerFeesUsd = userTotal.totalAmmStakerFeesUsd.plus(stakerFee.times(toToken.lastPriceUsd)).truncate(DEFAULT_DECIMALS)
+  userTotal.save()
 }
