@@ -6,12 +6,12 @@ import {
   OrderFilled as OrderFilledEvent,
   Withdrawal as WithdrawalEvent,
 } from '../generated/Settlement/Settlement'
-import { MarginOrderCanceled, MarginOrderFilled, OrderCanceled, OrderFilled, Withdrawal, Swap, Deposit } from '../generated/schema'
+import { MarginOrderCanceled, MarginOrderFilled, OrderCanceled, OrderFilled, Withdrawal, Deposit } from '../generated/schema'
 import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
 import { decimalize } from './utils/Token'
-
 import { createAndReturnTransaction } from './utils/Transaction'
 import { createAndReturnUser } from './utils/User'
+import { updateLimitSwap } from './utils/Swap'
 
 export function handleDeposit(event: DepositEvent): void {
   const entity = new Deposit(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
@@ -72,12 +72,15 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
   createAndReturnUser(event.params.maker, event.block.timestamp)
   const fromToken = event.params.path[0]
   const toToken = event.params.path[event.params.path.length - 1]
+  const fromAmount = decimalize(event.params.amountIn, fromToken)
+  const toAmount = decimalize(event.params.amountOut, toToken)
+  updateLimitSwap(event.transaction.hash.toHexString(), toToken, toAmount, event.params.maker)
 
   const entity = new OrderFilled(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.hash = event.params.hash
   entity.maker = event.params.maker.toHexString()
-  entity.amountIn = decimalize(event.params.amountIn, fromToken)
-  entity.amountOut = decimalize(event.params.amountOut, toToken)
+  entity.amountIn = fromAmount
+  entity.amountOut = toAmount
   entity.path = event.params.path.map<string>((item) => item.toHexString())
   entity.filledPrice = decimalize(event.params.filledPrice, toToken)
   const transaction = createAndReturnTransaction(event)
@@ -85,14 +88,6 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
   entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
-
-  /** Load Swap entity and set isLimit to true */
-  const swapEntity = Swap.load(event.transaction.hash.toHex())
-  if (swapEntity != null) {
-    swapEntity.user = event.params.maker.toHexString()
-    swapEntity.isLimit = true
-    swapEntity.save()
-  }
 }
 
 export function handleWithdrawal(event: WithdrawalEvent): void {

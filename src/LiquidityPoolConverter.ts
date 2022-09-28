@@ -213,7 +213,6 @@ function handleConversion(event: IConversionEvent): void {
   const conversionFee = decimal.fromBigInt(event.conversionFee, toDecimals)
   const protocolFee = decimal.fromBigInt(event.protocolFee, toDecimals)
   let liquidityPool = LiquidityPool.load(event.liquidityPool.toHexString())
-
   const entity = new Conversion(event.transaction.id + '-' + event.logIndex.toString())
   entity._fromToken = event.fromToken.toHexString()
   entity._toToken = event.toToken.toHexString()
@@ -229,14 +228,12 @@ function handleConversion(event: IConversionEvent): void {
   entity.save()
 
   const parsedEvent: ConversionEventForSwap = {
-    transactionHash: event.transaction.id,
+    transaction: event.transaction,
+    trader: event.trader,
     fromToken: event.fromToken,
     toToken: event.toToken,
     fromAmount: fromAmount,
     toAmount: toAmount,
-    timestamp: event.transaction.timestamp,
-    user: event.user,
-    trader: event.trader,
     lpFee: conversionFee,
     protocolFee: protocolFee,
   }

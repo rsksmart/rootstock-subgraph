@@ -581,30 +581,6 @@ dataSources:
           handler: handleRewardWithdrawn
       file: ./src/StakingReward.ts
 
-  # rBTCWrapperProxy
-  - kind: ethereum/contract
-    name: rbtcWrapperProxyTokenConverted
-    network: {{network}}
-    source:
-      address: '{{rbtcWrapperProxyTokenConverted.address}}'
-      abi: rbtcWrapperProxyTokenConverted
-      startBlock: {{rbtcWrapperProxyTokenConverted.startBlock}}
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.5
-      language: wasm/assemblyscript
-      entities:
-        - TokenConverted
-      abis:
-        - name: rbtcWrapperProxyTokenConverted
-          file: ./abis/rbtcWrapperProxyTokenConverted.json
-      eventHandlers:
-        - event: TokenConverted(indexed address,indexed uint256,indexed uint256,address[])
-          handler: handleTokenConverted
-      # blockHandlers:
-      #   - handler: handleBlock
-      file: ./src/rbtcWrapperProxyTokenConverted.ts
-
   - kind: ethereum/contract
     name: OrderbookTestnet
     network: {{network}}

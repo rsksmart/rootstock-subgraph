@@ -81,3 +81,9 @@ export class ProtocolFeeType {
   static Lending: string = 'Lending'
   static AMM: string = 'AMM'
 }
+
+export class SwapType {
+  static Market: string = 'Market'
+  static Limit: string = 'Limit'
+  static Other: string = 'Other'
+}

@@ -105,11 +105,6 @@
         "address": "0x7662E1cC98c9CB50eBc286ce8b124D61C7e2247E",
         "startBlock": 2195830
     },
-    "rbtcWrapperProxyTokenConverted": {
-        "network": "testnet",
-        "address": "0x55684391E3d0Cf69f41c40ddF736BD1C6D3D538c",
-        "startBlock": 1376051
-    },
     "GovernorAlphaEvents": {
         "network": "testnet",
         "address": "0x2ed3014C631F249BEf8f2930dD9833AECe0798DC",

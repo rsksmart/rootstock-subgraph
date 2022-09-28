@@ -6,10 +6,10 @@ const glob = require("glob");
 const { abiEvents } = require('@graphprotocol/graph-cli/src/scaffold/schema')
 const Protocol = require('@graphprotocol/graph-cli/src/protocols/')
 const Scaffold = require('@graphprotocol/graph-cli/src/scaffold')
-const toolbox = require('gluegun/toolbox');
 const { Command } = require('commander');
 const { readFileSync, writeFileSync } = require('fs');
 const program = new Command();
+const { loadAbiFromFile } = require('./helpers')
 const { addTransactionToMapping, addTransactionToSchema } = require('./scaffoldHelpers')
 program.version('0.0.1');
 
@@ -84,20 +84,6 @@ const getFilePaths = (src) => {
     }
   })
   return paths
-}
-
-const loadAbiFromFile = async filename => {
-  let exists = await toolbox.filesystem.exists(filename)
-
-  if (!exists) {
-    throw Error('File does not exist.')
-  } else if (exists === 'dir') {
-    throw Error('Path points to a directory, not a file.')
-  } else if (exists === 'other') {
-    throw Error('Not sure what this path points to.')
-  } else {
-    return await ABI.load('Contract', filename)
-  }
 }
 
 const updateMustacheConfigFile = ({ contractName, network = 'mainnet', address, startBlock = 0 }) => {

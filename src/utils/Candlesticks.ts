@@ -20,7 +20,7 @@ export function updateCandleSticks(event: ConversionEventForSwap): void {
   let oldPrice = BigDecimal.zero()
   let newPrice = BigDecimal.zero()
   let volume = BigDecimal.zero()
-  const blockTimestamp = event.timestamp
+  const blockTimestamp = event.transaction.timestamp
 
   const protocolStats = createAndReturnProtocolStats()
   const usdStablecoin = protocolStats.usdStablecoin.toLowerCase()

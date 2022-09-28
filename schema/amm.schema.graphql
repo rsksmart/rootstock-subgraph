@@ -101,6 +101,12 @@ type PoolToken @entity {
   underlyingAssets: [Token!]!
 }
 
+enum SwapType {
+  Market
+  Limit
+  Other
+}
+
 """
 The Swap entity is an aggregated entity of the individual Conversion events in a transaction.
 For example, if a User swaps XUSD to SOV, there will be 2 Conversion events through 2 AMMs (XUSD-BTC and BTC-SOV) in one transaction. These two Conversions are aggregated here.
@@ -133,17 +139,13 @@ type Swap @entity {
   Otherwise, this is the user that initiated the transaction.
   """
   user: User
-  """
-  Was this swap part of a margin trade?
-  """
-  isMarginTrade: Boolean!
-  isBorrow: Boolean!
-  """
-  Was this swap a limit order?
-  """
-  isLimit: Boolean!
+  swapType: SwapType
   timestamp: Int!
   transaction: Transaction!
+  """
+  Not in use - this property is always false. It is kept for backwards compatibility and will be deprecated
+  """
+  isLimit: Boolean!
 }
 
 """

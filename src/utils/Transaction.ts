@@ -15,6 +15,7 @@ export function createAndReturnTransaction(event: ethereum.Event): Transaction {
     transaction.from = event.transaction.from.toHexString()
     transaction.to = event.transaction.to
     transaction.value = event.transaction.value
+    transaction.functionSignature = event.transaction.input.toHexString().slice(0, 10)
     transaction.save()
   }
   return transaction as Transaction
