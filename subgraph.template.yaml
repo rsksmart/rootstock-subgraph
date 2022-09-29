@@ -150,8 +150,6 @@ dataSources:
           handler: handleDepositCollateral
         - event: EarnReward(indexed address,indexed address,indexed bytes32,uint256,uint256,uint256)
           handler: handleEarnReward
-        - event: ExternalSwap(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleExternalSwap
         - event: Liquidate(indexed address,indexed address,indexed bytes32,address,address,address,uint256,uint256,uint256,uint256)
           handler: handleLiquidate
         - event: PayBorrowingFee(indexed address,indexed address,indexed bytes32,uint256)
