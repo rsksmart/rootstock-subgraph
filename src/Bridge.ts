@@ -28,6 +28,9 @@ import { createAndReturnUser } from './utils/User'
 
 export function handleCross(event: CrossEvent): void {
   const transaction = createAndReturnTransaction(event)
+
+  const destinationChain = isETHBridge(event.address.toHex()) ? BridgeChain.ETH : BridgeChain.BSC
+
   const crossTransferEvent: CrossTransferEvent = {
     id: '',
     receiver: event.params._to,
@@ -36,6 +39,8 @@ export function handleCross(event: CrossEvent): void {
     amount: event.params._amount,
     decimals: event.params._decimals,
     granularity: event.params._granularity,
+    externalChain: destinationChain,
+    // userData: event.params._userData,
     status: CrossStatus.Executed,
     direction: CrossDirection.Outgoing,
     timestamp: event.block.timestamp,
@@ -44,11 +49,8 @@ export function handleCross(event: CrossEvent): void {
 
   const crossTransfer = createAndReturnCrossTransfer(crossTransferEvent)
   crossTransfer.symbol = event.params._symbol
-  crossTransfer.sourceChain = BridgeChain.RSK
   createAndReturnUser(event.transaction.from, event.block.timestamp)
 
-  const destinationChain = isETHBridge(event.address.toHex()) ? BridgeChain.ETH : BridgeChain.BSC
-  crossTransfer.destinationChain = destinationChain
   crossTransfer.sourceChainBlockHash = event.block.hash
   crossTransfer.sourceChainTransactionHash = event.transaction.hash
   crossTransfer.updatedAtTx = transaction.id
