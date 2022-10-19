@@ -9,7 +9,7 @@ import {
 import { CrossTransfer } from '../generated/schema'
 
 import { createAndReturnTransaction } from './utils/Transaction'
-import { createAndReturnFederation, handleFederatorVoted } from './utils/CrossChainBridge'
+import { createAndReturnFederation, federatorVoted } from './utils/CrossChainBridge'
 import { CrossStatus } from './utils/types'
 
 export function handleBridgeChanged(event: BridgeChangedEvent): void {
@@ -79,7 +79,7 @@ export function handleRevokeTxAndVote(event: RevokeTxAndVoteEvent): void {
 
 export function handleVoted(event: VotedEvent): void {
   const transaction = createAndReturnTransaction(event)
-  handleFederatorVoted(event, transaction)
+  federatorVoted(event, transaction)
 }
 
 // this is an old event with a lot of missing data so it is not processed and not suppose to happen
@@ -94,5 +94,5 @@ export function handleVotedV0(event: VotedEvent): void {
 
 export function handleVotedV1(event: VotedEvent): void {
   const transaction = createAndReturnTransaction(event)
-  handleFederatorVoted(event, transaction)
+  federatorVoted(event, transaction)
 }

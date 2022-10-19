@@ -995,14 +995,8 @@ templates:
           handler: handleMemberAddition
         - event: MemberRemoval(indexed address)
           handler: handleMemberRemoval
-        # - event: OwnershipTransferred(indexed address,indexed address)
-        #   handler: handleOwnershipTransferred
-        # - event: RequirementChange(uint256)
-        #   handler: handleRequirementChange
         - event: RevokeTxAndVote(bytes32)
           handler: handleRevokeTxAndVote
-        # - event: StoreFormerFederationExecutedTx(bytes32[])
-        #   handler: handleStoreFormerFederationExecutedTx
         - event: Voted(indexed address,indexed bytes32,address,address,uint256,string,bytes32,indexed bytes32,uint32,uint8,uint256,bytes)
           handler: handleVoted
         - event: Voted(indexed address,indexed bytes32)

@@ -146,5 +146,11 @@
         "network": "mainnet",
         "address": "0x1CcAd820B6d031B41C54f1F3dA11c0d48b399581",
         "startBlock": 3257444
+    },
+    "SignaturesFederationETH": {
+        "address": "0x32593e4F7A4991C2fe17459DaE9920Fd612855B4"
+    },
+    "SignaturesFederationBSC": {
+        "address": "0xD1E45F51C8f09B139218FC75D26409096316971C"
     }
 }
