@@ -27,7 +27,7 @@ async function main() {
                     abi.callFunctionSignatures()._tail.array.forEach(item => {
                         const functionName = item.slice(0, item.indexOf('('))
                         const signature = `0x${keccak256(item).toString('hex').slice(0, 8)}`
-                        fs.appendFile(csvFile, `${contractName},${functionName},${signature}\n`)
+                        fs.appendFile(csvFile, `${contractName}, ${functionName}, ${signature}\n`)
                     }
                     )
                 }

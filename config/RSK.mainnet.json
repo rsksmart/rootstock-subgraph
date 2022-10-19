@@ -2,7 +2,7 @@
     "network": "mainnet",
     "node": {
         "network": "mainnet",
-        "address": "https://rsk-graph1.sovryn.app/rpc",
+        "address": "https://rsk-internal.sovryn.app/rpc",
         "log_level": "info",
         "graph_graphql_query_timeout": 10,
         "graph_sql_statement_timeout": 10,
