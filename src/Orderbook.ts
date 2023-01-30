@@ -5,7 +5,7 @@ import { orderbookMainnet } from './contracts/contracts'
 
 export function handleOrderCreated(event: OrderCreatedEvent): void {
   const entity = new OrderCreated(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  entity.network = event.address.toHexString() === orderbookMainnet.toLowerCase() ? 'Mainnet' : 'Testnet'
+  entity.network = event.address.toHexString() == orderbookMainnet.toLowerCase() ? 'Mainnet' : 'Testnet'
   entity.hash = event.params.hash
   entity.order_maker = event.params.order.maker
   entity.order_fromToken = event.params.order.fromToken

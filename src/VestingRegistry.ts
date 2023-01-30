@@ -23,7 +23,7 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
     entity.createdAtTransaction = transaction.id
     entity.createdAtTimestamp = transaction.timestamp
     entity.emittedBy = event.address
-    entity.type = event.address.toHexString() === vestingRegistryFish ? VestingContractType.FishTeam : VestingContractType.Team
+    entity.type = event.address.toHexString() == vestingRegistryFish ? VestingContractType.FishTeam : VestingContractType.Team
     entity.save()
   }
 }
