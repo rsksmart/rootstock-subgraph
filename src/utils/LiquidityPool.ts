@@ -30,7 +30,7 @@ export function createAndReturnLiquidityPool(
     liquidityPool = new LiquidityPool(converterAddress.toHex())
     const type = getPoolType(converterAddress)
     liquidityPool.activated = false
-    if (type === 1) {
+    if (type == 1) {
       const isFeeSplit = isFeeSplitAbi(converterAddress)
       if (!isFeeSplit) {
         LiquidityPoolV1ConverterTemplate.create(converterAddress)
@@ -65,7 +65,7 @@ export function createAndReturnLiquidityPool(
           liquidityPool.conversionFee = conversionFee.value
         }
       }
-    } else if (type === 2) {
+    } else if (type == 2) {
       LiquidityPoolV2ConverterTemplate.create(converterAddress)
       liquidityPool.type = 2
       const converterContract = LiquidityPoolV2ConverterContract.bind(converterAddress)

@@ -23,7 +23,7 @@ const ABI = protocolInstance.getABI()
 const generateManifest = ({ dataSources }) => {
   return prettier.format(
     `
-specVersion: 0.0.2
+specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 dataSources:
@@ -45,7 +45,7 @@ const generateDataSource = ({ abi, contractName, relativePath, scaffoldAll = fal
       startBlock: {{${contractName}.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         ${abiEvents(abi)

@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.5
 description: Sovryn official subgraph
 repository: https://github.com/DistributedCollective/Sovryn-subgraph
 schema:
@@ -13,7 +13,7 @@ dataSources:
       startBlock: {{Settlement.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Deposit
@@ -50,7 +50,7 @@ dataSources:
       startBlock: {{ConverterFactory.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - NewConverter
@@ -81,7 +81,7 @@ dataSources:
       startBlock: {{ConverterRegistry.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - SmartTokenAdded
@@ -117,7 +117,7 @@ dataSources:
       startBlock: {{ISovryn.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Borrow
@@ -179,7 +179,7 @@ dataSources:
       startBlock: {{ISovryn.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - DepositCollateral
@@ -200,7 +200,7 @@ dataSources:
       startBlock: {{ISovryn.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - DepositCollateral
@@ -221,7 +221,7 @@ dataSources:
       startBlock: {{GovernorAlphaEvents.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - ProposalCanceled
@@ -255,7 +255,7 @@ dataSources:
       startBlock: {{VestingRegistry1.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - AdminAdded
@@ -286,7 +286,7 @@ dataSources:
       startBlock: {{VestingRegistry2.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - AdminAdded
@@ -317,7 +317,7 @@ dataSources:
       startBlock: {{VestingRegistry3.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - AdminAdded
@@ -348,7 +348,7 @@ dataSources:
       startBlock: {{VestingRegistryProxy.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - TeamVestingCreated
@@ -373,7 +373,7 @@ dataSources:
       startBlock: {{VestingRegistryFish.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - AdminAdded
@@ -405,7 +405,7 @@ dataSources:
       startBlock: {{FourYearVesting.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - FourYearVestingCreated
@@ -427,7 +427,7 @@ dataSources:
       startBlock: {{Staking.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - DelegateChanged
@@ -466,7 +466,7 @@ dataSources:
       startBlock: {{StakingFish.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - TokensWithdrawn
@@ -493,7 +493,7 @@ dataSources:
       startBlock: {{FeeSharingProxy.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - StakeHistoryItem
@@ -517,7 +517,7 @@ dataSources:
       startBlock: {{LockedSov.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - UserRewardEarnedHistory
@@ -540,7 +540,7 @@ dataSources:
       startBlock: {{MiningProxy.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - RewardClaimed
@@ -566,7 +566,7 @@ dataSources:
       startBlock: {{StakingReward.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - OwnershipTransferred
@@ -588,7 +588,7 @@ dataSources:
       startBlock: {{OrderbookTestnet.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - OrderCreated
@@ -609,7 +609,7 @@ dataSources:
       startBlock: {{OrderbookMainnet.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - OrderCreated
@@ -630,7 +630,7 @@ dataSources:
       startBlock: {{FastBTCBridge.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - BitcoinTransferBatchSending
@@ -656,7 +656,7 @@ dataSources:
       startBlock: {{BridgeBSC.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         # - AcceptedCrossTransfer
@@ -733,7 +733,7 @@ dataSources:
       startBlock: {{BridgeETH.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         # - AcceptedCrossTransfer
@@ -810,7 +810,7 @@ templates:
       # startBlock: {{LiquidityPoolV1Converter.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Activation
@@ -851,7 +851,7 @@ templates:
       # startBlock: {{LiquidityPoolV2Converter.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Activation
@@ -886,7 +886,7 @@ templates:
       abi: SmartToken
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       # TODO: Do there need to be entities here?
       entities:
@@ -915,7 +915,7 @@ templates:
       # startBlock: {{LoanTokenLogicStandard.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities: 
         - Burn
@@ -941,7 +941,7 @@ templates:
       # startBlock: {{LiquidityPoolV2Converter.startBlock}}
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - Conversion
@@ -978,7 +978,7 @@ templates:
       abi: Federation
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
         - CrossTransfer

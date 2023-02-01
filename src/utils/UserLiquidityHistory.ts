@@ -33,13 +33,13 @@ export function updateLiquidityHistory(params: IUserLiquidityHistory): void {
     userLiquidityHistory.totalAsset1LiquidityRemoved = BigDecimal.zero()
   }
 
-  const amountAdded = params.type === LiquidityHistoryType.Added ? params.amount : BigDecimal.zero()
+  const amountAdded = params.type == LiquidityHistoryType.Added ? params.amount : BigDecimal.zero()
   const amountRemoved = params.type == LiquidityHistoryType.Removed ? params.amount : BigDecimal.zero()
   updateUserLiquidityHistory(params.liquidityPool, userLiquidityHistory, params.token.toHexString(), amountAdded, amountRemoved)
   createLiquidityHistoryItem(params, userLiquidityHistoryId)
-  if (params.type === LiquidityHistoryType.Added) {
+  if (params.type == LiquidityHistoryType.Added) {
     incrementPoolBalance(params.liquidityPool, params.token, params.amount)
-  } else if (params.type === LiquidityHistoryType.Removed) {
+  } else if (params.type == LiquidityHistoryType.Removed) {
     decrementPoolBalance(params.liquidityPool, params.token, params.amount)
   }
 }
