@@ -34,10 +34,16 @@ enum BitcoinTransferStatus {
   RECLAIMED
 }
 
+enum BitcoinTransferDirection {
+  INCOMING
+  OUTGOING
+}
+
 type BitcoinTransfer @entity {
   id: ID! # transferId
-  btcAddress: String!
-  nonce: Int!
+  btcAddress: String
+  nonce: Int
+  direction: BitcoinTransferDirection!
   amountBTC: BigDecimal!
   feeBTC: BigDecimal!
   totalAmountBTC: BigDecimal!

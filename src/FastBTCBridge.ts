@@ -5,7 +5,7 @@ import {
 } from '../generated/FastBTCBridge/FastBTCBridge'
 import { BitcoinTransferBatchSending } from '../generated/schema'
 import { aggregateFastBTCBridgeStat, createFastBTCBridgeStat } from './utils/FastBTCBridgeStats'
-import { BitcoinTransferStatus, createBitcoinTransfer, loadBitcoinTransfer } from './utils/BitcoinTransfer'
+import { BitcoinTransferStatus, createIncomingBitcoinTransfer, loadBitcoinTransfer } from './utils/BitcoinTransfer'
 
 import { createAndReturnTransaction } from './utils/Transaction'
 
@@ -41,7 +41,7 @@ export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusU
 export function handleNewBitcoinTransfer(event: NewBitcoinTransferEvent): void {
   const transaction = createAndReturnTransaction(event)
 
-  const bitcoinTransfer = createBitcoinTransfer(event)
+  const bitcoinTransfer = createIncomingBitcoinTransfer(event)
 
   const FastBTCBridgeStat = createFastBTCBridgeStat('0', transaction)
   FastBTCBridgeStat.totalAmountBTCInitialized = FastBTCBridgeStat.totalAmountBTCInitialized.plus(bitcoinTransfer.totalAmountBTC)
