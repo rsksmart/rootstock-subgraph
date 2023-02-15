@@ -13,7 +13,7 @@ const manifestSections = {
     bridge: ["BridgeETH", "BridgeBSC", "Federation"],
     // sovrynProtocol: [...amm, "ISovryn"]
     vestingStaking: ["FourYearVesting", "Staking", "VestingRegistryProxy", "VestingRegistry1", "VestingRegistry2", "VestingRegistry3", "VestingRegistryFish"],
-    managedWallet: ["ManagedWallet"]
+    fastBTC: ["FastBTCBridge", "ManagedWallet"]
 }
 
 const keyWords = {
