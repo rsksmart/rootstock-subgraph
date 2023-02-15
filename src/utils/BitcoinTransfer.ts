@@ -20,12 +20,13 @@ export class BitcoinTransferStatus {
   }
 }
 
-export const createBitcoinTransfer = (event: NewBitcoinTransferEvent): BitcoinTransfer => {
+export const createIncomingBitcoinTransfer = (event: NewBitcoinTransferEvent): BitcoinTransfer => {
   createAndReturnTransaction(event)
   let bitcoinTransfer = BitcoinTransfer.load(event.params.transferId.toHex())
   if (bitcoinTransfer == null) {
     bitcoinTransfer = new BitcoinTransfer(event.params.transferId.toHex())
     bitcoinTransfer.btcAddress = event.params.btcAddress
+    bitcoinTransfer.direction = 'OUTGOING'
     bitcoinTransfer.nonce = event.params.nonce.toI32()
     bitcoinTransfer.amountBTC = satoshiToBTC(event.params.amountSatoshi)
     bitcoinTransfer.feeBTC = satoshiToBTC(event.params.feeSatoshi)

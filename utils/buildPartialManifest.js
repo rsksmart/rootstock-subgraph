@@ -8,15 +8,17 @@ const { dump } = require('js-yaml')
 
 const manifestSections = {
     amm: ["ConverterRegistry", "ConverterFactory", "LiquidityPoolV1Converter", "LiquidityPoolV2Converter", "LiquidityPoolV1ConverterProtocolFee", "SmartToken"],
-    voting: [],
+    voting: ["ManagedWallet"],
     trading: [],
     bridge: ["BridgeETH", "BridgeBSC", "Federation"],
     // sovrynProtocol: [...amm, "ISovryn"]
-    vestingStaking: ["FourYearVesting", "Staking", "VestingRegistryProxy", "VestingRegistry1", "VestingRegistry2", "VestingRegistry3", "VestingRegistryFish"]
+    vestingStaking: ["FourYearVesting", "Staking", "VestingRegistryProxy", "VestingRegistry1", "VestingRegistry2", "VestingRegistry3", "VestingRegistryFish"],
+    managedWallet: ["ManagedWallet"]
 }
 
 const keyWords = {
-    stakingVesting: ["Staking", "Vesting"]
+    stakingVesting: ["Staking", "Vesting"],
+    managedWallet: ["ManagedWallet"]
 }
 
 const pruneManifest = (section) => {
