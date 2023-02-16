@@ -273,7 +273,7 @@ type PayTradingFee @entity {
   id: ID!
   payer: Bytes! # address
   token: Bytes! # address
-  loanId: Loan! # bytes32
+  loanId: String! # bytes32
   amount: BigDecimal! # uint256
   timestamp: Int!
   emittedBy: Bytes! #address
@@ -285,18 +285,18 @@ Granular event data for the Loan entity. Emitted when a user opens a Margin Trad
 """
 type Trade @entity {
   id: ID!
-  user: User! 
-  lender: Bytes! 
-  loanId: Loan! 
-  collateralToken: Token! 
-  loanToken: Token! 
-  positionSize: BigDecimal! 
-  borrowedAmount: BigDecimal! 
-  interestRate: BigDecimal! 
-  settlementDate: Int! 
-  entryPrice: BigDecimal! 
-  entryLeverage: BigDecimal! 
-  currentLeverage: BigDecimal! 
+  user: User!
+  lender: Bytes!
+  loanId: Loan!
+  collateralToken: Token!
+  loanToken: Token!
+  positionSize: BigDecimal!
+  borrowedAmount: BigDecimal!
+  interestRate: BigDecimal!
+  settlementDate: Int!
+  entryPrice: BigDecimal!
+  entryLeverage: BigDecimal!
+  currentLeverage: BigDecimal!
   timestamp: Int!
   emittedBy: Bytes!
   transaction: Transaction!
@@ -309,19 +309,19 @@ This transaction is initiated by the Sovryn node, which earns a reward for doing
 """
 type Rollover @entity {
   id: ID!
-  user: User! 
-  lender: Bytes! 
-  loanId: Loan! 
-  principal: BigDecimal! 
-  collateral: BigDecimal! 
+  user: User!
+  lender: Bytes!
+  loanId: Loan!
+  principal: BigDecimal!
+  collateral: BigDecimal!
   endTimestamp: Int!
   """
   The User running the Sovryn node that made this transaction
-  """ 
+  """
   rewardReceiver: User!
   """
   The reward received by the User for performing this function
-  """ 
+  """
   reward: BigDecimal!
   timestamp: Int!
   emittedBy: Bytes!

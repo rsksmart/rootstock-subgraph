@@ -472,19 +472,20 @@ export function handleRollover(event: RolloverEvent): void {
       loan.endTimestamp = event.block.timestamp.toI32()
     }
     loan.save()
-  }
 
-  const rolloverEntity = new Rollover(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
-  rolloverEntity.loanId = event.params.loanId.toHexString()
-  rolloverEntity.principal = decimal.fromBigInt(event.params.principal, DEFAULT_DECIMALS)
-  rolloverEntity.collateral = decimal.fromBigInt(event.params.collateral, DEFAULT_DECIMALS)
-  rolloverEntity.endTimestamp = event.params.endTimestamp.toI32()
-  rolloverEntity.rewardReceiver = event.params.rewardReceiver.toHexString()
-  rolloverEntity.reward = decimal.fromBigInt(event.params.reward, DEFAULT_DECIMALS)
-  rolloverEntity.timestamp = event.block.timestamp.toI32()
-  rolloverEntity.emittedBy = event.address
-  rolloverEntity.transaction = event.transaction.hash.toHexString()
-  rolloverEntity.save()
+    const rolloverEntity = new Rollover(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
+    rolloverEntity.loanId = event.params.loanId.toHexString()
+    rolloverEntity.principal = decimal.fromBigInt(event.params.principal, DEFAULT_DECIMALS)
+    rolloverEntity.collateral = decimal.fromBigInt(event.params.collateral, DEFAULT_DECIMALS)
+    rolloverEntity.endTimestamp = event.params.endTimestamp.toI32()
+    rolloverEntity.rewardReceiver = event.params.rewardReceiver.toHexString()
+    rolloverEntity.reward = decimal.fromBigInt(event.params.reward, DEFAULT_DECIMALS)
+    rolloverEntity.timestamp = event.block.timestamp.toI32()
+    rolloverEntity.user = event.params.user.toHexString()
+    rolloverEntity.emittedBy = event.address
+    rolloverEntity.transaction = event.transaction.hash.toHexString()
+    rolloverEntity.save()
+  }
 }
 
 export function handleWithdrawFees(event: WithdrawFeesEvent): void {

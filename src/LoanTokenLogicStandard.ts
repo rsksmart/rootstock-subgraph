@@ -6,9 +6,11 @@ import { createAndReturnProtocolStats, createAndReturnUserTotals } from './utils
 import { convertToUsd } from './utils/Prices'
 import { LendingHistoryType } from './utils/types'
 import { decimal, DEFAULT_DECIMALS } from '@protofire/subgraph-toolkit'
+import { createAndReturnUser } from './utils/User'
 
 export function handleBurn(event: BurnEvent): void {
   createAndReturnTransaction(event)
+  createAndReturnUser(event.params.burner, event.block.timestamp)
 
   const context = dataSource.context()
   const underlyingAsset = context.getString('underlyingAsset')
@@ -56,11 +58,11 @@ export function handleBurn(event: BurnEvent): void {
 
 export function handleMint(event: MintEvent): void {
   createAndReturnTransaction(event)
+  createAndReturnUser(event.params.minter, event.block.timestamp)
 
   const context = dataSource.context()
   const underlyingAsset = context.getString('underlyingAsset')
   const userAddress = event.params.minter.toHexString()
-
   const assetAmount = decimal.fromBigInt(event.params.assetAmount, DEFAULT_DECIMALS)
   const tokenAmount = decimal.fromBigInt(event.params.tokenAmount, DEFAULT_DECIMALS)
 
