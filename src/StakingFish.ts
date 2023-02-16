@@ -95,13 +95,6 @@ function handleStakingOrTokensWithdrawn(params: TokensWithdrawnParams): void {
       totalStaked: params.totalStaked,
       event: params.event,
     })
-    const vestingHistoryItem = new VestingHistoryItem(params.id)
-    vestingHistoryItem.action = VestingHistoryActionItem.TokensWithdrawn
-    vestingHistoryItem.amount = params.amount
-    vestingHistoryItem.staker = vesting.id
-    vestingHistoryItem.timestamp = params.transaction.timestamp
-    vestingHistoryItem.transaction = params.transaction.id
-    vestingHistoryItem.save()
     vesting.currentBalance = vesting.currentBalance.minus(params.amount)
     vesting.save()
   }
