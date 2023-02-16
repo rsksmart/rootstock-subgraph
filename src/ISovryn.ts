@@ -49,6 +49,7 @@ import { RewardsEarnedAction, ProtocolFeeType } from './utils/types'
 import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
 import { incrementAvailableTradingRewards, incrementTotalFeesAndRewardsEarned, incrementTotalTradingRewards } from './utils/UserRewardsEarnedHistory'
 import { SOVAddress } from './contracts/contracts'
+import { createAndReturnUser } from './utils/User'
 
 export function handleBorrow(event: BorrowEvent): void {
   createAndReturnTransaction(event)
@@ -462,6 +463,9 @@ export function handleTrade(event: TradeEvent): void {
 
 export function handleRollover(event: RolloverEvent): void {
   createAndReturnTransaction(event)
+  createAndReturnUser(event.params.rewardReceiver, event.block.timestamp)
+  createAndReturnUser(event.params.user, event.block.timestamp)
+
   const loan = Loan.load(event.params.loanId.toHexString())
   if (loan != null) {
     loan.nextRollover = event.params.endTimestamp.toI32()
@@ -482,6 +486,7 @@ export function handleRollover(event: RolloverEvent): void {
     rolloverEntity.reward = decimal.fromBigInt(event.params.reward, DEFAULT_DECIMALS)
     rolloverEntity.timestamp = event.block.timestamp.toI32()
     rolloverEntity.user = event.params.user.toHexString()
+    rolloverEntity.lender = event.params.lender
     rolloverEntity.emittedBy = event.address
     rolloverEntity.transaction = event.transaction.hash.toHexString()
     rolloverEntity.save()
