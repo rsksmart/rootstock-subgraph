@@ -6,8 +6,9 @@ import {
 import { VestingContract, Transaction, VestingHistoryItem } from '../generated/schema'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
-import { Address, BigDecimal } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { VestingHistoryActionItem } from './utils/types'
+import { createAndReturnVestingHistoryItem } from './utils/VestingHistoryItem'
 
 export function handleTokensStaked(event: TokensStakedEvent): void {
   const vestingContract = VestingContract.load(event.params.staker.toHexString())
@@ -47,6 +48,9 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
     staker: event.params.staker,
     receiver: event.params.receiver,
     amount: amount,
+    lockedUntil: BigInt.zero(),
+    totalStaked: BigDecimal.zero(),
+    event: event,
   })
 }
 
@@ -62,6 +66,9 @@ export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
     staker: event.params.staker,
     receiver: event.params.receiver,
     amount: amount,
+    lockedUntil: BigInt.zero(),
+    totalStaked: BigDecimal.zero(),
+    event: event,
   })
 }
 
@@ -72,18 +79,22 @@ class TokensWithdrawnParams {
   staker: Address
   receiver: Address
   amount: BigDecimal
+  lockedUntil: BigInt
+  totalStaked: BigDecimal
+  event: ethereum.Event
 }
 
 function handleStakingOrTokensWithdrawn(params: TokensWithdrawnParams): void {
   const vesting = VestingContract.load(params.staker.toHexString().toLowerCase())
   if (vesting !== null) {
-    const vestingHistoryItem = new VestingHistoryItem(params.id)
-    vestingHistoryItem.action = VestingHistoryActionItem.TokensWithdrawn
-    vestingHistoryItem.amount = params.amount
-    vestingHistoryItem.staker = vesting.id
-    vestingHistoryItem.timestamp = params.transaction.timestamp
-    vestingHistoryItem.transaction = params.transaction.id
-    vestingHistoryItem.save()
+    createAndReturnVestingHistoryItem({
+      staker: vesting.id,
+      action: VestingHistoryActionItem.TokensWithdrawn,
+      amount: params.amount,
+      lockedUntil: params.lockedUntil,
+      totalStaked: params.totalStaked,
+      event: params.event,
+    })
     vesting.currentBalance = vesting.currentBalance.minus(params.amount)
     vesting.save()
   }

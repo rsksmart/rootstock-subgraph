@@ -1,9 +1,6 @@
-import { BigDecimal, Bytes, BigInt } from '@graphprotocol/graph-ts'
-import { decimal } from '@protofire/subgraph-toolkit'
-import { NewBitcoinTransfer as NewBitcoinTransferEvent } from '../../generated/FastBTCBridge/FastBTCBridge'
+import { BigDecimal, Bytes, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { decimal, ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import { BitcoinTransfer } from '../../generated/schema'
-import { createAndReturnTransaction } from './Transaction'
-import { createAndReturnUser } from './User'
 
 const BTC_DECIMAL = 8
 
@@ -20,27 +17,45 @@ export class BitcoinTransferStatus {
   }
 }
 
-export const createBitcoinTransfer = (event: NewBitcoinTransferEvent): BitcoinTransfer => {
-  createAndReturnTransaction(event)
-  let bitcoinTransfer = BitcoinTransfer.load(event.params.transferId.toHex())
+class BitcoinTransferParams {
+  event: ethereum.Event
+  transferId: string
+  btcAddress: string
+  direction: string
+  amountBTC: BigDecimal
+  feeBTC: BigDecimal
+  totalAmountBTC: BigDecimal
+  user: string
+  status: string
+  bitcoinTxHash: string
+}
+
+export const createAndReturnBitcoinTransfer = (params: BitcoinTransferParams): BitcoinTransfer => {
+  let bitcoinTransfer = BitcoinTransfer.load(params.transferId)
   if (bitcoinTransfer == null) {
-    bitcoinTransfer = new BitcoinTransfer(event.params.transferId.toHex())
-    bitcoinTransfer.btcAddress = event.params.btcAddress
-    bitcoinTransfer.nonce = event.params.nonce.toI32()
-    bitcoinTransfer.amountBTC = satoshiToBTC(event.params.amountSatoshi)
-    bitcoinTransfer.feeBTC = satoshiToBTC(event.params.feeSatoshi)
-    bitcoinTransfer.totalAmountBTC = satoshiToBTC(event.params.amountSatoshi.plus(event.params.feeSatoshi))
-    createAndReturnUser(event.params.rskAddress, event.block.timestamp)
-    bitcoinTransfer.user = event.params.rskAddress.toHex()
-    bitcoinTransfer.status = BitcoinTransferStatus.getStatus(1)
-    bitcoinTransfer.createdAtTimestamp = event.block.timestamp.toI32()
-    bitcoinTransfer.createdAtBlockNumber = event.block.number.toI32()
-    bitcoinTransfer.createdAtTx = event.transaction.hash.toHex()
-    bitcoinTransfer.updatedAtTimestamp = event.block.timestamp.toI32()
-    bitcoinTransfer.updatedAtBlockNumber = event.block.number.toI32()
-    bitcoinTransfer.updatedAtTx = event.transaction.hash.toHex()
+    bitcoinTransfer = new BitcoinTransfer(params.transferId)
+    bitcoinTransfer.direction = params.direction
+    bitcoinTransfer.amountBTC = params.amountBTC
+    bitcoinTransfer.feeBTC = params.feeBTC
+    bitcoinTransfer.totalAmountBTC = bitcoinTransfer.amountBTC.plus(bitcoinTransfer.feeBTC)
+    bitcoinTransfer.user = params.user
+    bitcoinTransfer.status = params.status
+    bitcoinTransfer.createdAtTimestamp = params.event.block.timestamp.toI32()
+    bitcoinTransfer.createdAtBlockNumber = params.event.block.number.toI32()
+    bitcoinTransfer.createdAtTx = params.event.transaction.hash.toHexString()
+    bitcoinTransfer.updatedAtTimestamp = params.event.block.timestamp.toI32()
+    bitcoinTransfer.updatedAtBlockNumber = params.event.block.number.toI32()
+    bitcoinTransfer.updatedAtTx = params.event.transaction.hash.toHexString()
+
+    if (params.btcAddress != ZERO_ADDRESS) {
+      bitcoinTransfer.btcAddress = params.btcAddress
+    }
+    if (params.bitcoinTxHash != ZERO_ADDRESS) {
+      bitcoinTransfer.bitcoinTxHash = params.bitcoinTxHash
+    }
+
+    bitcoinTransfer.save()
   }
-  bitcoinTransfer.save()
   return bitcoinTransfer
 }
 

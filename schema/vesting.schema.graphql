@@ -57,7 +57,7 @@ type VestingContract @entity {
   """
   cliff: Int # uint256
   """
-  The total duration of the vesting contract, including the cliff, in seconds. 
+  The total duration of the vesting contract, including the cliff, in seconds.
   For example, a 9 month vesting contract with a 1 month cliff would have a duration of 26280000 (10 months in seconds)
   """
   duration: Int # uint256
@@ -86,13 +86,13 @@ enum VestingHistoryItemAction {
   """
   Tokens are staked by the Vesting contract. This happens when the Vesting contract receives funds.
   """
-  TokensStaked,
+  TokensStaked
   """
   This is only relevant to Team tokens. For Team contracts, a vesting contract can be revoked by governance if a team member leaves the project.
   If this happens, all tokens still locked are returned to the exchequer.
   This is ONLY possible with Team or FishTeam vesting contracts.
   """
-  TeamTokensRevoked,
+  TeamTokensRevoked
   """
   When a user withdraws unlocked tokens from the vesting contract
   """
@@ -120,7 +120,7 @@ type VestingHistoryItem @entity {
   """
   The date when the tokens become unlocked
   """
-  lockedUntil: Int! # uint256
+  lockedUntil: Int # uint256
   """
   Total number of tokens staked until this lockedUntil date
   """

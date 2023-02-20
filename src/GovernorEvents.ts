@@ -68,7 +68,7 @@ export function handleVoteCast(event: VoteCastEvent): void {
 
   entity.voter = event.params.voter.toHexString()
   entity.proposalId = event.params.proposalId.toI32()
-  entity.proposal = event.address.toHexString() + '-' + event.params.proposalId.toHexString()
+  entity.proposal = event.address.toHexString() + '-' + event.params.proposalId.toI32().toString()
   entity.support = event.params.support
   entity.votes = event.params.votes
   const transaction = createAndReturnTransaction(event)

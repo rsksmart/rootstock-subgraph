@@ -5,6 +5,27 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: ManagedWallet
+    network: {{network}}
+    source:
+      address: '{{ManagedWallet.address}}'
+      abi: ManagedWallet
+      startBlock: {{ManagedWallet.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - NewBitcoinTransferIncoming
+      abis:
+        - name: ManagedWallet
+          file: ./abis/ManagedWallet.json
+      eventHandlers:
+        
+        - event: NewBitcoinTransferIncoming(indexed address,uint256,uint256,bytes32,uint256)
+          handler: handleNewBitcoinTransferIncoming
+      file: ./src/ManagedWallet.ts
+  - kind: ethereum/contract
     name: Settlement
     network: {{network}}
     source:
@@ -1004,3 +1025,5 @@ templates:
         - event: Voted(indexed address,indexed bytes32,address,address,uint256,string,bytes32,indexed bytes32,uint32,uint8,uint256)
           handler: handleVotedV1
       file: ./src/Federation.ts
+
+  
