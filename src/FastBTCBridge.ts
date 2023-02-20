@@ -5,9 +5,11 @@ import {
 } from '../generated/FastBTCBridge/FastBTCBridge'
 import { BitcoinTransferBatchSending } from '../generated/schema'
 import { aggregateFastBTCBridgeStat, createFastBTCBridgeStat } from './utils/FastBTCBridgeStats'
-import { BitcoinTransferStatus, createBitcoinTransfer, loadBitcoinTransfer } from './utils/BitcoinTransfer'
+import { BitcoinTransferStatus, createAndReturnBitcoinTransfer, loadBitcoinTransfer, satoshiToBTC } from './utils/BitcoinTransfer'
 
 import { createAndReturnTransaction } from './utils/Transaction'
+import { createAndReturnUser } from './utils/User'
+import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 
 export function handleBitcoinTransferBatchSending(event: BitcoinTransferBatchSendingEvent): void {
   const entity = new BitcoinTransferBatchSending(event.transaction.hash.toHex())
@@ -27,8 +29,7 @@ export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusU
 
   const bitcoinTransfer = loadBitcoinTransfer(event.params.transferId)
   bitcoinTransfer.status = BitcoinTransferStatus.getStatus(event.params.newStatus)
-  bitcoinTransfer.bitcoinTxHash = bitcoinTransferBatchSending != null ? bitcoinTransferBatchSending.bitcoinTxHash : bitcoinTransfer.bitcoinTxHash
-
+  bitcoinTransfer.bitcoinTxHash = bitcoinTransferBatchSending != null ? bitcoinTransferBatchSending.bitcoinTxHash.toHexString() : bitcoinTransfer.bitcoinTxHash
   bitcoinTransfer.updatedAtBlockNumber = event.block.number.toI32()
   bitcoinTransfer.updatedAtTimestamp = event.block.timestamp.toI32()
   bitcoinTransfer.updatedAtTx = event.transaction.hash.toHex()
@@ -40,8 +41,19 @@ export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusU
 
 export function handleNewBitcoinTransfer(event: NewBitcoinTransferEvent): void {
   const transaction = createAndReturnTransaction(event)
-
-  const bitcoinTransfer = createBitcoinTransfer(event)
+  createAndReturnUser(event.params.rskAddress, event.block.timestamp)
+  const bitcoinTransfer = createAndReturnBitcoinTransfer({
+    event: event,
+    transferId: event.params.transferId.toHexString(),
+    btcAddress: event.params.btcAddress,
+    direction: 'OUTGOING',
+    amountBTC: satoshiToBTC(event.params.amountSatoshi),
+    feeBTC: satoshiToBTC(event.params.feeSatoshi),
+    totalAmountBTC: satoshiToBTC(event.params.amountSatoshi.plus(event.params.feeSatoshi)),
+    user: event.params.rskAddress.toHexString(),
+    status: BitcoinTransferStatus.getStatus(1),
+    bitcoinTxHash: ZERO_ADDRESS,
+  })
 
   const FastBTCBridgeStat = createFastBTCBridgeStat('0', transaction)
   FastBTCBridgeStat.totalAmountBTCInitialized = FastBTCBridgeStat.totalAmountBTCInitialized.plus(bitcoinTransfer.totalAmountBTC)
