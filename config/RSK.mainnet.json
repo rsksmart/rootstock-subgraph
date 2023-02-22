@@ -155,7 +155,7 @@
     },
     "ManagedWallet": {
         "network": "mainnet",
-        "address": "0xacbe05e7236f7d073295c99e629620da58284aad",
-        "startBlock": 1000000
+        "address": "0xE43cafBDd6674DF708CE9DFF8762AF356c2B454d",
+        "startBlock": 5074694
     }
 }
