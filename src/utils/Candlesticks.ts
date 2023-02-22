@@ -110,31 +110,33 @@ function updateAllIntervals(params: CandlestickParams): void {
 }
 
 function initializeCandlestick(entity: Entity, params: CandlestickParams, timestamp: i32): void {
+  const tokenPrice = params.quoteToken.id === WRBTCAddress.toLowerCase() ? params.baseToken.prevPriceBtc : params.baseToken.prevPriceUsd
+  const startingPrice = tokenPrice.gt(BigDecimal.zero()) ? tokenPrice : params.newPrice
   entity.set('periodStartUnix', Value.fromI32(timestamp))
-  entity.set('open', Value.fromBigDecimal(params.oldPrice == BigDecimal.zero() ? params.newPrice : params.oldPrice))
-  entity.set('low', Value.fromBigDecimal(params.oldPrice == BigDecimal.zero() ? params.newPrice : params.oldPrice))
-  entity.set('high', Value.fromBigDecimal(params.oldPrice == BigDecimal.zero() ? params.newPrice : params.oldPrice))
-  entity.set('close', Value.fromBigDecimal(params.oldPrice == BigDecimal.zero() ? params.newPrice : params.oldPrice))
-  entity.set('txCount', Value.fromI32(1))
-  entity.set('totalVolume', Value.fromBigDecimal(params.volume))
+  entity.set('open', Value.fromBigDecimal(startingPrice))
+  entity.set('low', Value.fromBigDecimal(startingPrice))
+  entity.set('high', Value.fromBigDecimal(startingPrice))
+  entity.set('close', Value.fromBigDecimal(startingPrice))
+  entity.set('txCount', Value.fromI32(0))
+  entity.set('totalVolume', Value.fromBigDecimal(BigDecimal.zero()))
   entity.set('baseToken', Value.fromString(params.baseToken.id))
   entity.set('quoteToken', Value.fromString(params.quoteToken.id))
 }
 
 function updateCandlestick(entity: Entity, params: CandlestickParams): void {
-  const highRaw = entity.get('high')
-  const high = highRaw !== null ? highRaw.toBigDecimal() : params.newPrice
-  const lowRaw = entity.get('low')
-  const low = lowRaw !== null ? lowRaw.toBigDecimal() : params.newPrice
+  const oldHigh = entity.get('high')
+  const currentHigh = oldHigh !== null ? oldHigh.toBigDecimal() : params.newPrice
+  const oldLow = entity.get('low')
+  const currentLow = oldLow !== null ? oldLow.toBigDecimal() : params.newPrice
   const totalVolumeRaw = entity.get('totalVolume')
   const totalVolume = totalVolumeRaw !== null ? totalVolumeRaw.toBigDecimal() : params.volume
   const txCountRaw = entity.get('txCount')
   const txCount = txCountRaw !== null ? txCountRaw.toI32() : 1
 
-  if (params.newPrice.gt(high)) {
+  if (params.newPrice.gt(currentHigh)) {
     entity.set('high', Value.fromBigDecimal(params.newPrice))
   }
-  if (params.newPrice.lt(low)) {
+  if (params.newPrice.lt(currentLow)) {
     entity.set('low', Value.fromBigDecimal(params.newPrice))
   }
 
@@ -147,12 +149,11 @@ function updateCandlestickMinute(params: CandlestickParams): void {
   const candleStickTimestamp = params.blockTimestamp - (params.blockTimestamp % Interval.MinuteInterval)
   const candlestickId = getCandleStickId(params.baseToken, params.quoteToken, candleStickTimestamp, Interval.MinuteInterval)
   let candleStick = CandleStickMinute.load(candlestickId)
-  if (candleStick == null) {
+  if (candleStick === null) {
     candleStick = new CandleStickMinute(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
-  } else {
-    updateCandlestick(candleStick, params)
   }
+  updateCandlestick(candleStick, params)
   candleStick.save()
 }
 
@@ -160,7 +161,7 @@ function updateCandlestickFifteenMinute(params: CandlestickParams): void {
   const candleStickTimestamp = params.blockTimestamp - (params.blockTimestamp % Interval.FifteenMinutesInterval)
   const candlestickId = getCandleStickId(params.baseToken, params.quoteToken, candleStickTimestamp, Interval.FifteenMinutesInterval)
   let candleStick = CandleStickFifteenMinute.load(candlestickId)
-  if (candleStick == null) {
+  if (candleStick === null) {
     candleStick = new CandleStickFifteenMinute(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
   } else {
@@ -173,7 +174,7 @@ function updateCandlestickHour(params: CandlestickParams): void {
   const candleStickTimestamp = params.blockTimestamp - (params.blockTimestamp % Interval.HourInterval)
   const candlestickId = getCandleStickId(params.baseToken, params.quoteToken, candleStickTimestamp, Interval.HourInterval)
   let candleStick = CandleStickHour.load(candlestickId)
-  if (candleStick == null) {
+  if (candleStick === null) {
     candleStick = new CandleStickHour(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
   } else {
@@ -186,7 +187,7 @@ function updateCandlestickFourHour(params: CandlestickParams): void {
   const candleStickTimestamp = params.blockTimestamp - (params.blockTimestamp % Interval.FourHourInterval)
   const candlestickId = getCandleStickId(params.baseToken, params.quoteToken, candleStickTimestamp, Interval.FourHourInterval)
   let candleStick = CandleStickFourHour.load(candlestickId)
-  if (candleStick == null) {
+  if (candleStick === null) {
     candleStick = new CandleStickFourHour(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
   } else {
@@ -199,7 +200,7 @@ function updateCandlestickDay(params: CandlestickParams): void {
   const candleStickTimestamp = params.blockTimestamp - (params.blockTimestamp % Interval.DayInterval)
   const candlestickId = getCandleStickId(params.baseToken, params.quoteToken, candleStickTimestamp, Interval.DayInterval)
   let candleStick = CandleStickDay.load(candlestickId)
-  if (candleStick == null) {
+  if (candleStick === null) {
     candleStick = new CandleStickDay(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
   } else {
