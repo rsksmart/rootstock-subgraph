@@ -110,8 +110,7 @@ function updateAllIntervals(params: CandlestickParams): void {
 }
 
 function initializeCandlestick(entity: Entity, params: CandlestickParams, timestamp: i32): void {
-  const tokenPrice = params.quoteToken.id === WRBTCAddress.toLowerCase() ? params.baseToken.prevPriceBtc : params.baseToken.prevPriceUsd
-  const startingPrice = tokenPrice.gt(BigDecimal.zero()) ? tokenPrice : params.newPrice
+  const startingPrice = params.oldPrice
   entity.set('periodStartUnix', Value.fromI32(timestamp))
   entity.set('open', Value.fromBigDecimal(startingPrice))
   entity.set('low', Value.fromBigDecimal(startingPrice))
@@ -125,18 +124,16 @@ function initializeCandlestick(entity: Entity, params: CandlestickParams, timest
 
 function updateCandlestick(entity: Entity, params: CandlestickParams): void {
   const oldHigh = entity.get('high')
-  const currentHigh = oldHigh !== null ? oldHigh.toBigDecimal() : params.newPrice
   const oldLow = entity.get('low')
-  const currentLow = oldLow !== null ? oldLow.toBigDecimal() : params.newPrice
   const totalVolumeRaw = entity.get('totalVolume')
   const totalVolume = totalVolumeRaw !== null ? totalVolumeRaw.toBigDecimal() : params.volume
   const txCountRaw = entity.get('txCount')
   const txCount = txCountRaw !== null ? txCountRaw.toI32() : 1
 
-  if (params.newPrice.gt(currentHigh)) {
+  if (oldHigh !== null && params.newPrice.gt(oldHigh.toBigDecimal())) {
     entity.set('high', Value.fromBigDecimal(params.newPrice))
   }
-  if (params.newPrice.lt(currentLow)) {
+  if (oldLow !== null && params.newPrice.lt(oldLow.toBigDecimal())) {
     entity.set('low', Value.fromBigDecimal(params.newPrice))
   }
 
