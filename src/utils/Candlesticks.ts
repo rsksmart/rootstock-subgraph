@@ -161,9 +161,8 @@ function updateCandlestickFifteenMinute(params: CandlestickParams): void {
   if (candleStick === null) {
     candleStick = new CandleStickFifteenMinute(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
-  } else {
-    updateCandlestick(candleStick, params)
   }
+  updateCandlestick(candleStick, params)
   candleStick.save()
 }
 
@@ -174,9 +173,8 @@ function updateCandlestickHour(params: CandlestickParams): void {
   if (candleStick === null) {
     candleStick = new CandleStickHour(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
-  } else {
-    updateCandlestick(candleStick, params)
   }
+  updateCandlestick(candleStick, params)
   candleStick.save()
 }
 
@@ -187,9 +185,8 @@ function updateCandlestickFourHour(params: CandlestickParams): void {
   if (candleStick === null) {
     candleStick = new CandleStickFourHour(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
-  } else {
-    updateCandlestick(candleStick, params)
   }
+  updateCandlestick(candleStick, params)
   candleStick.save()
 }
 
@@ -200,9 +197,8 @@ function updateCandlestickDay(params: CandlestickParams): void {
   if (candleStick === null) {
     candleStick = new CandleStickDay(candlestickId)
     initializeCandlestick(candleStick, params, candleStickTimestamp)
-  } else {
-    updateCandlestick(candleStick, params)
   }
+  updateCandlestick(candleStick, params)
   candleStick.save()
 }
 
