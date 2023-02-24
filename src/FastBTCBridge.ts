@@ -29,7 +29,10 @@ export function handleBitcoinTransferStatusUpdated(event: BitcoinTransferStatusU
 
   const bitcoinTransfer = loadBitcoinTransfer(event.params.transferId)
   bitcoinTransfer.status = BitcoinTransferStatus.getStatus(event.params.newStatus)
-  bitcoinTransfer.bitcoinTxHash = bitcoinTransferBatchSending != null ? bitcoinTransferBatchSending.bitcoinTxHash.toHexString() : bitcoinTransfer.bitcoinTxHash
+  const txHash = bitcoinTransferBatchSending != null ? bitcoinTransferBatchSending.bitcoinTxHash.toHexString() : bitcoinTransfer.bitcoinTxHash
+  /** Remove the 0x prefix from btc transcation hash */
+  const txHashWithoutPrefix = txHash != null && txHash.substring(0, 2) === '0x' ? txHash.substring(2, txHash.length - 1) : txHash
+  bitcoinTransfer.bitcoinTxHash = txHashWithoutPrefix
   bitcoinTransfer.updatedAtBlockNumber = event.block.number.toI32()
   bitcoinTransfer.updatedAtTimestamp = event.block.timestamp.toI32()
   bitcoinTransfer.updatedAtTx = event.transaction.hash.toHex()
