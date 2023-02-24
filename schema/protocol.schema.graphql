@@ -196,14 +196,6 @@ type Token @entity {
   crossTransfers: [CrossTransfer!] @derivedFrom(field: "token")
 }
 
-type OwnerUpdate @entity {
-  id: ID!
-  prevOwner: String!
-  newOwner: String!
-  timestamp: BigInt!
-  emittedBy: String!
-}
-
 enum FeeType {
   Trading
   Lending

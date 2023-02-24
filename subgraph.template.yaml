@@ -911,7 +911,7 @@ templates:
       language: wasm/assemblyscript
       # TODO: Do there need to be entities here?
       entities:
-        - OwnerUpdate
+        - SmartToken
       abis:
         - name: SmartToken
           file: ./abis/SmartToken.json
