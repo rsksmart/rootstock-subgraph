@@ -53,6 +53,7 @@ export function handleNewBitcoinTransfer(event: NewBitcoinTransferEvent): void {
     user: event.params.rskAddress.toHexString(),
     status: BitcoinTransferStatus.getStatus(1),
     bitcoinTxHash: ZERO_ADDRESS,
+    nonce: event.params.nonce.toI32(),
   })
 
   const FastBTCBridgeStat = createFastBTCBridgeStat('0', transaction)

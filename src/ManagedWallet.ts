@@ -20,5 +20,6 @@ export function handleNewBitcoinTransferIncoming(event: NewBitcoinTransferIncomi
     totalAmountBTC: amountDecimals.plus(feeDecimals),
     user: event.params.rskAddress.toHexString(),
     bitcoinTxHash: event.params.btcTxHash.toHexString(),
+    nonce: -1,
   })
 }

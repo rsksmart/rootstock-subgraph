@@ -27,6 +27,7 @@ class BitcoinTransferParams {
   totalAmountBTC: BigDecimal
   user: string
   status: string
+  nonce: i32
   bitcoinTxHash: string
 }
 
@@ -52,6 +53,10 @@ export const createAndReturnBitcoinTransfer = (params: BitcoinTransferParams): B
     }
     if (params.bitcoinTxHash != ZERO_ADDRESS) {
       bitcoinTransfer.bitcoinTxHash = params.bitcoinTxHash
+    }
+
+    if (params.nonce >= 0) {
+      bitcoinTransfer.nonce = params.nonce
     }
 
     bitcoinTransfer.save()
