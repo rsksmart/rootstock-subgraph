@@ -52,8 +52,7 @@ export const createAndReturnBitcoinTransfer = (params: BitcoinTransferParams): B
     }
     if (params.bitcoinTxHash != ZERO_ADDRESS) {
       /** Remove the 0x prefix from btc transcation hash */
-      const txHashWithoutPrefix =
-      params.bitcoinTxHash.slice(0, 2) == '0x' ? params.bitcoinTxHash.slice(2, params.bitcoinTxHash.length - 1) : params.bitcoinTxHash
+      const txHashWithoutPrefix = params.bitcoinTxHash.slice(0, 2) == '0x' ? params.bitcoinTxHash.slice(2, params.bitcoinTxHash.length) : params.bitcoinTxHash
       bitcoinTransfer.bitcoinTxHash = txHashWithoutPrefix
     }
 
