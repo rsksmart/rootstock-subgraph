@@ -67,6 +67,7 @@ You can also add to the keywords array if you want to filter the contracts by ke
 - The subgraph mappings files are written in AssemblyScript, not Typescript. AssemblyScript docs can be found here: https://www.assemblyscript.org/. Pay particular attention to the difference in the equality operator - `===` compares referencess, `==` compares values.
 - If you are having issues with postgres, try deleting the `data/` directory from the subgraph root
 - The block numbers for Orderbook contracts on mainnet are set to blocks far in the future, because these contracts only exist on testnet
+- This subgraph takes approximately 40 hours to fully sync on mainnet
 
 ## How to contribute
 
