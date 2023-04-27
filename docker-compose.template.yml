@@ -31,7 +31,7 @@ services:
       GRAPH_GRAPHQL_MAX_COMPLEXITY: '{{node.graph_graphql_max_complexity}}'
     restart: '{{node.restart}}'
   ipfs:
-    image: ipfs/go-ipfs:v0.11.0
+    image: ipfs/go-ipfs:latest
     ports:
       - '5001:5001'
     expose:

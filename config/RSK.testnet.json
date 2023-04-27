@@ -139,8 +139,8 @@
     },
     "BridgeETH": {
         "network": "testnet",
-        "address": "0xC0E7A7FfF4aBa5e7286D5d67dD016B719DCc9156",
-        "startBlock": 1745576
+        "address": "0xfbd57ab1dce7b4fe191ff947ddbb5118e4318207",
+        "startBlock": 3304916
     },
     "SignaturesFederationETH": {
         "address": "0xe9FDf7CF757eb5A418B01d8862dF177A20fbBF76"

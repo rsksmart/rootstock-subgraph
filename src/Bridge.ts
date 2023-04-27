@@ -1,4 +1,4 @@
-import { Address, log } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import {
   Cross as CrossEvent,
@@ -12,7 +12,6 @@ import {
   Upgrading as UpgradingEvent,
 } from '../generated/BridgeETH/Bridge'
 
-import { Federation as FederationTemplate } from '../generated/templates'
 import {
   createAndReturnBridge,
   createAndReturnCrossTransfer,
@@ -60,9 +59,6 @@ export function handleCross(event: CrossEvent): void {
 
 export function handleFederationChanged(event: FederationChangedEvent): void {
   const transaction = createAndReturnTransaction(event)
-
-  FederationTemplate.create(event.params._newFederation)
-  log.info('Federation created: {}', [event.params._newFederation.toHex()])
   const bridge = createAndReturnBridge(event.address, event)
   const oldFederationAddress = bridge.federation
   if (oldFederationAddress != ZERO_ADDRESS) {

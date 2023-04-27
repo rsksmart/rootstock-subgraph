@@ -1,6 +1,8 @@
 import { BigInt, Address, ethereum, crypto, ByteArray, log } from '@graphprotocol/graph-ts'
 import { decimal, ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 import { Federation, Bridge, CrossTransfer, SideToken, Transaction } from '../../generated/schema'
+import { Federation as FederationContract } from '../../generated/templates/Federation/Federation'
+import { Federation as FederationTemplate } from '../../generated/templates'
 import { createAndReturnTransaction } from './Transaction'
 import { NewSideToken as NewSideTokenEvent } from '../../generated/BridgeETH/Bridge'
 import { Voted as VotedEvent } from '../../generated/templates/Federation/Federation'
@@ -73,12 +75,34 @@ export const createAndReturnBridge = (bridgeAddress: Address, event: ethereum.Ev
 export const createAndReturnFederation = (federationAddress: Address, event: ethereum.Event): Federation => {
   let federation = Federation.load(federationAddress.toHex())
   if (federation == null) {
+    FederationTemplate.create(federationAddress)
+    log.info('Federation created: {}', [federationAddress.toHex()])
     federation = new Federation(federationAddress.toHex())
+    const federationContract = FederationContract.bind(federationAddress)
+
     federation.members = []
+    const members = federationContract.try_getMembers()
+    if (!members.reverted) {
+      // subgraph deployment will crash assigning members.value to federation.members
+      // so we have to do it manually with a for loop
+      const membersArray = federation.members
+      for (let i = 0; i < members.value.length; i++) {
+        membersArray.push(members.value[i])
+      }
+      federation.members = membersArray
+    }
+
     federation.totalExecuted = 0
     federation.totalVotes = 0
     federation.isActive = true
-    federation.bridge = ZERO_ADDRESS
+
+    const bridge = federationContract.try_bridge()
+    if (!bridge.reverted) {
+      federation.bridge = bridge.value.toHex()
+    } else {
+      federation.bridge = ZERO_ADDRESS
+    }
+
     const tx = createAndReturnTransaction(event)
     federation.createdAtTx = tx.id
     federation.updatedAtTx = tx.id
