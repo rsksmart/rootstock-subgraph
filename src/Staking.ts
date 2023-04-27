@@ -20,7 +20,7 @@ import {
 } from './utils/ProtocolStats'
 import { adminContracts } from './contracts/contracts'
 import { StakeHistoryAction, VestingHistoryActionItem, VestingContractType } from './utils/types'
-import { createOrUpdateStake, incrementDelegatedAmount, incrementVestingStakedAmount } from './utils/Stake'
+import { createOrUpdateStake, incrementDelegatedAmount, incrementVestingStakedAmount, removeStakeIfEmpty } from './utils/Stake'
 import { createAndReturnVestingContract, decrementVestingContractBalance, incrementVestingContractBalance } from './utils/VestingContract'
 import { decrementUserStakeHistory, incrementUserStakeHistory } from './utils/UserStakeHistory'
 import { createAndReturnStakeHistoryItem } from './utils/StakeHistoryItem'
@@ -49,7 +49,8 @@ export function handleDelegateChanged(event: DelegateChangedEvent): void {
 
 export function handleDelegateStakeChanged(event: DelegateStakeChangedEvent): void {
   createAndReturnUser(event.params.delegate, event.block.timestamp)
-  createOrUpdateStake(event)
+  const stake = createOrUpdateStake(event)
+  removeStakeIfEmpty(stake)
 }
 
 export function handleExtendedStakingDuration(event: ExtendedStakingDurationEvent): void {
