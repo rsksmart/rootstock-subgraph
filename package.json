@@ -15,7 +15,7 @@
     "lint": "npx prettier --check src/ && eslint . --ext .ts",
     "lint:fix": "npx prettier -w src/ && eslint . --ext .ts --fix",
     "scaffold": "node utils/scaffoldFromAbi.js",
-    "cd": "npm run create-local && npm run deploy-local -- --version-label && node scripts/db_triggers.js",
+    "cd": "npm run create-local && npm run deploy-local -- --version-label v0.0.1 && node scripts/db_triggers.js",
     "prepare": "husky install",
     "prepare:RSK:testnet": "sh ./scripts/prepare_testnet.sh && npm run schema",
     "prepare:RSK:mainnet": "sh ./scripts/prepare_mainnet.sh && npm run schema",
