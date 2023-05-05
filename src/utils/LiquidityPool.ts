@@ -1,5 +1,5 @@
 import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
-import { LiquidityPool } from '../../generated/schema'
+import { LiquidityPool, Token } from '../../generated/schema'
 import { LiquidityPoolV1Converter as LiquidityPoolV1ConverterContract } from '../../generated/templates/LiquidityPoolV1Converter/LiquidityPoolV1Converter'
 import { LiquidityPoolV2Converter as LiquidityPoolV2ConverterContract } from '../../generated/templates/LiquidityPoolV2Converter/LiquidityPoolV2Converter'
 import { LiquidityPoolV1ConverterProtocolFee as LiquidityPoolV1ConverterContract_V2 } from '../../generated/templates/LiquidityPoolV1ConverterProtocolFee/LiquidityPoolV1ConverterProtocolFee'
@@ -114,20 +114,20 @@ function getPoolType(address: Address): number {
   return type
 }
 
-export function incrementPoolBalance(liquidityPool: LiquidityPool, token: Address, amount: BigDecimal): LiquidityPool {
-  if (liquidityPool.token0 == token.toHexString()) {
+export function incrementPoolBalance(liquidityPool: LiquidityPool, token: Token, amount: BigDecimal): LiquidityPool {
+  if (liquidityPool.token0 == token.id) {
     liquidityPool.token0Balance = liquidityPool.token0Balance.plus(amount)
-  } else if (liquidityPool.token1 == token.toHexString()) {
+  } else if (liquidityPool.token1 == token.id) {
     liquidityPool.token1Balance = liquidityPool.token1Balance.plus(amount)
   }
   liquidityPool.save()
   return liquidityPool
 }
 
-export function decrementPoolBalance(liquidityPool: LiquidityPool, token: Address, amount: BigDecimal): LiquidityPool {
-  if (liquidityPool.token0 == token.toHexString()) {
+export function decrementPoolBalance(liquidityPool: LiquidityPool, token: Token, amount: BigDecimal): LiquidityPool {
+  if (liquidityPool.token0 == token.id) {
     liquidityPool.token0Balance = liquidityPool.token0Balance.minus(amount)
-  } else if (liquidityPool.token1 == token.toHexString()) {
+  } else if (liquidityPool.token1 == token.id) {
     liquidityPool.token1Balance = liquidityPool.token1Balance.minus(amount)
   }
   liquidityPool.save()

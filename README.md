@@ -44,7 +44,7 @@ If you want to start the subgraph from a later block, you can run the following 
 
 To temporarily change the start block for testing:
 
-- `npm run test-start-block -b [ BLOCK_NUMBER ]`
+- `npm run test-start-block -- -b [ BLOCK_NUMBER ]`
 
 To reset start blocks back to original state:
 

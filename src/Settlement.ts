@@ -74,7 +74,7 @@ export function handleOrderFilled(event: OrderFilledEvent): void {
   const toToken = event.params.path[event.params.path.length - 1]
   const fromAmount = decimalize(event.params.amountIn, fromToken)
   const toAmount = decimalize(event.params.amountOut, toToken)
-  updateLimitSwap(event.transaction.hash.toHexString(), toToken, toAmount, event.params.maker)
+  updateLimitSwap(event.transaction.hash.toHexString(), toToken.toHexString(), toAmount, event.params.maker)
 
   const entity = new OrderFilled(event.transaction.hash.toHex() + '-' + event.logIndex.toString())
   entity.hash = event.params.hash

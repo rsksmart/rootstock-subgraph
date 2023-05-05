@@ -8,19 +8,11 @@ export function updateVolumes(parsedEvent: ConversionEventForSwap, liquidityPool
 }
 
 function updateTokensVolume(parsedEvent: ConversionEventForSwap): void {
-  const fromToken = Token.load(parsedEvent.fromToken.toHex())
+  updateTokenVolume(parsedEvent.fromToken, parsedEvent.fromAmount)
+  parsedEvent.fromToken.save()
 
-  if (fromToken != null) {
-    updateTokenVolume(fromToken, parsedEvent.fromAmount)
-    fromToken.save()
-  }
-
-  const toToken = Token.load(parsedEvent.toToken.toHex())
-
-  if (toToken != null) {
-    updateTokenVolume(toToken, parsedEvent.toAmount)
-    toToken.save()
-  }
+  updateTokenVolume(parsedEvent.toToken, parsedEvent.toAmount)
+  parsedEvent.toToken.save()
 }
 
 function updateTokenVolume(token: Token, amount: BigDecimal): Token {
@@ -32,14 +24,14 @@ function updateTokenVolume(token: Token, amount: BigDecimal): Token {
 }
 
 function updatePoolVolume(parsedEvent: ConversionEventForSwap, liquidityPoolAddress: Address): void {
-  const fromTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.fromToken.toHexString())
+  const fromTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.fromToken.id)
   if (fromTokenEntity != null) {
     fromTokenEntity.volumeSold = fromTokenEntity.volumeSold.plus(parsedEvent.fromAmount)
     fromTokenEntity.totalVolume = fromTokenEntity.totalVolume.plus(parsedEvent.fromAmount)
     fromTokenEntity.save()
   }
 
-  const toTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.toToken.toHexString())
+  const toTokenEntity = LiquidityPoolToken.load(liquidityPoolAddress.toHexString() + parsedEvent.toToken.id)
   if (toTokenEntity != null) {
     toTokenEntity.volumeBought = toTokenEntity.volumeBought.plus(parsedEvent.toAmount)
     toTokenEntity.totalVolume = toTokenEntity.totalVolume.plus(parsedEvent.toAmount)

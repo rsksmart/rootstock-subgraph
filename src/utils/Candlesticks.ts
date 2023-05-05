@@ -35,17 +35,17 @@ export function updateCandleSticks(event: ConversionEventForSwap): void {
   const protocolStats = createAndReturnProtocolStats()
   const usdStablecoin = protocolStats.usdStablecoin.toLowerCase()
 
-  if (event.fromToken.toHex().toLowerCase() == WRBTCAddress.toLowerCase()) {
-    baseToken = Token.load(event.toToken.toHex()) as Token
-    quoteToken = Token.load(event.fromToken.toHex()) as Token
+  if (event.fromToken.id == WRBTCAddress.toLowerCase()) {
+    baseToken = event.toToken
+    quoteToken = event.fromToken
     volume = event.toAmount
-  } else if (event.toToken.toHex().toLowerCase() == WRBTCAddress.toLowerCase()) {
-    baseToken = Token.load(event.fromToken.toHex()) as Token
-    quoteToken = Token.load(event.toToken.toHex()) as Token
+  } else if (event.toToken.id == WRBTCAddress.toLowerCase()) {
+    baseToken = event.fromToken
+    quoteToken = event.toToken
     volume = event.fromAmount
   } else {
     // TODO: handle a case where neither side of the conversion is WRBTC
-    log.warning('Candlesticks unHandled Conversion - fromToken: {}, toToken {}', [event.fromToken.toHex(), event.toToken.toHex()])
+    log.warning('Candlesticks unHandled Conversion - fromToken: {}, toToken {}', [event.fromToken.id, event.toToken.id])
     return
   }
 
@@ -53,45 +53,37 @@ export function updateCandleSticks(event: ConversionEventForSwap): void {
   newPrice = baseToken.lastPriceBtc
 
   // update baseToken candlesticks with quoteToken=WRBTC
-  updateAllIntervals({
-    baseToken,
-    quoteToken,
-    oldPrice,
-    newPrice,
-    volume,
-    txCount: 1,
-    blockTimestamp,
-  })
+  updateAllIntervals({ baseToken, quoteToken, oldPrice, newPrice, volume, txCount: 1, blockTimestamp })
 
   const usdToken = Token.load(usdStablecoin)
-  if (usdToken != null) {
+
+  if (usdToken !== null) {
     const oldPriceUsd = baseToken.prevPriceUsd
     const newPriceUsd = baseToken.lastPriceUsd
     // update baseToken candlesticks with quoteToken=USD
     updateAllIntervals({ baseToken, quoteToken: usdToken, oldPrice: oldPriceUsd, newPrice: newPriceUsd, volume, txCount: 1, blockTimestamp })
-  }
 
-  if (baseToken.id == usdStablecoin.toLowerCase()) {
-    const tokens = protocolStats.tokens
-    for (let index = 0; index < tokens.length; index++) {
-      const tokenAddress = tokens[index]
-      if (tokenAddress.toLowerCase() != usdStablecoin.toLowerCase()) {
-        baseToken = Token.load(tokenAddress) as Token
-        quoteToken = Token.load(usdStablecoin) as Token
-        volume = BigDecimal.zero()
-        let txCount = 0
-        if (event.fromToken.toHex().toLowerCase() == tokenAddress.toLowerCase()) {
-          txCount = 1
-          volume = event.fromAmount
-        } else if (event.toToken.toHex().toLowerCase() == tokenAddress.toLowerCase()) {
-          txCount = 1
-          volume = event.toAmount
+    if (baseToken.id == usdStablecoin) {
+      const tokens = protocolStats.tokens
+      for (let index = 0; index < tokens.length; index++) {
+        const tokenAddress = tokens[index]
+        if (tokenAddress.toLowerCase() != usdStablecoin.toLowerCase()) {
+          baseToken = Token.load(tokenAddress) as Token
+          quoteToken = Token.load(usdStablecoin) as Token
+          volume = BigDecimal.zero()
+          let txCount = 0
+          if (event.fromToken.id == tokenAddress.toLowerCase()) {
+            txCount = 1
+            volume = event.fromAmount
+          } else if (event.toToken.id == tokenAddress.toLowerCase()) {
+            txCount = 1
+            volume = event.toAmount
+          }
+
+          oldPrice = baseToken.prevPriceUsd
+          newPrice = baseToken.lastPriceUsd
+          updateAllIntervals({ baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp })
         }
-
-        oldPrice = baseToken.prevPriceUsd
-        newPrice = baseToken.lastPriceUsd
-        // update all tokens candleSticks with quoteToken=USD
-        updateAllIntervals({ baseToken, quoteToken, oldPrice, newPrice, volume, txCount, blockTimestamp })
       }
     }
   }

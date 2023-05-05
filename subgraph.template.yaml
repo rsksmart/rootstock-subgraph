@@ -843,6 +843,8 @@ templates:
       abis:
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
         - name: LiquidityPoolV1ConverterProtocolFee
           file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: ERC20
@@ -974,6 +976,8 @@ templates:
           file: ./abis/LiquidityPoolV1ConverterProtocolFee.json
         - name: LiquidityPoolV1Converter
           file: ./abis/LiquidityPoolV1Converter.json
+        - name: LiquidityPoolV2Converter
+          file: ./abis/LiquidityPoolV2Converter.json
         - name: ERC20
           file: ./abis/ERC20.json
         - name: SmartToken
