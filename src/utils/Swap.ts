@@ -42,6 +42,8 @@ export function createAndReturnSwap(event: ConversionEventForSwap): Swap {
     swapEntity.timestamp = event.transaction.timestamp
     swapEntity.transaction = event.transaction.id
     swapEntity.isLimit = false
+    swapEntity.protocolFee = event.protocolFee
+    swapEntity.conversionFee = event.lpFee
     const isUserSwap = swapFunctionSigs.has(event.transaction.functionSignature) || event.transaction.from == event.trader.toHexString()
     if (isUserSwap) {
       createAndReturnUser(Address.fromString(event.transaction.from), BigInt.fromI32(event.transaction.timestamp))

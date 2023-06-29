@@ -142,6 +142,8 @@ type Swap @entity {
   swapType: SwapType
   timestamp: Int!
   transaction: Transaction!
+  conversionFee: BigDecimal
+  protocolFee: BigDecimal
   """
   Not in use - this property is always false. It is kept for backwards compatibility and will be deprecated
   """
