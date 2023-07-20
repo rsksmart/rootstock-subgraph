@@ -25,9 +25,16 @@ import { createAndReturnVestingContract, decrementVestingContractBalance, increm
 import { decrementUserStakeHistory, incrementUserStakeHistory } from './utils/UserStakeHistory'
 import { createAndReturnStakeHistoryItem } from './utils/StakeHistoryItem'
 import { createAndReturnVestingHistoryItem } from './utils/VestingHistoryItem'
+import {
+  createAndReturnV2DelegateChanged,
+  createAndReturnV2ExtendedStakingDuration,
+  createAndReturnV2StakingWithdrawn,
+  createAndReturnV2TokensStaked,
+} from './utils/V2Stake'
 
 export function handleDelegateChanged(event: DelegateChangedEvent): void {
   createAndReturnTransaction(event)
+  createAndReturnV2DelegateChanged(event)
   const delegator = event.params.delegator.toHexString()
   const fromDelegate = event.params.fromDelegate.toHexString()
   const toDelegate = event.params.toDelegate.toHexString()
@@ -54,6 +61,7 @@ export function handleDelegateStakeChanged(event: DelegateStakeChangedEvent): vo
 }
 
 export function handleExtendedStakingDuration(event: ExtendedStakingDurationEvent): void {
+  createAndReturnV2ExtendedStakingDuration(event)
   const staker = event.params.staker.toHexString()
   createAndReturnTransaction(event)
   createAndReturnStakeHistoryItem({
@@ -67,6 +75,7 @@ export function handleExtendedStakingDuration(event: ExtendedStakingDurationEven
 }
 
 export function handleTokensStaked(event: TokensStakedEvent): void {
+  createAndReturnV2TokensStaked(event)
   createAndReturnTransaction(event)
   const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   const totalStaked = decimal.fromBigInt(event.params.totalStaked, DEFAULT_DECIMALS)
@@ -137,6 +146,7 @@ export function handleTokensWithdrawn(event: TokensWithdrawnEvent): void {
 
 /** This is a copy of handleTokensWithdrawn. The event was renamed but params remained the same. */
 export function handleStakingWithdrawn(event: StakingWithdrawnEvent): void {
+  createAndReturnV2StakingWithdrawn(event)
   const transaction = createAndReturnTransaction(event)
   const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
   handleStakingOrTokensWithdrawn(

@@ -1,5 +1,6 @@
-import { BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
 import { VestingContract } from '../../generated/schema'
+import { VestingContract as VestingContractTemplate } from '../../generated/templates'
 
 class VestingContractParams {
   vestingAddress: string
@@ -14,6 +15,8 @@ class VestingContractParams {
 export function createAndReturnVestingContract(params: VestingContractParams): VestingContract {
   let vestingContract = VestingContract.load(params.vestingAddress)
   if (vestingContract == null) {
+    VestingContractTemplate.create(Address.fromString(params.vestingAddress))
+    log.info('VestingContract created: {}', [params.vestingAddress])
     vestingContract = new VestingContract(params.vestingAddress)
     vestingContract.user = params.user
     vestingContract.createdAtTimestamp = params.event.block.timestamp.toI32()

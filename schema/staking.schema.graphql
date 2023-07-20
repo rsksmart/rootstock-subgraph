@@ -130,3 +130,71 @@ type FeeSharingTokensTransferred @entity {
   token: Bytes!
   amount: BigDecimal!
 }
+
+
+"""
+Voluntary staked tokens grouped by lockedUntil date
+"""
+type V2Stake @entity {
+  """
+  ID is the user address + lockedUntil date.
+  """
+  id: ID!
+  """
+  The user who staked the tokens
+  """
+  user: User!
+  """
+  The total amount staked for this specific user until this specific lockedUntil date
+  """
+  amount: BigDecimal!
+  """
+  The date when these tokens will unlock
+  """
+  lockedUntil: Int!
+  """
+  If tokens delegated to another user, this is the address of the delegatee
+  """
+  delegate: User
+  """
+  Timestamp of a date when the stake was created
+  """
+  timestamp: Int!
+}
+
+type V2TokensStaked @entity {
+  id: ID!
+  user: User!
+  amount: BigDecimal!
+  lockedUntil: Int!
+  totalStaked: BigDecimal!
+  timestamp: Int!
+}
+
+type V2ExtendedStakingDuration @entity {
+  id: ID!
+  user: User!
+  previousDate: Int!
+  newDate: Int!
+  amountStaked: BigDecimal!
+  timestamp: Int!
+}
+
+type V2StakingWithdrawn @entity {
+  id: ID!
+  user: User!
+  receiver: User
+  amount: BigDecimal!
+  until: Int!
+  timestamp: Int!
+  isGovernance: Boolean!
+}
+
+type V2DelegateChanged @entity {
+  id: ID!
+  user: User!
+  lockedUntil: Int!
+  delegate: User
+  previousDelegate: User
+  timestamp: Int!
+}

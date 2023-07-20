@@ -58,5 +58,5 @@ export function incrementDelegatedAmount(fromDelegate: string, toDelegate: strin
 }
 
 export function getStakeId(delegate: string, lockedUntil: BigInt): string {
-  return delegate + '-' + lockedUntil.toI32().toString()
+  return delegate + '-' + lockedUntil.toString()
 }

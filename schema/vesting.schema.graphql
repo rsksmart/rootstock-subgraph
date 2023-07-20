@@ -80,6 +80,10 @@ type VestingContract @entity {
   A granular history of every action involving this vesting contract
   """
   stakeHistory: [VestingHistoryItem!] @derivedFrom(field: "staker")
+  """
+  Delegated too
+  """
+  delegate: User
 }
 
 enum VestingHistoryItemAction {

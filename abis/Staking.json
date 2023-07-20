@@ -81,7 +81,13 @@
                 "internalType": "uint256",
                 "name": "newDate",
                 "type": "uint256"
-            }
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amountStaked",
+              "type": "uint256"
+          }
         ],
         "name": "ExtendedStakingDuration",
         "type": "event"
