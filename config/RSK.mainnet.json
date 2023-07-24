@@ -132,6 +132,11 @@
         "address": "0x0D5006330289336ebdF9d0AC9E0674f91b4851eA",
         "startBlock": 4029878
     },
+    "FastBTCBridgeNew": {
+        "network": "mainnet",
+        "address": "0x1A8E78B41bc5Ab9Ebb6996136622B9b41A601b5C",
+        "startBlock": 5487104
+    },
     "FourYearVesting": {
         "network": "mainnet",
         "address": "0xD5564a16f356dD45e445beC725F54496700b5C5A",
