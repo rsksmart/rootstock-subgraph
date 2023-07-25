@@ -656,7 +656,7 @@ dataSources:
         - event: OrderCreated(indexed bytes32,(address,address,address,uint256,uint256,address,uint256,uint256,uint8,bytes32,bytes32),uint256)
           handler: handleOrderCreated
       file: ./src/Orderbook.ts
-
+  #FastBTC old contract
   - kind: ethereum/contract
     name: FastBTCBridge
     network: {{network}}
@@ -681,7 +681,32 @@ dataSources:
         - event: NewBitcoinTransfer(indexed bytes32,string,uint256,uint256,uint256,indexed address)
           handler: handleNewBitcoinTransfer
       file: ./src/FastBTCBridge.ts
-  
+  #FastBTC new contract
+  - kind: ethereum/contract
+    name: FastBTCBridgeNew
+    network: {{network}}
+    source:
+      address: '{{FastBTCBridgeNew.address}}'
+      abi: FastBTCBridgeNew
+      startBlock: {{FastBTCBridgeNew.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - BitcoinTransferBatchSending
+      abis:
+        - name: FastBTCBridgeNew
+          file: ./abis/FastBTCBridgeNew.json
+      eventHandlers:
+        - event: BitcoinTransferBatchSending(bytes32,uint8)
+          handler: handleBitcoinTransferBatchSending
+        - event: BitcoinTransferStatusUpdated(indexed bytes32,uint8)
+          handler: handleBitcoinTransferStatusUpdated
+        - event: NewBitcoinTransfer(indexed bytes32,string,uint256,uint256,uint256,indexed address)
+          handler: handleNewBitcoinTransfer
+      file: ./src/FastBTCBridge.ts
+
   # Bridge BSC
   - kind: ethereum/contract
     name: BridgeBSC
