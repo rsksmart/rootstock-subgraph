@@ -1087,10 +1087,6 @@ templates:
           file: ./abis/VestingLogic.json
       eventHandlers:
         
-        - event: TokensStaked(indexed address,uint256)
-          handler: handleTokensStaked
-        - event: TokensWithdrawn(indexed address,address)
-          handler: handleTokensWithdrawn
         - event: VotesDelegated(indexed address,address)
           handler: handleVotesDelegated
       file: ./src/Vesting.ts

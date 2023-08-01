@@ -1,11 +1,13 @@
 import { TeamVestingCreated as TeamVestingCreatedEvent, VestingCreated as VestingCreatedEvent } from '../generated/VestingRegistry1/VestingRegistry'
 import { VestingCreated as VestingCreatedProxyEvent, TeamVestingCreated as TeamVestingCreatedProxyEvent } from '../generated/VestingRegistryProxy/VestingProxy'
 import { VestingContract } from '../generated/schema'
-import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
+import { VestingContract as VestingContractTemplate } from '../generated/templates'
+import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts'
 import { createAndReturnTransaction } from './utils/Transaction'
 import { vestingRegistry1, vestingRegistry2, vestingRegistry3, vestingRegistryFish } from './contracts/contracts'
 import { createAndReturnUser } from './utils/User'
 import { VestingContractType } from './utils/types'
+
 import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
 
 export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
@@ -34,6 +36,8 @@ export function handleTeamVestingCreated(event: TeamVestingCreatedEvent): void {
 export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedProxyEvent): void {
   const existingContract = VestingContract.load(event.params.vesting.toHexString())
   if (existingContract == null) {
+    VestingContractTemplate.create(Address.fromString(event.params.vesting.toHexString()))
+    log.info('Team VestingContract created: {}', [event.params.vesting.toHexString()])
     const entity = new VestingContract(event.params.vesting.toHexString())
     const user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
@@ -53,6 +57,8 @@ export function handleTeamVestingCreatedProxy(event: TeamVestingCreatedProxyEven
 export function handleVestingCreated(event: VestingCreatedEvent): void {
   const existingContract = VestingContract.load(event.params.vesting.toHexString())
   if (existingContract == null) {
+    VestingContractTemplate.create(Address.fromString(event.params.vesting.toHexString()))
+    log.info('VestingContract created: {}', [event.params.vesting.toHexString()])
     const entity = new VestingContract(event.params.vesting.toHexString())
     const user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
@@ -72,6 +78,8 @@ export function handleVestingCreated(event: VestingCreatedEvent): void {
 export function handleVestingCreatedProxy(event: VestingCreatedProxyEvent): void {
   const existingContract = VestingContract.load(event.params.vesting.toHexString())
   if (existingContract == null) {
+    VestingContractTemplate.create(Address.fromString(event.params.vesting.toHexString()))
+    log.info('VestingContract created: {}', [event.params.vesting.toHexString()])
     const entity = new VestingContract(event.params.vesting.toHexString())
     const user = createAndReturnUser(event.params.tokenOwner, event.block.timestamp)
     entity.user = user.id
