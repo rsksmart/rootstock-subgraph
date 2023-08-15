@@ -93,6 +93,7 @@ enum StakeHistoryAction {
   When a user delegates voting power to another user. This can also be for voting power that the user has through a vesting contract.
   """
   Delegate
+  DelegateVested
   """
   Unstake is early unstaking, when a user withdraws staked SOV before the lockedUntil date and incurs a slashing penalty.
   """
@@ -119,6 +120,8 @@ type StakeHistoryItem @entity {
   amount: BigDecimal
   token: String
   lockedUntil: Int
+  delegatee: User
+  emittedBy: Bytes!
 }
 
 # This event is emitted when tokens are transferred to the Protocol contract as fees

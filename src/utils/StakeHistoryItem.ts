@@ -1,6 +1,7 @@
 import { StakeHistoryItem } from '../../generated/schema'
-import { BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
+import { createAndReturnUser } from './User'
 
 class StakeHistoryItemParams {
   user: string
@@ -8,6 +9,7 @@ class StakeHistoryItemParams {
   amount: BigDecimal
   token: string
   lockedUntil: BigInt
+  delegatee: string
   event: ethereum.Event
 }
 
@@ -26,6 +28,10 @@ export function createAndReturnStakeHistoryItem(params: StakeHistoryItemParams):
   if (params.lockedUntil > BigInt.zero()) {
     stakeHistoryItem.lockedUntil = params.lockedUntil.toI32()
   }
+  if (params.delegatee != ZERO_ADDRESS) {
+    stakeHistoryItem.delegatee = createAndReturnUser(Address.fromString(params.delegatee), params.event.block.timestamp).id
+  }
+  stakeHistoryItem.emittedBy = params.event.address
   stakeHistoryItem.save()
   return stakeHistoryItem
 }

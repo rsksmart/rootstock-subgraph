@@ -7,6 +7,7 @@ class VestingHistoryItemParams {
   amount: BigDecimal
   lockedUntil: BigInt
   totalStaked: BigDecimal
+  delegatee: string | null
   event: ethereum.Event
 }
 
@@ -21,6 +22,7 @@ export function createAndReturnVestingHistoryItem(params: VestingHistoryItemPara
   vestingHistoryItem.timestamp = params.event.block.timestamp.toI32()
   vestingHistoryItem.emittedBy = params.event.address
   vestingHistoryItem.transaction = params.event.transaction.hash.toHexString()
+  vestingHistoryItem.delegatee = params.delegatee || null
   vestingHistoryItem.save()
   return vestingHistoryItem
 }

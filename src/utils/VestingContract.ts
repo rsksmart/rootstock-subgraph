@@ -1,6 +1,7 @@
 import { Address, BigDecimal, BigInt, ethereum, log } from '@graphprotocol/graph-ts'
 import { VestingContract } from '../../generated/schema'
 import { VestingContract as VestingContractTemplate } from '../../generated/templates'
+import { VestingContract as VestingLogic } from '../../generated/templates/VestingContract/VestingContract'
 
 class VestingContractParams {
   vestingAddress: string
@@ -27,6 +28,19 @@ export function createAndReturnVestingContract(params: VestingContractParams): V
     vestingContract.type = params.type
     vestingContract.emittedBy = params.event.address
     vestingContract.createdAtTransaction = params.event.transaction.hash.toHexString()
+
+    const contract = VestingLogic.bind(Address.fromString(params.vestingAddress))
+    const token = contract.try_SOV()
+    const staking = contract.try_staking()
+
+    if (!token.reverted) {
+      vestingContract.token = token.value
+    }
+
+    if (!staking.reverted) {
+      vestingContract.staking = staking.value
+    }
+
     vestingContract.save()
   }
   return vestingContract

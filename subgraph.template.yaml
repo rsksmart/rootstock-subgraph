@@ -478,6 +478,8 @@ dataSources:
       abis:
         - name: Staking
           file: ./abis/Staking.json
+        - name: VestingContract
+          file: ./abis/VestingLogic.json
       eventHandlers:
         - event: DelegateChanged(indexed address,uint256,indexed address,indexed address)
           handler: handleDelegateChanged
@@ -510,6 +512,8 @@ dataSources:
       abis:
         - name: Staking
           file: ./abis/Staking.json
+        - name: VestingContract
+          file: ./abis/VestingLogic.json
       eventHandlers:
         - event: TokensStaked(indexed address,uint256,uint256,uint256)
           handler: handleTokensStaked

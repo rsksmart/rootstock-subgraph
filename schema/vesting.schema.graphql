@@ -84,6 +84,14 @@ type VestingContract @entity {
   Delegated too
   """
   delegate: User
+  """
+  Staking contract address
+  """
+  staking: Bytes! #address
+  """
+  Token staked in this vesting contract
+  """
+  token: Bytes! #address
 }
 
 enum VestingHistoryItemAction {
@@ -101,6 +109,10 @@ enum VestingHistoryItemAction {
   When a user withdraws unlocked tokens from the vesting contract
   """
   TokensWithdrawn
+  """
+  When a user delegates their vesting contract to another user
+  """
+  DelegateChanged
 }
 
 """
@@ -117,6 +129,10 @@ type VestingHistoryItem @entity {
   The staker here will always be the vesting contract
   """
   staker: VestingContract!
+  """
+  Delegated too
+  """
+  delegatee: User
   """
   Amount being staked
   """

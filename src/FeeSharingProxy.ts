@@ -2,7 +2,7 @@ import { TokensTransferred as TokensTransferredEvent, UserFeeWithdrawn as UserFe
 import { FeeSharingTokensTransferred } from '../generated/schema'
 import { StakeHistoryAction, RewardsEarnedAction } from './utils/types'
 import { createAndReturnTransaction } from './utils/Transaction'
-import { DEFAULT_DECIMALS, decimal } from '@protofire/subgraph-toolkit'
+import { DEFAULT_DECIMALS, ZERO_ADDRESS, decimal } from '@protofire/subgraph-toolkit'
 import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
 import { incrementTotalFeeWithdrawn } from './utils/UserRewardsEarnedHistory'
 import { createAndReturnStakeHistoryItem } from './utils/StakeHistoryItem'
@@ -30,6 +30,7 @@ export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
     user: event.params.sender.toHexString(),
     token: event.params.token.toHexString(),
     lockedUntil: BigInt.zero(),
+    delegatee: ZERO_ADDRESS,
     event,
   })
   incrementTotalFeeWithdrawn(event.params.sender, amount, event.params.token)

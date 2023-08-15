@@ -26,6 +26,7 @@ export class StakeHistoryAction {
   static IncreaseStake: string = 'IncreaseStake'
   static ExtendStake: string = 'ExtendStake'
   static Delegate: string = 'Delegate'
+  static DelegateVested: string = 'DelegateVested'
   static Unstake: string = 'Unstake'
   static WithdrawStaked: string = 'WithdrawStaked'
   static FeeWithdrawn: string = 'FeeWithdrawn'
@@ -46,6 +47,7 @@ export class VestingHistoryActionItem {
   static TokensStaked: string = 'TokensStaked'
   static TeamTokensRevoked: string = 'TeamTokensRevoked'
   static TokensWithdrawn: string = 'TokensWithdrawn'
+  static DelegateChanged: string = 'DelegateChanged'
 }
 
 export class CrossDirection {
