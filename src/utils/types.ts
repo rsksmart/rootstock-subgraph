@@ -89,3 +89,10 @@ export class SwapType {
   static Limit: string = 'Limit'
   static Other: string = 'Other'
 }
+
+export class ProposalState {
+  static Created: string = 'Created'
+  static Canceled: string = 'Canceled'
+  static Queued: string = 'Queued'
+  static Executed: string = 'Executed'
+}
