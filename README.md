@@ -22,7 +22,7 @@ For more information on The Graph protocol, head to the Graph documentation here
 - Add a `.env.dev` file in the root of the project. Copy the contents of `.env.example` into this file (you can change the password to your own password if you wish)
 - Run `npm run schema` to generate the schema.graphql file from the ./schema directory
 - Run `npm run prepare:RSK:testnet`. This will create the docker-compose.yml file and the subgraph.yaml file from the template files.
-- Run `npm run dev:up`. This will run docker compose up -d and pass in your environment file.
+- Run `npm run dev:up`. This will run docker compose up -d and pass in your environment file. (might need to run `docker pull arm64v8/docker` for M1 Macs)
 - Run `npm run codegen`. This will generate the ./generated folder with types and contract objects.
 - Run `npm run build` to generate the build folder
 - Run `npm run create-local` to start running the graph node locally

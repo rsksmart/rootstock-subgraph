@@ -21,7 +21,6 @@ dataSources:
         - name: ManagedWallet
           file: ./abis/ManagedWallet.json
       eventHandlers:
-        
         - event: NewBitcoinTransferIncoming(indexed address,uint256,uint256,bytes32,uint256)
           handler: handleNewBitcoinTransferIncoming
       file: ./src/ManagedWallet.ts
@@ -189,12 +188,14 @@ dataSources:
           handler: handleWithdrawFees
         - event: PayInterestTransfer(indexed address,indexed address,uint256)
           handler: handlePayInterestTransfer
+        - event: LoanParamsSetup(indexed bytes32,address,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleLoanParamsSetup
       file: ./src/ISovryn.ts
-  
+
   - kind: ethereum/contract
     name: DepositCollateralLegacy
     network: {{network}}
-    source: 
+    source:
       address: '{{ISovryn.address}}'
       abi: DepositCollateralLegacy
       startBlock: {{ISovryn.startBlock}}
@@ -204,7 +205,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - DepositCollateral
-      abis: 
+      abis:
         - name: DepositCollateralLegacy
           file: ./abis/DepositCollateralLegacy.json
       eventHandlers:
@@ -215,7 +216,7 @@ dataSources:
   - kind: ethereum/contract
     name: DepositCollateralNonIndexed
     network: {{network}}
-    source: 
+    source:
       address: '{{ISovryn.address}}'
       abi: DepositCollateralNonIndexed
       startBlock: {{ISovryn.startBlock}}
@@ -225,7 +226,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - DepositCollateral
-      abis: 
+      abis:
         - name: DepositCollateralNonIndexed
           file: ./abis/DepositCollateralNonIndexed.json
       eventHandlers:
@@ -522,7 +523,7 @@ dataSources:
         - event: StakingWithdrawn(indexed address,uint256,uint256,indexed address,bool)
           handler: handleStakingWithdrawn
       file: ./src/StakingFish.ts
-   
+
   #  FeeSharingProxy contract
   - kind: ethereum/contract
     name: FeeSharingProxy
@@ -744,14 +745,14 @@ dataSources:
         - Bridge
         - CrossTransfer
         - SideToken
-        
+
       abis:
         - name: Bridge
           file: ./abis/Bridge.json
         - name: Federation
           file: ./abis/Federation.json
       eventHandlers:
-        
+
         # - event: AcceptedCrossTransfer(indexed address,indexed address,uint256,uint8,uint256,uint256,uint8,uint256,bytes)
         #   handler: handleAcceptedCrossTransfer
         # - event: AllowTokenChanged(address)
@@ -827,7 +828,7 @@ dataSources:
         - name: Federation
           file: ./abis/Federation.json
       eventHandlers:
-        
+
         # - event: AcceptedCrossTransfer(indexed address,indexed address,uint256,uint8,uint256,uint256,uint8,uint256,bytes)
         #   handler: handleAcceptedCrossTransfer
         # - event: AllowTokenChanged(address)
@@ -984,7 +985,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
-      entities: 
+      entities:
         - Burn
         - FlashBorrow
         - Mint
@@ -1055,7 +1056,7 @@ templates:
         - name: Federation
           file: ./abis/Federation.json
       eventHandlers:
-        
+
         - event: BridgeChanged(address)
           handler: handleBridgeChanged
         - event: Executed(indexed bytes32)
@@ -1090,7 +1091,7 @@ templates:
         - name: VestingContract
           file: ./abis/VestingLogic.json
       eventHandlers:
-        
+
         - event: VotesDelegated(indexed address,address)
           handler: handleVotesDelegated
       file: ./src/Vesting.ts

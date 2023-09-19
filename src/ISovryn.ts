@@ -18,6 +18,7 @@ import {
   Rollover as RolloverEvent,
   WithdrawFees as WithdrawFeesEvent,
   PayInterestTransfer as PayInterestTransferEvent,
+  LoanParamsSetup as LoanParamsSetupEvent,
 } from '../generated/ISovryn/ISovryn'
 import { DepositCollateral as DepositCollateralLegacyEvent } from '../generated/DepositCollateralLegacy/DepositCollateralLegacy'
 import { DepositCollateral as DepositCollateralNonIndexedEvent } from '../generated/DepositCollateralNonIndexed/DepositCollateralNonIndexed'
@@ -36,6 +37,7 @@ import {
   Token,
   ProtocolWithdrawFee,
   PayInterestTransfer,
+  LoanParamsSetup,
 } from '../generated/schema'
 import { LoanTokenLogicStandard as LoanTokenTemplate } from '../generated/templates'
 import { createAndReturnTransaction } from './utils/Transaction'
@@ -524,4 +526,23 @@ export function handlePayInterestTransfer(event: PayInterestTransferEvent): void
   payInterestTransfer.emittedBy = event.address.toHexString()
   payInterestTransfer.timestamp = event.block.timestamp.toI32()
   payInterestTransfer.save()
+}
+
+export function handleLoanParamsSetup(event: LoanParamsSetupEvent): void {
+  const minInitialMargin = decimal.fromBigInt(event.params.minInitialMargin, DEFAULT_DECIMALS)
+  const maintenanceMargin = decimal.fromBigInt(event.params.maintenanceMargin, DEFAULT_DECIMALS)
+  const maxLoanTerm = event.params.maxLoanTerm.toI32()
+
+  const loanParamsSetup = new LoanParamsSetup(event.transaction.hash.toHexString() + '-' + event.logIndex.toHexString())
+  loanParamsSetup.id = event.params.id.toHexString()
+  loanParamsSetup.owner = event.params.owner
+  loanParamsSetup.loanToken = event.params.loanToken.toHexString()
+  loanParamsSetup.collateralToken = event.params.collateralToken.toHexString()
+  loanParamsSetup.minInitialMargin = minInitialMargin
+  loanParamsSetup.maintenanceMargin = maintenanceMargin
+  loanParamsSetup.maxLoanTerm = maxLoanTerm
+  const transaction = createAndReturnTransaction(event)
+  loanParamsSetup.transaction = transaction.id
+  loanParamsSetup.timestamp = event.block.timestamp.toI32()
+  loanParamsSetup.save()
 }
