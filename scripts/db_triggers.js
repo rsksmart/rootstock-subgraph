@@ -3,8 +3,8 @@ const { Client } = require('pg')
 var fs = require('fs');
 var triggerSql = fs.readFileSync('scripts/sql/db_triggers.sql').toString();
 var cleanupSql = fs.readFileSync('scripts/sql/candle_cleanup.sql').toString();
-var coreProtocolFeesView = fs.readFileSync('scripts/sql/core_protocol_fees.sql').toString()
-var tokensCurrentView = fs.readFileSync('scripts/sql/tokens_current.sql').toString()
+var coreProtocolFeesView = fs.readFileSync('scripts/sql/views/core_protocol_fees.sql').toString()
+var tokensCurrentView = fs.readFileSync('scripts/sql/views/tokens_current.sql').toString()
 
 const client = new Client({
     user: 'postgres',
