@@ -17,5 +17,6 @@ export function handleTokenStaked(event: TokenStakedEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: SOVAddress,
+    event,
   })
 }

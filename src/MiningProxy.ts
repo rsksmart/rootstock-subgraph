@@ -33,6 +33,7 @@ export function handleRewardClaimed(event: RewardClaimedEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: SOVAddress,
+    event,
   })
 }
 

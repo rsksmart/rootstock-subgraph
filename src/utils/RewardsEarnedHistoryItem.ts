@@ -12,9 +12,9 @@ class CreateOrIncrementRewardParams {
 }
 
 export function createOrIncrementRewardItem(params: CreateOrIncrementRewardParams): void {
-  let rewardsEarnedHistoryItem = RewardsEarnedHistoryItem.load(params.transactionHash.toHexString() + '-' + params.event.logIndex)
+  let rewardsEarnedHistoryItem = RewardsEarnedHistoryItem.load(params.transactionHash.toHexString() + '-' + params.event.logIndex.toString())
   if (rewardsEarnedHistoryItem == null) {
-    rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(params.transactionHash.toHexString() + '-' + params.event.logIndex)
+    rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(params.transactionHash.toHexString() + '-' + params.event.logIndex.toString())
     rewardsEarnedHistoryItem.action = params.action
     rewardsEarnedHistoryItem.user = params.user.toHexString()
     rewardsEarnedHistoryItem.amount = params.amount

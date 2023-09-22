@@ -19,5 +19,6 @@ export function handleRewardWithdrawn(event: RewardWithdrawnEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: SOVAddress,
+    event,
   })
 }

@@ -292,6 +292,7 @@ export function handleEarnReward(event: EarnRewardEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: SOVAddress,
+    event,
   })
 }
 
