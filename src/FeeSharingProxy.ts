@@ -41,5 +41,6 @@ export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: event.params.token.toHexString(),
+    event,
   })
 }

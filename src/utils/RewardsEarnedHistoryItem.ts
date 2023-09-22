@@ -1,4 +1,4 @@
-import { Bytes, Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
+import { Bytes, Address, BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
 import { RewardsEarnedHistoryItem } from '../../generated/schema'
 
 class CreateOrIncrementRewardParams {
@@ -8,12 +8,13 @@ class CreateOrIncrementRewardParams {
   amount: BigDecimal
   timestamp: BigInt
   token: string
+  event: ethereum.Event
 }
 
 export function createOrIncrementRewardItem(params: CreateOrIncrementRewardParams): void {
-  let rewardsEarnedHistoryItem = RewardsEarnedHistoryItem.load(params.transactionHash.toHexString() + '-' + params.action)
+  let rewardsEarnedHistoryItem = RewardsEarnedHistoryItem.load(params.transactionHash.toHexString() + '-' + params.event.logIndex)
   if (rewardsEarnedHistoryItem == null) {
-    rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(params.transactionHash.toHexString() + '-' + params.action)
+    rewardsEarnedHistoryItem = new RewardsEarnedHistoryItem(params.transactionHash.toHexString() + '-' + params.event.logIndex)
     rewardsEarnedHistoryItem.action = params.action
     rewardsEarnedHistoryItem.user = params.user.toHexString()
     rewardsEarnedHistoryItem.amount = params.amount
