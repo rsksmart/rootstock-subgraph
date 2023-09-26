@@ -546,6 +546,8 @@ dataSources:
           handler: handleTokensTransferred
         - event: UserFeeWithdrawn(indexed address,indexed address,indexed address,uint256)
           handler: handleUserFeeWithdrawn
+        - event: RBTCWithdrawn(indexed address,indexed address,uint256)
+          handler: handleRBTCWithdrawn
       file: ./src/FeeSharingProxy.ts
 
   # LockedSov

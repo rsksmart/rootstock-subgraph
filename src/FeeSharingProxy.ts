@@ -1,4 +1,4 @@
-import { TokensTransferred as TokensTransferredEvent, UserFeeWithdrawn as UserFeeWithdrawnEvent } from '../generated/FeeSharingProxy/FeeSharingProxy'
+import { TokensTransferred as TokensTransferredEvent, UserFeeWithdrawn as UserFeeWithdrawnEvent, RBTCWithdrawn as RBTCWithdrawnEvent } from '../generated/FeeSharingProxy/FeeSharingProxy'
 import { FeeSharingTokensTransferred } from '../generated/schema'
 import { StakeHistoryAction, RewardsEarnedAction } from './utils/types'
 import { createAndReturnTransaction } from './utils/Transaction'
@@ -6,7 +6,8 @@ import { DEFAULT_DECIMALS, ZERO_ADDRESS, decimal } from '@protofire/subgraph-too
 import { createOrIncrementRewardItem } from './utils/RewardsEarnedHistoryItem'
 import { incrementTotalFeeWithdrawn } from './utils/UserRewardsEarnedHistory'
 import { createAndReturnStakeHistoryItem } from './utils/StakeHistoryItem'
-import { BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { WRBTCAddress } from './contracts/contracts'
 
 export function handleTokensTransferred(event: TokensTransferredEvent): void {
   /** If this event occurs in the same transaction as a StakingWithdrawn or TokensWithdrawn event on the staking contract, it means the user unstaked their SOV early
@@ -41,6 +42,31 @@ export function handleUserFeeWithdrawn(event: UserFeeWithdrawnEvent): void {
     timestamp: event.block.timestamp,
     transactionHash: event.transaction.hash,
     token: event.params.token.toHexString(),
+    event,
+  })
+}
+
+export function handleRBTCWithdrawn(event: RBTCWithdrawnEvent): void {
+  createAndReturnTransaction(event)
+  const amount = decimal.fromBigInt(event.params.amount, DEFAULT_DECIMALS)
+  const token = Address.fromString(WRBTCAddress.toLowerCase())
+  createAndReturnStakeHistoryItem({
+    action: StakeHistoryAction.FeeWithdrawn,
+    amount: amount,
+    user: event.params.sender.toHexString(),
+    token: token.toHexString(),
+    lockedUntil: BigInt.zero(),
+    delegatee: ZERO_ADDRESS,
+    event,
+  })
+  incrementTotalFeeWithdrawn(event.params.sender, amount, token)
+  createOrIncrementRewardItem({
+    action: RewardsEarnedAction.UserFeeWithdrawn,
+    user: event.params.sender,
+    amount: amount,
+    timestamp: event.block.timestamp,
+    transactionHash: event.transaction.hash,
+    token: token.toHexString(),
     event,
   })
 }
