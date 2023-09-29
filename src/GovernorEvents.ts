@@ -13,7 +13,7 @@ import { createAndReturnTransaction } from './utils/Transaction'
 import { GovernorType, ProposalState } from './utils/types'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 
-function createAndReturnGovernorContract(address: Address): GovernorContract {
+function createAndReturnGovernorContract(address: Address, event: ethereum.Event): GovernorContract {
   let governor = GovernorContract.load(address.toHexString())
   if (governor == null) {
     governor = new GovernorContract(address.toHexString())
@@ -82,6 +82,8 @@ function createAndReturnGovernorContract(address: Address): GovernorContract {
     } else {
       governor.guardian = Address.fromString(ZERO_ADDRESS)
     }
+
+    governor.timestamp = event.block.timestamp.toI32()
     governor.save()
   }
   return governor
@@ -109,7 +111,7 @@ export function handleProposalCanceled(event: ProposalCanceledEvent): void {
 }
 
 export function handleProposalCreated(event: ProposalCreatedEvent): void {
-  const governor = createAndReturnGovernorContract(event.address)
+  const governor = createAndReturnGovernorContract(event.address, event)
   const transaction = createAndReturnTransaction(event)
   /** Create Proposal event */
   const proposalEntity = new Proposal(dataSource.address().toHexString() + '-' + event.params.id.toString())
