@@ -96,3 +96,9 @@ export class ProposalState {
   static Queued: string = 'Queued'
   static Executed: string = 'Executed'
 }
+
+export class GovernorType {
+  static Admin: string = 'Admin'
+  static Owner: string = 'Owner'
+  static Other: string = 'Other'
+}

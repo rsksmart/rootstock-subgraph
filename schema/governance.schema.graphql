@@ -126,11 +126,18 @@ type VoteCast @entity {
   transaction: Transaction!
 }
 
+enum GovernorType {
+  Admin
+  Owner
+  Other
+}
+
 type GovernorContract @entity {
   """
   Address of the governance contract
   """
   id: ID!
+  type: GovernorType!
   """
   The maximum number of actions that can be included in a proposal.
   """
@@ -155,6 +162,10 @@ type GovernorContract @entity {
   """
   majorityPercentageVotes: Int!
   proposals: [Proposal!]! @derivedFrom(field: "emittedBy")
+  """
+  Timestamp when this contract has created a proposal and was loaded into the graph.
+  """
+  timestamp: Int!
 }
 
 enum ProposalState {

@@ -24,6 +24,16 @@ const governorContractsTestnet = {
             name: "GovernorAlphaEvents1606443",
             address: "0x058FD3F6a40b92b311B49E5e3E064300600021D7",
             startBlock: 1606443
+        },
+        {
+            name: "GovernorAlphaEvents4330355",
+            address: "0x69dB16Aa6EEf291Fec522581F4fc9c82dFE60beD",
+            startBlock: 4330355
+        },
+        {
+            name: "GovernorAlphaEvents4330360",
+            address: "0xc9a558f522755C1Ea6C25a885ae8131E00c9971A",
+            startBlock: 4330360
         }
     ]
 }

@@ -10,7 +10,7 @@ import {
 import { VoteCast, Proposal, GovernorContract, ProposalStateChange } from '../generated/schema'
 
 import { createAndReturnTransaction } from './utils/Transaction'
-import { ProposalState } from './utils/types'
+import { GovernorType, ProposalState } from './utils/types'
 import { ZERO_ADDRESS } from '@protofire/subgraph-toolkit'
 
 function createAndReturnGovernorContract(address: Address): GovernorContract {
@@ -42,9 +42,18 @@ function createAndReturnGovernorContract(address: Address): GovernorContract {
 
     const quorumPercentageVotes = contract.try_quorumPercentageVotes()
     if (!quorumPercentageVotes.reverted) {
-      governor.quorumPercentageVotes = quorumPercentageVotes.value.toI32()
+      const value = quorumPercentageVotes.value.toI32()
+      governor.quorumPercentageVotes = value
+      if (value === 5) {
+        governor.type = GovernorType.Admin
+      } else if (value === 20) {
+        governor.type = GovernorType.Owner
+      } else {
+        governor.type = GovernorType.Other
+      }
     } else {
       governor.quorumPercentageVotes = 0
+      governor.type = GovernorType.Other
     }
 
     const majorityPercentageVotes = contract.try_majorityPercentageVotes()
