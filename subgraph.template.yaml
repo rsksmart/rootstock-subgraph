@@ -867,6 +867,28 @@ dataSources:
         #   handler: handleerc777ConverterSet
       file: ./src/Bridge.ts
 
+    # SwapSettings
+  - kind: ethereum/contract
+    name: SwapSettings
+    network: {{network}}
+    source:
+      address: '{{SwapSettings.address}}'
+      abi: SwapSettings
+      startBlock: {{SwapSettings.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - SwapSetting
+      abis:
+        - name: SwapSettings
+          file: ./abis/SwapSettings.json
+      eventHandlers:
+        - event: ProtocolFeeUpdate(uint32,uint32)
+          handler: handleProtocolFeeUpdate
+      file: ./src/SwapSettings.ts
+
 templates:
   # LiquidityPoolV1Converter
   - kind: ethereum/contract

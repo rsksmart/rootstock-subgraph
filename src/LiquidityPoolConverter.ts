@@ -14,7 +14,7 @@ import { LiquidityPool, LiquidityPoolToken, Token, Transaction } from '../genera
 import { ConversionEventForSwap, createAndReturnSwap, updatePricing } from './utils/Swap'
 import { createAndReturnToken, decimalizeFromToken } from './utils/Token'
 import { createAndReturnTransaction } from './utils/Transaction'
-import { BigInt, dataSource, Address, BigDecimal } from '@graphprotocol/graph-ts'
+import { BigInt, dataSource, Address, BigDecimal, ethereum } from '@graphprotocol/graph-ts'
 import { createAndReturnSmartToken } from './utils/SmartToken'
 import { createAndReturnPoolToken } from './utils/PoolToken'
 import { updateVolumes } from './utils/Volumes'
@@ -141,19 +141,22 @@ export function handleConversionV1(event: ConversionEventV1): void {
   const toToken = Token.load(event.params._toToken.toHexString())
 
   if (liquidityPool !== null && fromToken !== null && toToken !== null) {
-    handleConversion({
-      transaction: transaction,
-      logIndex: event.logIndex,
-      liquidityPool: liquidityPool,
-      fromToken: fromToken,
-      toToken: toToken,
-      fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
-      toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
-      trader: event.params._trader,
-      user: event.transaction.from,
-      conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
-      protocolFee: BigDecimal.zero(),
-    })
+    handleConversion(
+      {
+        transaction: transaction,
+        logIndex: event.logIndex,
+        liquidityPool: liquidityPool,
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
+        toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
+        trader: event.params._trader,
+        user: event.transaction.from,
+        conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
+        protocolFee: BigDecimal.zero(),
+      },
+      event,
+    )
   }
 }
 
@@ -164,19 +167,22 @@ export function handleConversionV2(event: ConversionEventV2): void {
   const toToken = Token.load(event.params._toToken.toHexString())
 
   if (liquidityPool !== null && fromToken !== null && toToken !== null) {
-    handleConversion({
-      transaction: transaction,
-      logIndex: event.logIndex,
-      liquidityPool: liquidityPool,
-      fromToken: fromToken,
-      toToken: toToken,
-      fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
-      toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
-      trader: event.params._trader,
-      user: event.transaction.from,
-      conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
-      protocolFee: BigDecimal.zero(),
-    })
+    handleConversion(
+      {
+        transaction: transaction,
+        logIndex: event.logIndex,
+        liquidityPool: liquidityPool,
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
+        toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
+        trader: event.params._trader,
+        user: event.transaction.from,
+        conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
+        protocolFee: BigDecimal.zero(),
+      },
+      event,
+    )
   }
 }
 
@@ -187,23 +193,26 @@ export function handleConversionV1_2(event: ConversionEventV1WithProtocol): void
   const toToken = Token.load(event.params._toToken.toHexString())
 
   if (liquidityPool !== null && fromToken !== null && toToken !== null) {
-    handleConversion({
-      transaction: transaction,
-      logIndex: event.logIndex,
-      liquidityPool: liquidityPool,
-      fromToken: fromToken,
-      toToken: toToken,
-      fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
-      toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
-      trader: event.params._trader,
-      user: event.transaction.from,
-      conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
-      protocolFee: decimal.fromBigInt(event.params._protocolFee, toToken.decimals),
-    })
+    handleConversion(
+      {
+        transaction: transaction,
+        logIndex: event.logIndex,
+        liquidityPool: liquidityPool,
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: decimal.fromBigInt(event.params._amount, fromToken.decimals),
+        toAmount: decimal.fromBigInt(event.params._return, toToken.decimals),
+        trader: event.params._trader,
+        user: event.transaction.from,
+        conversionFee: decimal.fromBigInt(event.params._conversionFee, toToken.decimals),
+        protocolFee: decimal.fromBigInt(event.params._protocolFee, toToken.decimals),
+      },
+      event,
+    )
   }
 }
 
-function handleConversion(event: IConversionEvent): void {
+function handleConversion(event: IConversionEvent, eth: ethereum.Event): void {
   createAndReturnConversion(event)
   /** 1. Load both tokens here */
   const parsedEvent: ConversionEventForSwap = {
@@ -219,7 +228,7 @@ function handleConversion(event: IConversionEvent): void {
 
   createAndReturnSwap(parsedEvent)
   updatePricing(parsedEvent)
-  updateVolumes(parsedEvent, dataSource.address())
+  updateVolumes(parsedEvent, dataSource.address(), eth)
   updateCandleSticks(parsedEvent)
 
   incrementPoolBalance(event.liquidityPool, event.fromToken, event.fromAmount)

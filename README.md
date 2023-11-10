@@ -12,7 +12,7 @@ For more information on The Graph protocol, head to the Graph documentation here
 
 ## Prerequisites
 
-- have node v12 or above installed
+- have node v16 installed (higher versions may fail to deploy to the ipfs node)
 - have Docker and Docker Compose installed
 
 ## Start running

@@ -196,6 +196,7 @@ type LiquidityPool @entity {
   token1Balance: BigDecimal!
   connectorTokens: [LiquidityPoolToken!]! @derivedFrom(field: "liquidityPool")
   poolTokens: [PoolToken!] @derivedFrom(field: "liquidityPool")
+  conversions: [PoolVolumeItem!] @derivedFrom(field: "pool")
   owner: String
   """
   Divide by maxConversionFee to get percentage
@@ -241,4 +242,20 @@ type LiquidityPoolToken @entity {
   Total volume of this token that has been bought or sold through this liquidity pool
   """
   totalVolume: BigDecimal!
+}
+
+type PoolVolumeItem @entity {
+  id: ID!
+  pool: LiquidityPool!
+  btcAmount: BigDecimal!
+  conversion: Conversion!
+  timestamp: Int!
+  transaction: Transaction!
+}
+
+
+type SwapSetting @entity {
+  id: ID!
+  protocolFee: Int!
+  timestamp: Int!
 }

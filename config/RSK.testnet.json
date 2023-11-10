@@ -157,5 +157,10 @@
         "network": "testnet",
         "address": "0xacbe05e7236f7d073295c99e629620da58284aad",
         "startBlock": 3564551
+    },
+    "SwapSettings": {
+      "network": "testnet",
+      "address": "0x604cAD937f35fD381a7dd08489028f0FDbE88fc7",
+      "startBlock": 2423000
     }
 }

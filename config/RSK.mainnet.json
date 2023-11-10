@@ -162,5 +162,10 @@
         "network": "mainnet",
         "address": "0xe43CAFBdD6674Df708Ce9Dff8762AF356C2b454d",
         "startBlock": 5074694
+    },
+    "SwapSettings": {
+      "network": "mainnet",
+      "address": "0x3aB00BEFDd7Bfc0667DE6483D2D3b2F9A74AF2da",
+      "startBlock": 3921244
     }
 }

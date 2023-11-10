@@ -1,4 +1,8 @@
-import { TokensTransferred as TokensTransferredEvent, UserFeeWithdrawn as UserFeeWithdrawnEvent, RBTCWithdrawn as RBTCWithdrawnEvent } from '../generated/FeeSharingProxy/FeeSharingProxy'
+import {
+  TokensTransferred as TokensTransferredEvent,
+  UserFeeWithdrawn as UserFeeWithdrawnEvent,
+  RBTCWithdrawn as RBTCWithdrawnEvent,
+} from '../generated/FeeSharingProxy/FeeSharingProxy'
 import { FeeSharingTokensTransferred } from '../generated/schema'
 import { StakeHistoryAction, RewardsEarnedAction } from './utils/types'
 import { createAndReturnTransaction } from './utils/Transaction'
