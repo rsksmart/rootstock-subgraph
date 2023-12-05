@@ -1,4 +1,4 @@
-const Protocol = require('@graphprotocol/graph-cli/src/protocols/')
+const Protocol = require('@graphprotocol/graph-cli/dist/protocols/').default
 const toolbox = require('gluegun/toolbox');
 const protocolInstance = new Protocol('ethereum')
 const ABI = protocolInstance.getABI()
