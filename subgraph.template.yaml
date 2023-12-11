@@ -5,6 +5,41 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
+    name: MultisigGuardian
+    network: {{network}}
+    source:
+      address: '{{MultisigGuardian.address}}'
+      abi: Multisig
+      startBlock: {{MultisigGuardian.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MultisigContract
+        - MultisigTransaction
+      abis:
+        - name: Multisig
+          file: ./abis/Multisig.json
+      eventHandlers:
+        - event: Confirmation(indexed address,indexed uint256)
+          handler: handleConfirmation
+        - event: Revocation(indexed address,indexed uint256)
+          handler: handleRevocation
+        - event: Submission(indexed uint256)
+          handler: handleSubmission
+        - event: Execution(indexed uint256)
+          handler: handleExecution
+        - event: ExecutionFailure(indexed uint256)
+          handler: handleExecutionFailure
+        - event: OwnerAddition(indexed address)
+          handler: handleOwnerAddition
+        - event: OwnerRemoval(indexed address)
+          handler: handleOwnerRemoval
+        - event: RequirementChange(uint256)
+          handler: handleRequirementChange
+      file: ./src/GnosisMultisig.ts
+  - kind: ethereum/contract
     name: ManagedWallet
     network: {{network}}
     source:

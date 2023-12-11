@@ -167,5 +167,10 @@
       "network": "mainnet",
       "address": "0x3aB00BEFDd7Bfc0667DE6483D2D3b2F9A74AF2da",
       "startBlock": 3921244
+    },
+    "MultisigGuardian": {
+      "network": "mainnet",
+      "address": "0x924f5ad34698fd20c90fe5d5a8a0abd3b42dc711",
+      "startBlock": 2870063
     }
 }

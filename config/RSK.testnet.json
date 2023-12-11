@@ -162,5 +162,10 @@
       "network": "testnet",
       "address": "0x604cAD937f35fD381a7dd08489028f0FDbE88fc7",
       "startBlock": 2423000
+    },
+    "MultisigGuardian": {
+      "network": "testnet",
+      "address": "0x189ecd23e9e34cfc07bfc3b7f5711a23f43f8a57",
+      "startBlock": 1345043
     }
 }
