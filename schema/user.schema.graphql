@@ -13,69 +13,6 @@ type User @entity {
   """
   createdAtTimestamp: Int!
   """
-  Swaps here refers to only user-triggered swaps. For example, a swap that is part of a margin trade would not be included.
-  Swaps involving multiple amm pools are stored as a single swap, comprised of multiple Conversion events
-  """
-  swaps: [Swap!] @derivedFrom(field: "user")
-  """
-  An array of all LiquidityAdded and LiquidityRemoved events
-  """
-  liquidityHistory: [UserLiquidityHistory!] @derivedFrom(field: "user")
-  """
-  An array of margin trade Trade events
-  """
-  trades: [Trade!] @derivedFrom(field: "user")
-  """
-  An array of Borrow events
-  """
-  borrows: [Borrow!] @derivedFrom(field: "user")
-  """
-  An array of Liquidation events linked to this user
-  """
-  liquidations: [Liquidate!] @derivedFrom(field: "user")
-  """
-  All loans taken out by this user, including for margin trading and for borrowing
-  """
-  loans: [Loan!] @derivedFrom(field: "user")
-  """
-  The lending history of a User, separated into lending pools. Explore the UserLendingHistory entity for more granular events.
-  """
-  lendingHistory: [UserLendingHistory!] @derivedFrom(field: "user")
-  """
-  The SOV Staking history of a user. This includes withdrawing vested tokens. Explore the UserStakeHistory entity for more granular events.
-  """
-  stakeHistory: [UserStakeHistory!] @derivedFrom(field: "user")
-  """
-  The Rewards history of one user. This includes actions like EarnReward, RewardSovDeposited, and RewardSovStaked.
-  Explore the UserRewardsEarnedHistory entity for more granular events
-  """
-  rewardsEarnedHistory: [UserRewardsEarnedHistory!] @derivedFrom(field: "user")
-  """
-  Vesting contracts owned by User, labelled by type
-  """
-  vestingContracts: [VestingContract!] @derivedFrom(field: "user")
-  """
-  Stakes the user owns, including stakes from Vesting Contracts
-  """
-  currentStakes: [Stake!] @derivedFrom(field: "user")
-  """
-  Voting history of User
-  """
-  votes: [VoteCast!] @derivedFrom(field: "voter")
-  """
-  See UserTotals entity for full documentation
-  """
-  userTotals: UserTotal @derivedFrom(field: "user")
-  """
-  FastBTCBridge transfers from BTC to RSK
-  """
-  bitcoinTransfers: [BitcoinTransfer!] @derivedFrom(field: "user")
-  fastBTCBridgeStats: [FastBTCBridgeStat!] @derivedFrom(field: "user")
-  """
-  EVM Bridge transfers
-  """
-  crossChainTransfer: [CrossTransfer!] @derivedFrom(field: "user")
-  """
   Transactions initiated by this user
   """
   transactions: [Transaction!] @derivedFrom(field: "from")
@@ -87,19 +24,4 @@ This is the total volumes of different actions for one user. See ProtocolStats e
 type UserTotal @entity {
   id: ID!
   user: User!
-  totalMarginTradeVolumeUsd: BigDecimal!
-  totalCloseWithSwapVolumeUsd: BigDecimal!
-  totalDepositCollateralVolumeUsd: BigDecimal!
-  totalLiquidateVolumeUsd: BigDecimal!
-  totalAmmVolumeUsd: BigDecimal!
-  totalAmmLpFeesUsd: BigDecimal!
-  totalAmmStakerFeesUsd: BigDecimal!
-  totalTradingFeesUsd: BigDecimal!
-  totalLendingFeesUsd: BigDecimal!
-  totalBorrowingFeesUsd: BigDecimal!
-  totalLendVolumeUsd: BigDecimal!
-  totalUnlendVolumeUsd: BigDecimal!
-  totalBorrowVolumeUsd: BigDecimal!
-  totalCloseWithDepositVolumeUsd: BigDecimal!
-  # totalTransactedVolumeUsd: BigInt! # TODO: Implement
 }
