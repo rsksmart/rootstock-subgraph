@@ -1,171 +1,18 @@
 {
-    "network": "testnet",
-    "node": {
-        "network": "testnet",
-        "address": "https://testnet.sovryn.app/rpc",
-        "log_level": "debug",
-        "graph_graphql_query_timeout": 10,
-        "graph_sql_statement_timeout": 10,
-        "graph_graphql_max_depth": 16,
-        "graph_graphql_max_complexity": 1500000,
-        "restart": "always"
-    },
-    "SOV": {
-        "network": "testnet",
-        "address": "0x6a9A07972D07e58F0daf5122d11E069288A375fb",
-        "startBlock": 1606431
-    },
-    "ConverterFactory": {
-        "network": "testnet",
-        "address": "0x74690fD0Ac8602e6AFB16BB4f0A634b1c9A67735",
-        "startBlock": 1218791
-    },
-    "ConverterRegistry": {
-        "network": "testnet",
-        "address": "0x7816c4E1b61eE09c25974325cc20B056963423b1",
-        "startBlock": 1218799
-    },
-    "WRBTCToken": {
-        "address": "0x69FE5cEC81D5eF92600c1A0dB1F11986AB3758Ab"
-    },
-    "BTCLoanToken": {
-        "address": "0x6b41566353d6C7B8C2a7931d498F11489DacAc29"
-    },
-    "USDTToken": {
-        "address": "0x4D5a316D23eBE168d8f887b4447bf8DbFA4901CC"
-    },
-    "ISovryn": {
-        "network": "testnet",
-        "address": "0x25380305f223B32FDB844152abD2E82BC5Ad99c3",
-        "startBlock": 1218686
-    },
-    "blockNumbers": {
-        "genesisVestingBlocks": {
-            "start": 1617004,
-            "end": 1731114
-        }
-    },
-    "VestingRegistry1": {
-        "network": "testnet",
-        "address": "0x80ec7ADd6CC1003BBEa89527ce93722e1DaD5c2a",
-        "startBlock": 1606459
-    },
-    "VestingRegistry2": {
-        "network": "testnet",
-        "address": "0x310006E356b0818C3Eaf86a9B2f13013d4691a1c",
-        "startBlock": 1657821
-    },
-    "VestingRegistry3": {
-        "network": "testnet",
-        "address": "0x52E4419b9D33C6e0ceb2e7c01D3aA1a04b21668C",
-        "startBlock": 1802584
-    },
-    "FourYearVesting": {
-        "network": "testnet",
-        "address": "0x2AC0b13c174f03B4bE8C174Daf9d86C05b21496e",
-        "startBlock": 2851598
-    },
-    "VestingRegistryProxy": {
-        "network": "testnet",
-        "address": "0x09e8659B6d204C6b1bED2BFF8E3F43F834A5Bbc4",
-        "startBlock": 2197944
-    },
-    "VestingRegistryFish": {
-        "network": "testnet",
-        "address": "0xFd8ea2e5e8591fA791d44731499cDF2e81CD6a41",
-        "startBlock": 2104493
-    },
-    "Staking": {
-        "network": "testnet",
-        "address": "0xc37A85e35d7eECC82c4544dcba84CF7E61e1F1a3",
-        "startBlock": 1606434
-    },
-    "StakingFish": {
-        "network": "testnet",
-        "address": "0xc1fc98FEFA2130fC1CE352ec85f7aa61021eFE97",
-        "startBlock": 2104485
-    },
-    "FeeSharingProxy": {
-        "network": "testnet",
-        "address": "0x740E6f892C0132D659Abcd2B6146D237A4B6b653",
-        "startBlock": 1606438
-    },
-    "LockedSov": {
-        "network": "testnet",
-        "address": "0x6b94Da2d05039173d017359553D685Acfbaa782F",
-        "startBlock": 1839739
-    },
-    "MiningProxy": {
-        "network": "testnet",
-        "address": "0xe28aEbA913c34EC8F10DF0D9C92D2Aa27545870e",
-        "startBlock": 1834463
-    },
-    "StakingReward": {
-        "network": "testnet",
-        "address": "0x7662E1cC98c9CB50eBc286ce8b124D61C7e2247E",
-        "startBlock": 2195830
-    },
-    "GovernorAlphaEvents": {
-        "network": "testnet",
-        "address": "0x2ed3014C631F249BEf8f2930dD9833AECe0798DC",
-        "startBlock": 1522384
-    },
-    "stablecoins": "[0xcb46c0ddc60d18efeb0e586c17af6ea36452dae0, 0x4d5a316d23ebe168d8f887b4447bf8dbfa4901cc, 0x849D38abD3962cb40d4887E4279ad0e4E5958e34, 0x74858FE37d391f81F89472e1D8BC8Ef9CF67B3b1, 0xa9262cc3fb54ea55b1b0af00efca9416b8d59570]",
-    "adminContracts": "[0x924f5ad34698Fd20c90Fe5D5A8A0abd3b42dc711, 0x05f4f068DF59a5aA7911f57cE4f41ebFBcB8E247, 0x51C754330c6cD04B810014E769Dab0343E31409E]",
-    "Settlement": {
-        "network": "testnet",
-        "address": "0x4dfb9ab1653Eb5A295109E02e37fc222D85fdA74",
-        "startBlock": 2672298
-    },
-    "OrderbookTestnet": {
-        "network": "testnet",
-        "address": "0xfD4D1FBFC652f5b3D98881b9346635399F1e6254",
-        "startBlock": 2672286
-    },
-    "OrderbookMainnet": {
-        "network": "testnet",
-        "address": "0x1c910918d6D05feC83e2376D57226d1b08324028",
-        "startBlock": 2726979
-    },
-    "FastBTCBridge": {
-        "network": "testnet",
-        "address": "0x10C848e9495a32acA95F6c23C92eCA2b2bE9903A",
-        "startBlock": 2417524
-    },
-    "FastBTCBridgeNew": {
-        "network": "testnet",
-        "address": "0xb3E92Db36eeac0627385Fa4F39F615a85eA5E911",
-        "startBlock": 4062162
-    },
-    "BridgeBSC": {
-        "network": "testnet",
-        "address": "0x2b2bcad081fa773dc655361d1bb30577caa556f8",
-        "startBlock": 1884362
-    },
-    "BridgeETH": {
-        "network": "testnet",
-        "address": "0xfbd57ab1dce7b4fe191ff947ddbb5118e4318207",
-        "startBlock": 3304916
-    },
-    "SignaturesFederationETH": {
-        "address": "0xe9FDf7CF757eb5A418B01d8862dF177A20fbBF76"
-    },
-    "SignaturesFederationBSC": {
-        "address": "0x07081144a97B58f08Ab8BaAF8B05d87f5D31E5DF"
-    },
-    "ManagedWallet": {
-        "network": "testnet",
-        "address": "0xacbe05e7236f7d073295c99e629620da58284aad",
-        "startBlock": 3564551
-    },
-    "SwapSettings": {
-      "network": "testnet",
-      "address": "0x604cAD937f35fD381a7dd08489028f0FDbE88fc7",
-      "startBlock": 2423000
-    },
-    "MultisigGuardian": {
-      "network": "testnet",
-      "address": "0x189ecd23e9e34cfc07bfc3b7f5711a23f43f8a57",
-      "startBlock": 1345043
-    }
+   "network":"testnet",
+   "node":{
+      "network":"testnet",
+      "address":"https://testnet.sovryn.app/rpc",
+      "log_level":"debug",
+      "graph_graphql_query_timeout":10,
+      "graph_sql_statement_timeout":10,
+      "graph_graphql_max_depth":16,
+      "graph_graphql_max_complexity":1500000,
+      "restart":"always"
+   },
+   "RootstockEvent":{
+      "network":"testnet",
+      "address":"0x8b73111467242aa8829bb17765718c3749df472b",
+      "startBlock":4608613
+   }
 }

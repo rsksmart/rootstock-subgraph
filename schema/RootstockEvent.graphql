@@ -1,0 +1,11 @@
+type Log @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address
+  message: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  timestamp: BigInt!
+  emittedBy: Bytes! #address
+  transaction: Transaction!
+}
