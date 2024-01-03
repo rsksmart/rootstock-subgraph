@@ -1,13 +1,13 @@
 {
-  "name": "sovryn-subgraph",
+  "name": "rootstock-subgraph",
   "version": "0.1.0",
   "scripts": {
-    "create": "graph create  DistributedCollective/sovryn-subgraph --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create  DistributedCollective/sovryn-subgraph --node http://127.0.0.1:8020",
+    "create": "graph create  rsksmart/rootstock-subgraph --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create  rsksmart/rootstock-subgraph --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy  DistributedCollective/sovryn-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
+    "deploy": "graph deploy  rsksmart/rootstock-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy  rsksmart/rootstock-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020",
     "dev": "npm run schema && npm run codegen && npm run deploy-local -- --version-label v0.0.1",
     "dev:block": "npm run schema && npm run test-start-block -- -b 1606990 && npm run codegen && npm run deploy-local -- --version-label v0.0.1",
     "dev:nodemon": "npx nodemon --exec 'npm run dev'",

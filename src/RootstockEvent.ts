@@ -14,7 +14,6 @@ export function handleLog(event: LogEvent): void {
 
   const transaction = createAndReturnTransaction(event)
   entity.transaction = transaction.id
-  entity.timestamp = transaction.timestamp
   entity.emittedBy = event.address
   entity.save()
 }

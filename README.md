@@ -27,7 +27,7 @@ For more information on The Graph protocol, head to the Graph documentation here
 - Run `npm run build` to generate the build folder
 - Run `npm run create-local` to start running the graph node locally
 - Run `npm run deploy-local` to deploy the contents of the build folder locally
-- Go to http://localhost:8000/subgraphs/name/DistributedCollective/sovryn-subgraph/graphql to see the iGraphQL GUI for your local subgraph
+- Go to http://localhost:8000/subgraphs/name/rsksmart/rootstock-subgraph/graphql to see the iGraphQL GUI for your local subgraph
 
 ## Scaffolding:
 
