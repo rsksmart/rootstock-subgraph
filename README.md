@@ -1,12 +1,27 @@
-# Sovryn Subgraph
+# Rootstock Subgraph
 
 ## Description
 
-Subgraph for the Sovryn Core Protocol contracts including AMM, Staking, Vesting, Governance, FastBTC, Margin Trading and Borrowing. Other products like Perpetual Swaps and Zero have their own subgraphs.
+Subgraph Boilerplate for Rootstock. This solution is forked from [Sovryn Subgraph](https://github.com/DistributedCollective/Sovryn-subgraph)). This project aims to set up the bricks for helping the comunity to have their subgraph implementation. 
 
-This subgraph contains logic for transforming and storing blockchain events in the Sovryn Protocol, and serving up a publicly available graphQL API for this data. The iGraphQL explorer is deployed [here](https://subgraph.sovryn.app/subgraphs/name/DistributedCollective/sovryn-subgraph/graphql), and you can find detailed schema documentation there or in the ./schema directory in this repo.
+Subgraph for Rootstock contains an example contract, RootstockEvent. It is deployed on Tesnet [here](https://explorer.testnet.rsk.co/address/0x8b73111467242aa8829bb17765718c3749df472b)
 
-Please note that this is still an early version of the subgraph. While it has undergone testing, we are aware there may be some bugs. If you wish to report a bug, please contact us on discord through the [tech-support](https://discord.com/channels/729675474665603133/813119624098611260) or [user-feedback](https://discord.com/channels/729675474665603133/750376232771780608) channels to let us know.
+```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.16;
+
+contract RootstockEvent {    
+    event Log(address indexed sender, string message);
+
+    function test() public {
+        emit Log(msg.sender, "Hello Rootstockers!");        
+    }
+}
+```
+
+This subgraph contains logic for transforming and storing blockchain events, and serving up a publicly available graphQL API for this data. The iGraphQL explorer can be deployed locally [here](http://127.0.0.1:8000/subgraphs/name/rsksmart/rootstock-subgraph/graphql), and you can find detailed schema documentation there or in the ./schema directory in this repo.
+
+Please note that this is still an early version of the subgraph. While it has undergone testing, we are aware there may be some bugs.
 
 For more information on The Graph protocol, head to the Graph documentation here: https://thegraph.com/docs/.
 
@@ -50,29 +65,6 @@ To reset start blocks back to original state:
 
 - `npm run prepare:RSK:testnet`
 
-## Build a partial subgraph
-
-While developing, you can partially build a subgraph if you don't need data to sync from all the contracts.
-
-To build a partial manifest run:
-
-- `npm run partial-manifest -- -sect [ SUBSECTION_NAME ]`
-
-To add a new manifest subsection (eg vesting, governance, bridges), go to `utils/buildPartialManifest.js` and add an array of the contracts you want in your subsection to the manifestSections array.
-
-You can also add to the keywords array if you want to filter the contracts by keyword, for example only keeping contracts that contain 'Vesting'.
-
-## Useful info
-
-- The subgraph mappings files are written in AssemblyScript, not Typescript. AssemblyScript docs can be found here: https://www.assemblyscript.org/. Pay particular attention to the difference in the equality operator - `===` compares referencess, `==` compares values.
-- If you are having issues with postgres, try deleting the `data/` directory from the subgraph root
-- The block numbers for Orderbook contracts on mainnet are set to blocks far in the future, because these contracts only exist on testnet
-- This subgraph takes approximately 40 hours to fully sync on mainnet
-
-## How to contribute
-
-To contribute, open a PR to development branch using a branch name prefaced with `feat/`, `fix/` or `hotfix/`, and request @omerzam or @BetsyBraddock as the reviewer.
-
 ## Code of Conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
@@ -80,11 +72,3 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ## Licence
 
 The Sovryn DApp is open-sourced software licensed under the [MIT license](LICENSE).
-
-## Acknowledgments
-
-Thanks to creators/contributors of the following repos for inspiration and code snippets:
-
-- Blocklytics Bancor Subgraph: https://github.com/blocklytics/bancor-subgraph-v2
-- Uniswap V3 Subgraph: https://github.com/Uniswap/v3-subgraph
-- Protofire library: https://github.com/protofire/subgraph-toolkit
