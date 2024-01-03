@@ -17,11 +17,3 @@ type User @entity {
   """
   transactions: [Transaction!] @derivedFrom(field: "from")
 }
-
-"""
-This is the total volumes of different actions for one user. See ProtocolStats entity for full descriptions.
-"""
-type UserTotal @entity {
-  id: ID!
-  user: User!
-}

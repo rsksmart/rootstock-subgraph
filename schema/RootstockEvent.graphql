@@ -5,7 +5,7 @@ type Log @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-  timestamp: BigInt!
+  #timestamp: BigInt!
   emittedBy: Bytes! #address
   transaction: Transaction!
 }
