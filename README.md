@@ -2,9 +2,9 @@
 
 ## Description
 
-Subgraph Boilerplate for Rootstock. This solution is forked from [Sovryn Subgraph](https://github.com/DistributedCollective/Sovryn-subgraph). This project aims to set up the bricks for helping the comunity to have their subgraph implementation. 
+A Subgraph Boilerplate for Rootstock has been developed, this solution is forked from [Sovryn Subgraph](https://github.com/DistributedCollective/Sovryn-subgraph). It aims to set up the bricks for easy implementation of a subgraph for the Rootstock Community.
 
-Subgraph for Rootstock contains an example contract, RootstockEvent. It is deployed on Tesnet [here](https://explorer.testnet.rsk.co/address/0x8b73111467242aa8829bb17765718c3749df472b)
+This subgraph for Rootstock contains an example contract, RootstockEvent. See deployment on Testnet [here](https://explorer.testnet.rsk.co/address/0x8b73111467242aa8829bb17765718c3749df472b)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -19,9 +19,9 @@ contract RootstockEvent {
 }
 ```
 
-This subgraph contains logic for transforming and storing blockchain events, and serving up a publicly available graphQL API for this data. The iGraphQL explorer can be deployed locally [here](http://127.0.0.1:8000/subgraphs/name/rsksmart/rootstock-subgraph/graphql), and you can find detailed schema documentation there or in the ./schema directory in this repo.
+The subgraph contains the logic for transforming and storing blockchain events, and serving up a publicly available graphQL API for this data. The iGraphQL explorer can be deployed locally [here](http://127.0.0.1:8000/subgraphs/name/rsksmart/rootstock-subgraph/graphql), and you can find detailed schema documentation there or in the ./schema directory in this repo.
 
-Please note that this is still an early version of the subgraph. While it has undergone testing, we are aware there may be some bugs.
+Note that this is still an early version of the subgraph. While it has undergone testing, we are aware that there may be some bugs.
 
 For more information on The Graph protocol, head to the Graph documentation here: https://thegraph.com/docs/.
 
