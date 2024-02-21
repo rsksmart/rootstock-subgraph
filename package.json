@@ -26,7 +26,7 @@
     "partial-manifest": "node utils/buildPartialManifest.js"
   },
   "devDependencies": {
-    "@graphprotocol/graph-cli": "^0.45.2",
+    "@graphprotocol/graph-cli": "^0.68.2",
     "@graphprotocol/graph-ts": "^0.29.0",
     "@protofire/subgraph-toolkit": "^0.1.2",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
